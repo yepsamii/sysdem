@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Icon, type IconName } from '../ui/Icon';
 import { useUi } from '../../store/ui';
+import { usePanelResize } from '../../hooks/usePanelResize';
 
 interface ComponentItem {
   name: string;
@@ -258,6 +259,15 @@ export function ComponentsPanel() {
   const componentsOpen = useUi((s) => s.componentsOpen);
   const setComponentsOpen = useUi((s) => s.setComponentsOpen);
 
+  // Vertical resize handle on the panel's right edge. The hook updates the
+  // aside's inline width on pointer drag and persists the final width.
+  const { separatorProps } = usePanelResize({
+    targetSelector: 'aside[aria-label="Components"]',
+    minWidth: 200,
+    maxFraction: 0.5,
+    storageKey: 'gravelgraph.componentsPanel.width',
+  });
+
   const toggle = (label: string) => setOpenMap((m) => ({ ...m, [label]: !m[label] }));
   const allOpen = GROUPS.every((g) => openMap[g.label]);
   const allClosed = GROUPS.every((g) => !openMap[g.label]);
@@ -278,10 +288,12 @@ export function ComponentsPanel() {
       aria-label="Components"
       className={
         componentsOpen
-          ? 'fixed top-12 left-0 z-30 w-[280px] bottom-0 border-r border-border bg-surface flex flex-col overflow-hidden lg:static lg:shrink-0 lg:z-auto lg:w-[280px] lg:h-full shadow-panel lg:shadow-none'
-          : 'hidden lg:flex lg:shrink-0 lg:w-[280px] lg:h-full lg:border-r lg:border-border lg:bg-surface lg:flex-col lg:overflow-hidden'
+          ? 'relative fixed top-12 left-0 z-30 w-[280px] bottom-0 border-r border-border bg-surface flex flex-col overflow-hidden lg:static lg:shrink-0 lg:z-auto lg:w-[280px] lg:h-full shadow-panel lg:shadow-none'
+          : 'hidden lg:flex lg:shrink-0 lg:relative lg:w-[280px] lg:h-full lg:border-r lg:border-border lg:bg-surface lg:flex-col lg:overflow-hidden'
       }
     >
+      {/* Resize handle (desktop only) — drag to adjust panel width. */}
+      <div {...separatorProps} />
       {/* Header */}
       <header className="h-10 px-3 flex items-center justify-between border-b border-border">
         <h2 className="text-sm font-semibold tracking-tight">Components</h2>
