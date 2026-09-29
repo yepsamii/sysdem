@@ -1,23 +1,32 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react';
+import type { ComponentType } from 'react';
+import { Icon } from '../components/ui/Icon';
 import type { ArchNodeData } from './defaultDiagram';
 
-// Per-kind icon (lucide-style line) and accent colour.
-// Colours map to the edge particle palette in REVERSE_ENGINEERING.md §4.2.
-const KIND: Record<string, { stroke: string; bg: string; label: string }> = {
-  client:   { stroke: '#94a3b8', bg: '#1a1f29', label: '◐' },
-  cdn:      { stroke: '#22d3ee', bg: '#0a2a32', label: '☁' },
-  webapp:   { stroke: '#22d3ee', bg: '#0a2a32', label: '▢' },
-  gateway:  { stroke: '#22d3ee', bg: '#0a2a32', label: '⇄' },
-  api:      { stroke: '#22d3ee', bg: '#0a2a32', label: '⌘' },
-  cache:    { stroke: '#f472b6', bg: '#2a1424', label: '⚡' },
-  database: { stroke: '#f59e0b', bg: '#2a1a08', label: '⌗' },
-  queue:    { stroke: '#a78bfa', bg: '#1a1838', label: '⌇' },
-  worker:   { stroke: '#a78bfa', bg: '#1a1838', label: '⚙' },
+// Per-kind colour + Lucide icon (matches REVERSE_ENGINEERING.md §4.2 palette).
+// The icon tile uses the colour at 20% opacity as background, full opacity as icon colour —
+// matching the reference's "tinted tile" chrome.
+const KIND: Record<
+  string,
+  { color: string; icon: ComponentType<{ size?: number; strokeWidth?: number; className?: string }> | null; lucideName: string | null }
+> = {
+  client:   { color: '#94a3b8', icon: null, lucideName: 'monitor-smartphone' },
+  cdn:      { color: '#22d3ee', icon: null, lucideName: 'cloud' },
+  webapp:   { color: '#22d3ee', icon: null, lucideName: 'app-window' },
+  gateway:  { color: '#22d3ee', icon: null, lucideName: 'route' },
+  api:      { color: '#22d3ee', icon: null, lucideName: 'server-cog' },
+  cache:    { color: '#f472b6', icon: null, lucideName: 'zap' },
+  database: { color: '#f59e0b', icon: null, lucideName: 'database' },
+  queue:    { color: '#a78bfa', icon: null, lucideName: 'waypoints' },
+  worker:   { color: '#a78bfa', icon: null, lucideName: 'boxes' },
 };
 
 export function ArchNode({ data, selected }: NodeProps) {
   const d = data as ArchNodeData;
-  const k = KIND[d.kind] ?? { stroke: '#22d3ee', bg: '#0a2a32', label: '◇' };
+  const k = KIND[d.kind] ?? { color: '#22d3ee', lucideName: 'square' };
+  // 20% opacity tint of the kind colour, matching the reference's
+  // `background: color(srgb 0.21 0.74 0.97 / 0.2)` rendering.
+  const tileBg = `color-mix(in srgb, ${k.color} 20%, transparent)`;
   return (
     <div
       className={
@@ -28,11 +37,11 @@ export function ArchNode({ data, selected }: NodeProps) {
       style={{ borderColor: selected ? 'var(--color-accent)' : 'var(--color-border)' }}
     >
       <div
-        className="h-10 w-10 rounded-md flex items-center justify-center text-lg font-semibold shrink-0"
-        style={{ background: k.bg, color: k.stroke }}
+        className="grid place-items-center h-9 w-9 rounded-lg shrink-0 overflow-hidden"
+        style={{ background: tileBg, color: k.color }}
         aria-hidden
       >
-        {k.label}
+        {k.lucideName && <Icon name={k.lucideName as never} size={18} strokeWidth={1.75} className="" />}
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-sm font-semibold leading-tight truncate" title={d.label}>
