@@ -8,10 +8,14 @@ export function Header() {
   const toggle = useTheme((s) => s.toggle);
   const paused = useFlow((s) => s.paused);
   const togglePaused = useFlow((s) => s.togglePaused);
+  const mode = useFlow((s) => s.mode);
+  const setMode = useFlow((s) => s.setMode);
   const toggleComponents = useUi((s) => s.toggleComponents);
 
   const iconBtn =
     'inline-flex items-center justify-center rounded-md p-1.5 transition-colors hover:bg-surface-2 text-fg disabled:opacity-40 disabled:pointer-events-none';
+  const iconBtnPressed =
+    'inline-flex items-center justify-center rounded-md p-1.5 transition-colors bg-accent text-accent-contrast';
   const chipBtn =
     'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors duration-150 select-none whitespace-nowrap bg-surface-2 text-fg hover:bg-surface-3 border border-border h-8 px-3 text-sm';
   const sep = 'h-6 w-px bg-border mx-1';
@@ -46,7 +50,7 @@ export function Header() {
         <button type="button" aria-label="Select — drag a box to select multiple (V)" className={iconBtn} aria-pressed="false">
           <Icon name="cursor" />
         </button>
-        <button type="button" aria-label="Hand — drag to pan the canvas (H)" className={iconBtn} aria-pressed="true">
+        <button type="button" aria-label="Hand — drag to pan the canvas (H)" className={iconBtnPressed} aria-pressed="true">
           <Icon name="hand" />
         </button>
         <button type="button" aria-label="Draw — freehand pen" className={iconBtn} aria-pressed="false">
@@ -86,19 +90,37 @@ export function Header() {
         <button type="button" aria-label="Compare architecture" className={`hidden xl:inline-flex ${iconBtn}`}>
           <Icon name="compare" />
         </button>
-        <button type="button" aria-label="Continuous — every edge flows" className={iconBtn} aria-pressed="true">
+        <button
+          type="button"
+          aria-label="Continuous — every edge flows"
+          className={mode === 'continuous' ? iconBtnPressed : iconBtn}
+          aria-pressed={mode === 'continuous'}
+          onClick={() => setMode('continuous')}
+        >
           <Icon name="continuous" />
         </button>
-        <button type="button" aria-label="Causal — data ripples through in order" className={iconBtn} aria-pressed="false">
+        <button
+          type="button"
+          aria-label="Causal — data ripples through in order"
+          className={mode === 'causal' ? iconBtnPressed : iconBtn}
+          aria-pressed={mode === 'causal'}
+          onClick={() => setMode('causal')}
+        >
           <Icon name="causal" />
         </button>
-        <button type="button" aria-label="Scenario — narrated steps" className={iconBtn} aria-pressed="false">
+        <button
+          type="button"
+          aria-label="Scenario — narrated steps"
+          className={mode === 'scenario' ? iconBtnPressed : iconBtn}
+          aria-pressed={mode === 'scenario'}
+          onClick={() => setMode('scenario')}
+        >
           <Icon name="scenario" />
         </button>
         <button
           type="button"
           aria-label={paused ? 'Resume data flow' : 'Pause data flow'}
-          className={iconBtn}
+          className={paused ? iconBtnPressed : iconBtn}
           aria-pressed={paused}
           onClick={togglePaused}
         >

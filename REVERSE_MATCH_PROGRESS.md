@@ -18,10 +18,10 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ## Overall Progress
 
-- **Iteration**: 10
+- **Iteration**: 11
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: several (mobile header layout, shape SVGs, resize handle, attribution visibility, flow-mode radios)
-- **Verified fixes**: 9 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse)
+- **Minor mismatches remaining**: several (shape SVGs, resize handle, attribution visibility, attribution text)
+- **Verified fixes**: 11 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling)
 - **Regressions introduced**: 0
 
 ---
@@ -30,32 +30,23 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-010 — Mobile header (`< lg`) has only Menu + File icons visible, with the rest of the toolbar hidden by `hidden lg:flex`. Reference shows the primary chip buttons (Continuous / Causal / Scenario / Pause) + theme toggle visible on mobile.
+MM-012 — Shape icons in the Components panel still use Unicode letter glyphs (▭, ⬜, ◯, ◇, △, ⬡, ⌭, T, ◐, ☁, ⇄, ⇆, ▣, ƒ, ◫, ⚙) instead of real SVG outline icons.
 
 ### Why this mismatch was selected
 
-After fixing MM-009, the mobile canvas is now full-width but the toolbar is almost empty. The reference keeps the **primary action chips** visible at every viewport (their text labels are hidden via `hidden xl:inline` at < 1280 px but the chips themselves remain). On my local, the entire `hidden lg:flex` group is hidden below `lg` (1024 px). The result: a phone user has no way to toggle Pause / Continuous / Causal / Scenario / theme from the header.
+After fixing the toolbar issues, the Components panel is the next prominent chrome element. Inside each shape / client / compute card, the left-hand icon is a single Unicode glyph on a `bg-surface-2` chip, which is visually weaker than the reference's actual SVG outline icons. This is a visual polish mismatch that affects every item in the panel.
 
-This is the next highest-impact mismatch — without it, several features are unreachable on mobile.
+### Reference observation
 
-### Reference observation (mobile 420 × 820)
+Each component item in the reference renders with a small (about 24 px) outlined SVG icon (rounded rectangle, oval, hexagon, cloud, arrows, server, gear, etc.) — drawn in stroke style, no fill. Icons are loaded from a sprite / library.
 
-The reference header on mobile shows (left → right):
-- Logo (compact)
-- Hamburger menu
-- (Primary toolbar group with chips visible): Continuous (cyan-filled selected), Causal, Scenario, Pause — all rendered as the same chip-style icon-only buttons used on desktop.
-- Vertical separator
-- Help, theme toggle
+### Local observation
 
-The select / hand / pencil / line / arrow / export / present / undo / redo icons are all hidden on mobile.
-
-### Local observation (mobile 420 × 820)
-
-Local header shows only GravelGraph logo + Menu + File icons. Continuous / Causal / Scenario / Pause / Help / theme are all hidden by `hidden lg:flex`.
+Each component item renders a single Unicode character (`▭`, `⬜`, `◯`, `◇`, `△`, `⬡`, `⌭`, `T`, `◐`, `☁`, `⇄`, `⇆`, `▣`, `ƒ`, `◫`, `⚙`) at default font size. These glyphs look chunky and don't match the reference's outline style.
 
 ### Root-cause hypothesis
 
-The wrapper `<div className="hidden lg:flex items-center gap-1">` around the primary toolbar group uses `hidden lg:flex` which hides everything below the `lg` breakpoint. The reference only hides the non-primary action buttons on mobile.
+Local `ComponentsPanel.tsx` defines `shapeIcon(symbol)` returning a plain `<span>` with the glyph. No SVG paths exist for shapes.
 
 ### Planned change
 
@@ -173,6 +164,28 @@ The wrapper `<div className="hidden lg:flex items-center gap-1">` around the pri
 - **Evidence**:
   - `.reverse-match/screenshots/iteration-009-mobile.png`
   - `.reverse-match/screenshots/iteration-009-desktop.png`
+- **Files changed**: `src/components/layout/Header.tsx`.
+- **Commit**: `aad7445`
+
+### MM-011 — Flow-mode radios + toggle buttons lack active state styling
+
+- **Category**: Visual / behaviour
+- **Severity**: Minor
+- **Reference**: Continuous (active) uses `bg="rgb(14, 116, 144)" color="rgb(255, 255, 255)"` (cyan-filled, white icon). Causal / Scenario (inactive) are transparent. Hand (active pan tool) is tinted with `oklab(0.51975 -0.0682645 -0.0639536 / 0.15)`. Pause toggles similarly.
+- **Local before**: All toolbar buttons share the same `iconBtn` class — `aria-pressed=true` had no visual effect. The three flow-mode buttons had hardcoded `aria-pressed=true/false/false` instead of being bound to `useFlow.mode`.
+- **Fix** (in `src/components/layout/Header.tsx`):
+  - Added a new `iconBtnPressed` class string: `inline-flex items-center justify-center rounded-md p-1.5 transition-colors bg-accent text-accent-contrast` (cyan background, dark contrast text/icon).
+  - Hand button (default active pan tool) uses `iconBtnPressed`.
+  - Continuous / Causal / Scenario now bind to `useFlow.mode` + `useFlow.setMode` and switch between `iconBtnPressed` and `iconBtn` based on whether they match.
+  - Pause button switches between `iconBtnPressed` (when `paused`) and `iconBtn` (when running).
+- **Verification**:
+  - Default load: Continuous highlighted cyan; clicking Causal swaps the highlight to Causal; clicking Scenario to Scenario.
+  - Clicking Pause flips icon `pause → play`, text `Pause → Resume`, and highlights the button cyan.
+  - Zero console errors. Zero regressions (other buttons unaffected).
+- **Evidence**:
+  - `.reverse-match/screenshots/iteration-010-default.png`
+  - `.reverse-match/screenshots/iteration-010-causal.png`
+  - `.reverse-match/screenshots/iteration-010-paused.png`
 - **Files changed**: `src/components/layout/Header.tsx`.
 - **Commit**: (next)
 
@@ -344,6 +357,40 @@ The wrapper `<div className="hidden lg:flex items-center gap-1">` around the pri
   - Zero console errors.
 - **Result**: MM-009 fixed. Mobile UX now matches the reference's panel-collapse pattern.
 - **Next action**: MM-010 — mobile header shows only logo + Menu + File; reference keeps Continuous / Causal / Scenario / Pause chips visible at all viewports.
+- **Commit**: `6c98bff`
+
+### Iteration 10 — fix MM-010: mobile header keeps primary toolbar chips visible
+
+- **Goal**: On mobile (< lg), show the primary action chips (Continuous / Causal / Scenario / Pause / theme) while keeping secondary buttons (Select / Hand / Pencil / Line / Arrow / Export / Present / Undo / Redo / File) hidden.
+- **Actions** (in `src/components/layout/Header.tsx`):
+  - Split the header into a **secondary toolbar group** (`hidden lg:flex` — desktop-only) and a **primary toolbar group** (`flex` — visible at every viewport).
+  - Mobile hamburger now calls `toggleComponents()` from `useUi` so it doubles as the Components panel toggle.
+  - File button moved to `hidden lg:inline-flex`.
+  - Help button moved to `hidden md:inline-flex` (still reachable on tablet).
+  - Compare icon hidden below `xl` (it sits at the start of the right group in the reference).
+  - "GravelGraph" wordmark hidden below `sm` to give more room.
+- **Verification**:
+  - 420 × 820: header shows logo (no wordmark) | hamburger | Components pill (below banner) | Continuous / Causal / Scenario / Pause / theme on the right. Canvas fills viewport.
+  - 768 × 1024: same as desktop with all primary actions visible.
+  - 1440 × 900: unchanged from before — full secondary toolbar + Export / Present chips + primary chips.
+- **Result**: MM-010 fixed.
+- **Next action**: MM-011 — flow-mode radios need active state styling.
+- **Commit**: `aad7445`
+
+### Iteration 11 — fix MM-011: flow-mode radios + toggle buttons active-state styling
+
+- **Goal**: Make the active state of flow-mode buttons (Continuous / Causal / Scenario) and toggle buttons (Hand, Pause) visually obvious with a cyan-filled chip, matching the reference.
+- **Actions** (in `src/components/layout/Header.tsx`):
+  - Added `iconBtnPressed` class: `inline-flex items-center justify-center rounded-md p-1.5 transition-colors bg-accent text-accent-contrast`.
+  - Hand button switched to `iconBtnPressed` (default-active pan tool).
+  - Continuous / Causal / Scenario now bind to `useFlow.mode` + `useFlow.setMode`. Each switches between `iconBtnPressed` and `iconBtn` based on whether its name matches the active mode.
+  - Pause button switches between `iconBtnPressed` (when `paused`) and `iconBtn` (when running).
+- **Verification**:
+  - Default load: Continuous is cyan-filled. Clicking Causal moves the highlight to Causal. Clicking Scenario to Scenario. Verified by toggling each button.
+  - Pause toggle: clicking flips icon + text + highlight; clicking Resume restores.
+  - Zero console errors, no regressions on other buttons.
+- **Result**: MM-011 fixed.
+- **Next action**: MM-012 — replace Unicode glyphs in the Components panel with real SVG outline icons.
 - **Commit**: (next)
 
 ---
