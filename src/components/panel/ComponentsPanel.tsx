@@ -19,7 +19,8 @@ function ItemIcon({ name, color }: { name: IconName; color?: string }) {
   if (color) {
     return (
       <div
-        className="h-9 w-9 rounded-md flex items-center justify-center border border-border shrink-0"
+        className="grid place-items-center h-6 w-6 rounded-md shrink-0 overflow-hidden"
+        aria-hidden
         style={{
           background: `color-mix(in srgb, ${color} 20%, transparent 80%)`,
           color,
@@ -30,7 +31,7 @@ function ItemIcon({ name, color }: { name: IconName; color?: string }) {
     );
   }
   return (
-    <div className="h-9 w-9 rounded-md flex items-center justify-center bg-surface-2 text-fg border border-border shrink-0">
+    <div className="grid place-items-center h-6 w-6 rounded-md shrink-0 overflow-hidden bg-surface-2 text-fg">
       <Icon name={name} size={15} strokeWidth={2} />
     </div>
   );
@@ -176,11 +177,11 @@ export function ComponentsPanel() {
           />
         </div>
         <div className="flex items-center justify-center gap-4 mt-2 text-xs text-faint">
-          <button type="button" title="Expand every section" className="inline-flex items-center gap-1 hover:text-fg transition-colors">
+          <button type="button" title="Expand every section" onClick={onExpandAll} className="inline-flex items-center gap-1 hover:text-fg transition-colors">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden><polyline points="7 15 12 20 17 15"/></svg>
             Expand all
           </button>
-          <button type="button" title="Collapse every section" className="inline-flex items-center gap-1 hover:text-fg transition-colors">
+          <button type="button" title="Collapse every section" onClick={onCollapseAll} className="inline-flex items-center gap-1 hover:text-fg transition-colors">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden><polyline points="7 20 12 15 17 20"/></svg>
             Collapse all
           </button>
@@ -226,15 +227,19 @@ export function ComponentsPanel() {
                 <span className="ml-auto text-faint font-normal">{group.items.length}</span>
               </button>
               {open && (
-                <div className="grid grid-cols-2 gap-1.5 mt-1.5">
+                <div className="flex flex-col gap-1 mt-1.5">
                   {group.items.map((item) => (
                     <button
                       key={item.name}
                       type="button"
-                      className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-border bg-surface hover:bg-surface-2 transition-colors text-left min-w-0"
+                      draggable
+                      title={`Add ${item.name} — drag onto canvas or click`}
+                      className="group flex items-center gap-1.5 rounded-lg border border-border bg-surface-2 hover:bg-surface-3 hover:border-border-strong px-1.5 py-2 text-left transition-colors cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                     >
                       {item.iconName ? <ItemIcon name={item.iconName} color={item.iconColor} /> : null}
-                      <span className="text-xs font-medium truncate" title={item.name}>{item.name}</span>
+                      <span className="min-w-0 flex flex-col">
+                        <span className="text-xs font-medium text-fg truncate">{item.name}</span>
+                      </span>
                     </button>
                   ))}
                 </div>
