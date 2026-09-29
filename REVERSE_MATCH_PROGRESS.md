@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 00:55
+- **Last updated**: 2026-09-30 01:40
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 23
+- **Iteration**: 24
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: several (default theme might be dark vs light depending on OS preference, panel chrome — reference panel is a floating rounded card with shadow vs local docked flat panel)
-- **Verified fixes**: 23 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export)
+- **Minor mismatches remaining**: a few small differences (panel chrome — reference panel is a floating rounded card with shadow vs local docked flat panel; node card chrome subtleties).
+- **Verified fixes**: 24 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode)
 - **Regressions introduced**: 0
 
 ---
@@ -30,11 +30,11 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-024 — Default theme is hardcoded to dark; reference detects the OS preference (`prefers-color-scheme: light`) and starts in light mode when the OS is set to light.
+MM-025 — *(to be selected after MM-024 final visual verification)*
 
 ### Why this mismatch was selected
 
-Discovered during MM-023 — when navigating to the reference site, the html root element has `class="light"` (visible in MM-023 inspection: `<html lang="en" class="light">`). The local `index.html` hardcodes `class="dark"`. The reference's theme store respects `prefers-color-scheme` on first visit.
+(Filled in before implementation.)
 
 ### Reference observation
 
@@ -42,15 +42,15 @@ Discovered during MM-023 — when navigating to the reference site, the html roo
 
 ### Local observation
 
-`<html class="dark">` is hardcoded in `index.html`. The `useTheme` zustand store probably has `theme: 'dark'` as default, and ignores `window.matchMedia('(prefers-color-scheme: light)').matches` on first load.
+(Filled in before implementation.)
 
 ### Root-cause hypothesis
 
-MM-001 + MM-004 set dark as the default during the early dark-only design phase. Reference respects OS preference for first-time visitors.
+(Filled in before implementation.)
 
 ### Planned change
 
-(To be detailed before implementation.)
+(Filled in before implementation.)
 
 ### Result
 
@@ -294,6 +294,48 @@ MM-001 + MM-004 set dark as the default during the early dark-only design phase.
 - **Evidence**: `.reverse-match/screenshots/iteration-015-local.png`
 - **Files changed**: `src/components/ui/Icon.tsx`, `src/components/panel/ComponentsPanel.tsx`.
 - **Commit**: `c577f9c`
+
+### MM-024 — Default theme is hardcoded to dark; reference respects OS preference
+
+- **Category**: Visual / behavior
+- **Severity**: Medium (visible on every page load for OS-prefers-light users; produces a jarring white-on-black default that doesn't match the reference)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: at the time of inspection the host's `window.matchMedia('(prefers-color-scheme: light)')` returned `true`. The reference rendered with `<html>` carrying no class (empty class string), body bg `rgb(246, 248, 251)` (light), body color `rgb(15, 20, 28)` (dark). Reference's `<head>` includes `<meta name="color-scheme" content="dark light">`. Inspecting the bundled `index-DoR4sc6o.js` revealed the reference's theme-init function:
+  ```
+  let stored = localStorage.getItem('diagramr.theme');
+  if (stored === 'dark' || stored === 'light') return stored;
+  return window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  ```
+  and the application function `document.documentElement.classList.toggle('dark', e === 'dark')`. No `@media (prefers-color-scheme)` CSS rules in the reference's stylesheets — the dark/light split is purely JS-driven.
+- **Local before**: `<html class="dark">` hardcoded in `index.html`. `<ReactFlow colorMode="dark">` in `src/canvas/Canvas.tsx`. `useTheme` store had `theme: 'dark'` as the initial value, ignoring OS preference. With OS preference = `light` and no stored value, the local rendered entirely dark: body bg `rgb(11, 14, 20)`, body color `rgb(231, 234, 240)`, xyflow canvas class `react-flow dark` with bg `rgb(20, 20, 20)`. Direct visual mismatch with the reference on every cold load.
+- **Root cause**: MM-001 set the `<ReactFlow>` colorMode to `"dark"` and `index.html` hardcoded `class="dark"` during the early dark-only design phase. MM-004 added the Tailwind v4 token system with `.dark` overrides, but no one wired the initial theme to OS preference. MM-024 is the small missing piece.
+- **Fix**:
+  - **`index.html`**: removed the hardcoded `class="dark"`. Added a synchronous inline `<script>` in `<head>` that runs before paint:
+    1. Reads `localStorage["gravelgraph.theme"]` (zustand's wrapped format `{ state: { theme }, version }` or raw `"light"` / `"dark"`).
+    2. Falls back to `window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'`.
+    3. Toggles `document.documentElement.classList.toggle('dark', theme === 'dark')` and sets `data-theme` for downstream CSS hooks.
+    This prevents a flash of the wrong theme during the React mount.
+    Also added `<meta name="color-scheme" content="dark light">` and `<meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)">` + dark counterpart to match the reference.
+  - **`src/store/theme.ts`**: added `detectInitialTheme()` that returns `'light'` when `prefers-color-scheme: light` matches (otherwise `'dark'`). The store's initial `theme` now uses it. zustand `persist` + `onRehydrateStorage` continue to handle user overrides on subsequent loads. `applyTheme()` now also writes `data-theme` so the `useTheme` state stays in sync with `<html>` for any CSS that targets it.
+  - **`src/canvas/Canvas.tsx`**: replaced the hardcoded `colorMode="dark"` with `colorMode={theme}` driven by `useTheme((s) => s.theme)`. This makes the xyflow canvas + background + node + edge colors follow the live theme.
+- **Verification (1440 × 900)**:
+  - DOM comparison (no stored value, OS = light):
+    - Reference: `htmlClass=""`, `bodyBg=rgb(246, 248, 251)`, `bodyColor=rgb(15, 20, 28)`, `canvasClass="react-flow light"`, `canvasBg=rgb(238, 241, 246)`.
+    - Local before: `htmlClass="dark"`, `bodyBg=rgb(11, 14, 20)`, `bodyColor=rgb(231, 234, 240)`, `canvasClass="react-flow dark"`, `canvasBg=rgb(20, 20, 20)`.
+    - Local after: `htmlClass=""`, `data-theme="light"`, `bodyBg=rgb(246, 248, 251)`, `bodyColor=rgb(15, 20, 28)`, `canvasClass="react-flow light"`, `canvasBg=rgba(0,0,0,0)` (body bg shows through).
+  - Functional scenarios:
+    - First visit (no stored value) + OS `light` → light, matches reference.
+    - Stored `light` wins on reload (preserves user's choice).
+    - Stored `dark` wins on reload (preserves user's choice, even when OS = light).
+    - Toggle button flips light ↔ dark and persists the new choice.
+  - xyflow canvas now carries `react-flow light` / `react-flow dark` matching the host theme.
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning from MM-016 (unrelated).
+- **Evidence**:
+  - `.reverse-match/screenshots/iteration-024-reference.png`
+  - `.reverse-match/screenshots/iteration-024-local-before.png` (dark default before fix)
+  - `.reverse-match/screenshots/iteration-024-local.png` (light default after fix, matches reference)
+- **Files changed**: `index.html`, `src/store/theme.ts`, `src/canvas/Canvas.tsx`.
+- **Commit**: `fcbd274`
 
 ### MM-023 — Stencils import/export buttons are non-functional
 
@@ -992,6 +1034,38 @@ MM-001 + MM-004 set dark as the default during the early dark-only design phase.
 - **Next action**: MM-024 — initial theme should respect `prefers-color-scheme` instead of being hardcoded to `dark`. Read OS preference on first visit, fallback to `dark`.
 - **Commit**: `668f0e7`
 
+### Iteration 24 — fix MM-024: default theme respects prefers-color-scheme
+
+- **Goal**: Make the local app start in the same theme as the reference for the same OS preference, and make the xyflow canvas colorMode follow the active theme instead of being hardcoded to dark.
+- **Reference observation (1440 × 900)**: at the time of inspection, host OS `prefers-color-scheme: light` returned true. Reference rendered with `<html>` carrying no class, body bg `rgb(246, 248, 251)`, body color `rgb(15, 20, 28)`. `<head>` includes `<meta name="color-scheme" content="dark light">`. Bundle inspection revealed the reference's init function: `stored = localStorage.getItem('diagramr.theme'); if (stored === 'dark' || stored === 'light') return stored; return window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark';` followed by `document.documentElement.classList.toggle('dark', e === 'dark')`. No `@media (prefers-color-scheme)` CSS rules in the reference's stylesheets — dark/light split is JS-driven.
+- **Local before**: `<html class="dark">` hardcoded in `index.html`. `<ReactFlow colorMode="dark">` in `src/canvas/Canvas.tsx`. `useTheme` had `theme: 'dark'` as the initial value. With OS preference = `light` and no stored value, the local rendered entirely dark: body bg `rgb(11, 14, 20)`, body color `rgb(231, 234, 240)`, xyflow canvas class `react-flow dark` with bg `rgb(20, 20, 20)`. Direct visual mismatch with the reference on every cold load.
+- **Actions**:
+  - `index.html`:
+    - Removed the hardcoded `class="dark"`.
+    - Added `<meta name="color-scheme" content="dark light">` and `<meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)">` + dark counterpart.
+    - Added a synchronous inline `<script>` in `<head>` that resolves the initial theme (localStorage → OS preference → dark) and toggles `document.documentElement.classList.toggle('dark', ...)` before paint to prevent FOUC.
+  - `src/store/theme.ts`:
+    - Added `detectInitialTheme()` returning `'light'` when `prefers-color-scheme: light` matches, else `'dark'`.
+    - Replaced the store's hardcoded `theme: 'dark'` with `theme: detectInitialTheme()`.
+    - Updated `applyTheme()` to also set `document.documentElement.dataset.theme` so CSS / JS can read the resolved theme.
+  - `src/canvas/Canvas.tsx`:
+    - Imported `useTheme` and subscribed to `theme`.
+    - Replaced `colorMode="dark"` with `colorMode={theme}` so the xyflow canvas, background, node, and edge colors follow the live theme.
+- **Verification (1440 × 900)**:
+  - **First visit (no stored value, OS = light)**:
+    - htmlClass: `""` (was `"dark"`)
+    - data-theme: `"light"` (was unset)
+    - body bg: `rgb(246, 248, 251)` (was `rgb(11, 14, 20)`)
+    - canvas class: `react-flow light` (was `react-flow dark`)
+    - All four metrics now match the reference exactly.
+  - **Stored `light` wins on reload**: set localStorage to `{state:{theme:'light'}}`, reload → still light. (No regression.)
+  - **Stored `dark` wins on reload**: clicked toggle to flip to dark, reload → still dark, even though OS = light. (User choice preserved.)
+  - **Toggle button**: aria-label flips between "Switch to dark theme" / "Switch to light theme" as the theme changes; click persists to localStorage and updates `useTheme`.
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning (unrelated).
+- **Result**: MM-024 fixed. First-visit theme and xyflow colorMode now both follow the active theme. Local matches the reference on cold load when OS prefers light, and preserves user overrides on subsequent loads.
+- **Next action**: MM-025 — visual sweep now that both sites render in matching light themes. Need to inspect the reference for any remaining minor differences (panel chrome — reference may be a floating rounded card with shadow vs local docked flat panel; node card chrome subtleties; etc.).
+- **Commit**: `fcbd274`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1023,6 +1097,7 @@ MM-001 + MM-004 set dark as the default during the early dark-only design phase.
 | 021  | MM-021 | (same reference) | `.reverse-match/screenshots/iteration-021-local.png` | — | inline in iteration log |
 | 022  | MM-022 | (same reference) | `.reverse-match/screenshots/iteration-022-local.png` | — | inline in iteration log |
 | 023  | MM-023 | (same reference) | `.reverse-match/screenshots/iteration-023-local.png` | — | inline in iteration log |
+| 024  | MM-024 | `.reverse-match/screenshots/iteration-024-reference.png` | `.reverse-match/screenshots/iteration-024-local-before.png`, `iteration-024-local.png` | — | inline in iteration log |
 
 ---
 
