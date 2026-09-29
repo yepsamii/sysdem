@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Icon, type IconName } from '../ui/Icon';
 import { useUi } from '../../store/ui';
 import { usePanelResize } from '../../hooks/usePanelResize';
@@ -256,6 +256,23 @@ export function ComponentsPanel() {
     return init;
   });
 
+  // Stencils: persisted list of user-saved stencils. The full save-from-canvas
+  // UX is deferred, but the import/export round-trip works: import JSON, it lives
+  // in localStorage; export downloads the same JSON back.
+  const [stencils, setStencils] = useState<unknown[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('gravelgraph.stencils');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) setStencils(parsed);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const componentsOpen = useUi((s) => s.componentsOpen);
   const setComponentsOpen = useUi((s) => s.setComponentsOpen);
 
@@ -288,6 +305,46 @@ export function ComponentsPanel() {
   const toggle = (label: string) => setOpenMap((m) => ({ ...m, [label]: !m[label] }));
   const allOpen = GROUPS.every((g) => openMap[g.label]);
   const allClosed = GROUPS.every((g) => !openMap[g.label]);
+
+  // Stencil import: parse a user-picked JSON file, persist, and re-render.
+  const handleImportClick = () => fileInputRef.current?.click();
+  const handleImportChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result));
+        if (Array.isArray(parsed)) {
+          setStencils(parsed);
+          try {
+            localStorage.setItem('gravelgraph.stencils', JSON.stringify(parsed));
+          } catch {
+            /* ignore */
+          }
+        }
+      } catch {
+        /* malformed JSON — silently ignore */
+      }
+    };
+    reader.readAsText(file);
+    // Reset the input so importing the same file again still fires `change`.
+    e.target.value = '';
+  };
+
+  // Stencil export: download the persisted list as `stencils.json`.
+  const handleExportClick = () => {
+    if (stencils.length === 0) return;
+    const blob = new Blob([JSON.stringify(stencils, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'stencils.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const onExpandAll = () => {
     const next: Record<string, boolean> = {};
@@ -356,12 +413,23 @@ export function ComponentsPanel() {
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-semibold tracking-wider text-muted">Stencils</span>
           <div className="flex items-center gap-1 text-muted">
-            <button title="Import stencils (.json)" className="p-1 rounded hover:bg-surface-2 hover:text-fg transition-colors">
+            <button
+              type="button"
+              title="Import stencils (.json)"
+              onClick={handleImportClick}
+              className="p-1 rounded hover:bg-surface-2 hover:text-fg transition-colors"
+            >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d="M12 3v12" /><polyline points="6 11 12 17 18 11" />
               </svg>
             </button>
-            <button title="Export stencils" className="p-1 rounded hover:bg-surface-2 hover:text-fg transition-colors">
+            <button
+              type="button"
+              title="Export stencils"
+              onClick={handleExportClick}
+              disabled={stencils.length === 0}
+              className="p-1 rounded hover:bg-surface-2 hover:text-fg transition-colors disabled:opacity-40 disabled:pointer-events-none"
+            >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d="M12 15V3" /><polyline points="6 9 12 3 18 9" />
               </svg>
@@ -371,6 +439,14 @@ export function ComponentsPanel() {
         <p className="text-[11px] text-faint italic mt-1 leading-snug">
           Select elements, then “Save as stencil” to reuse them here.
         </p>
+        {/* Hidden file input — the Import button triggers a click on this. */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json,.json"
+          onChange={handleImportChange}
+          className="hidden"
+        />
       </div>
 
       {/* Component groups (scrollable) */}
