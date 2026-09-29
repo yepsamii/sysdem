@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 02:20
+- **Last updated**: 2026-09-30 02:35
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 28
+- **Iteration**: 29
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: a few small differences (header logo SVG width vs reference's wider 33×20 mark, missing right-cluster buttons like Compare + settings cog, edge particle rendering details, exact node positions vs reference).
-- **Verified fixes**: 28 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs)
+- **Minor mismatches remaining**: a few small differences (header logo SVG width vs reference's wider 33×20 mark, missing right-cluster buttons like Compare + settings cog, edge particle rendering details, exact node positions vs reference, Worker icon swap `boxes → square-function` not yet applied).
+- **Verified fixes**: 29 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference)
 - **Regressions introduced**: 0
 
 ---
@@ -30,74 +30,115 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-028 — Arch-node icon tile is dark-filled with a Unicode letter glyph instead of the reference's tinted (20% opacity of kind color) Lucide SVG icon tile.
+MM-029 — Arch-node icon tiles render with the wrong per-kind colors. The reference uses a distinct hue per kind (sky/emerald/indigo/cyan/pink/amber/purple/violet), while local collapses 4 of the 9 kinds into a single cyan family (`#22d3ee`).
 
 ### Why this mismatch was selected
 
-After MM-027 fixed the header toolbar, the most visible remaining mismatch on the canvas was the arch-node icon tile. Side-by-side at 1440 × 900, every node shows a dark solid-filled square (40×40, rounded-md) with a single Unicode letter (`◐`, `☁`, `▢`, `⇄`, `⌘`, `⚡`, `⌗`, `⌇`, `⚙`) inside. The reference shows a much subtler tile: a small square (36×36, rounded-lg) tinted at 20% opacity of the kind's accent color, containing a real Lucide SVG icon. The dark-filled Unicode version reads as a placeholder; the tinted Lucide version reads as a designed system. This is the visible follow-up to MM-012 (Lucide adoption) and MM-013 (per-kind colors) — those brought the design system into the toolbar and panel, but the on-canvas arch nodes were still rendering pre-MM-012 placeholder chrome.
+After MM-028 fixed the chrome (tinted Lucide tiles), a side-by-side at 1440 × 900 revealed the most visible remaining mismatch: the icon tile colors. Four of the nine node kinds in the local UI (CDN, Web App, API Gateway, API) all use the same `#22d3ee` cyan tint, making them indistinguishable at a glance. The reference uses 4 different hues for those 4 kinds, so users can identify each tier by its accent color. The User node uses slate in local (which doesn't match any real device family) and Event Queue uses violet (a hue the reference reserves for Worker). This is the immediate, visible follow-up to MM-028 — the tile was already tinted, but the wrong color was applied.
 
 ### Reference observation (1440 × 900)
 
-Dumped via `document.querySelectorAll('.react-flow__node')` + `getBoundingClientRect()` + `getComputedStyle()`:
+Probed via `document.querySelectorAll('.react-flow__node')` → `svg.parentElement.parentElement` → `getComputedStyle(tile).color` + `.backgroundColor`. Results:
 
-- Outer card class: `group relative flex items-center gap-2.5 rounded-xl border bg-surface px-3 py-2.5 min-h-full w-full shadow-panel transition…`. Width: 129 px, Height: 46 px. Background: `rgb(255,255,255)`. Border-radius: 12 px.
-- Icon tile class: `grid place-items-center h-9 w-9 rounded-lg shrink-0 overflow-hidden` (36×36 rounded-lg = 8 px).
-- Icon tile background: `color(srgb 0.219608 0.741176 0.972549 / 0.2)` — 20% opacity tint of the kind's color (sky-400 = `#38bdf8`) — for CDN, Web App, API Gateway, and API nodes.
-- Icon color: `rgb(56, 189, 248)` = `#38bdf8` for the same nodes (full opacity on the icon stroke).
-- Icon SVG class: `lucide lucide-monitor-smartphone` (User), `lucide lucide-cloud` (CDN), `lucide lucide-app-window` (Web App), `lucide lucide-route` (API Gateway), `lucide lucide-server-cog` (API), `lucide lucide-zap` (Cache), `lucide lucide-database` (Database), `lucide lucide-waypoints` (Event Queue), `lucide lucide-boxes` (Worker).
+| Kind | Lucide icon | Tile color (computed) | Decoded hex | Tailwind |
+|---|---|---|---|---|
+| User | `monitor-smartphone` | `rgb(56, 189, 248)` | `#38bdf8` | sky-400 |
+| CDN | `cloud` | `rgb(56, 189, 248)` | `#38bdf8` | sky-400 |
+| Web App | `app-window` | `rgb(52, 211, 153)` | `#34d399` | emerald-400 |
+| API Gateway | `route` | `rgb(129, 140, 248)` | `#818cf8` | indigo-400 |
+| API | `server-cog` | `rgb(34, 211, 238)` | `#22d3ee` | cyan-400 |
+| Cache | `zap` | `rgb(244, 114, 182)` | `#f472b6` | pink-400 |
+| Database | `database` | `rgb(245, 158, 11)` | `#f59e0b` | amber-500 |
+| Event Queue | `waypoints` | `rgb(192, 132, 252)` | `#c084fc` | purple-400 |
+| Worker | `square-function` | `rgb(167, 139, 250)` | `#a78bfa` | violet-400 |
 
 ### Local observation (1440 × 900 before fix)
 
-Same DOM probe:
+Same DOM probe (corrected — tile is `svg.parentElement.parentElement`, not `.parentElement`, because the `Icon` component wraps the SVG in a `<span class="inline-flex">`). Pre-MM-029 the `KIND` map in `src/canvas/ArchNode.tsx` mapped:
 
-- Outer card: same `bg-surface rounded-xl border px-3 py-2.5 shadow-panel`. Width: 129 px, Height: 46 px. Background: `rgb(255,255,255)`. Border-radius: 12 px ✅.
-- Icon tile class: `h-10 w-10 rounded-md flex items-center justify-center text-lg font-semibold shrink-0` (40×40 rounded-md = 6 px) — wrong size and wrong radius.
-- Icon tile background: solid `rgb(10, 42, 50)` = `#0a2a32` (cyan dark), `rgb(26, 31, 41)` = `#1a1f29` (slate dark) — dark solid fills, no opacity tint.
-- Icon tile color: `rgb(34, 211, 238)` = `#22d3ee` (full-saturation cyan) on the dark tile.
-- Icon content: Unicode letter glyphs (`◐`, `☁`, `▢`, `⇄`, `⌘`, `⚡`, `⌗`, `⌇`, `⚙`) rendered at `text-lg font-semibold` instead of an SVG.
+| Kind | Local hex | Reference hex | Status |
+|---|---|---|---|
+| client | `#94a3b8` slate | `#38bdf8` sky | ❌ |
+| cdn | `#22d3ee` cyan | `#38bdf8` sky | ❌ |
+| webapp | `#22d3ee` cyan | `#34d399` emerald | ❌ |
+| gateway | `#22d3ee` cyan | `#818cf8` indigo | ❌ |
+| api | `#22d3ee` cyan | `#22d3ee` cyan | ✅ |
+| cache | `#f472b6` pink | `#f472b6` pink | ✅ |
+| database | `#f59e0b` amber | `#f59e0b` amber | ✅ |
+| queue | `#a78bfa` violet | `#c084fc` purple | ❌ |
+| worker | `#a78bfa` violet | `#a78bfa` violet | ✅ |
+
+Five of nine kinds are wrong. The result: CDN/Web App/API Gateway all render with identical cyan tiles in local, while the reference paints them sky/emerald/indigo respectively.
 
 ### Root-cause hypothesis
 
-`src/canvas/ArchNode.tsx` predates MM-012 (Lucide icon adoption) and MM-013 (per-kind colors). At the time it was written, the design language was dark-mode-only and we had no Lucide icon registry yet — so the icon tile was a temporary "filled square + Unicode glyph" placeholder. MM-012 added the Lucide paths and MM-013 added the kind→color map, but `ArchNode` was never refactored to consume them. As a result, every arch node on the canvas currently displays the pre-MM-012 placeholder chrome, while every other part of the app (toolbar, panel, panel items) has been migrated to the Lucide + per-kind design system.
+When the `KIND` map was rewritten in MM-028, the local dev mistakenly consolidated cdn/webapp/gateway/api under a single cyan family (`#22d3ee`) and the User node under the brand-neutral slate. The reference, however, uses **distinct hues per kind** (sky/emerald/indigo/cyan) so each network tier reads as its own colour, not as a vague "network cyan". This was a deliberate color-categorisation decision in the reference; the local copy just hadn't been updated. The fix is a per-kind hex swap — 5 single-token updates in the `KIND` map.
 
 ### Planned change
 
-Smallest sufficient change in `src/canvas/ArchNode.tsx`:
+In `src/canvas/ArchNode.tsx`, update the `KIND` map:
 
-1. Replace the per-kind `KIND` map from `{ stroke, bg, label }` → `{ color, lucideName }`. Each kind maps to the existing palette in `REVERSE_ENGINEERING.md §4.2` (`#22d3ee` for cdn/webapp/gateway/api, `#f472b6` for cache, `#f59e0b` for database, `#a78bfa` for queue/worker, `#94a3b8` for client).
-2. Set tile background via inline `background: color-mix(in srgb, ${k.color} 20%, transparent)` — modern CSS color-mix produces the same `color(srgb r g b / 0.2)` rendering the reference uses.
-3. Set tile size to `h-9 w-9 rounded-lg` (36×36 / 8 px) instead of `h-10 w-10 rounded-md` (40×40 / 6 px).
-4. Render a Lucide SVG inside the tile via the existing `<Icon name={k.lucideName} size={18} strokeWidth={1.75} />` component instead of the Unicode letter. Icon color comes from the parent's `color: k.color`.
-5. Use Lucide names that match the reference's icons: `monitor-smartphone` (User), `cloud` (CDN), `app-window` (Web App), `route` (API Gateway), `server-cog` (API), `zap` (Cache), `database` (Database), `waypoints` (Event Queue), `boxes` (Worker).
+```diff
+- client:   { color: '#94a3b8', lucideName: 'monitor-smartphone' },
+- cdn:      { color: '#22d3ee', lucideName: 'cloud' },
+- webapp:   { color: '#22d3ee', lucideName: 'app-window' },
+- gateway:  { color: '#22d3ee', lucideName: 'route' },
++ client:   { color: '#38bdf8', lucideName: 'monitor-smartphone' },
++ cdn:      { color: '#38bdf8', lucideName: 'cloud' },
++ webapp:   { color: '#34d399', lucideName: 'app-window' },
++ gateway:  { color: '#818cf8', lucideName: 'route' },
+  api:      { color: '#22d3ee', lucideName: 'server-cog' },
+  cache:    { color: '#f472b6', lucideName: 'zap' },
+  database: { color: '#f59e0b', lucideName: 'database' },
+- queue:    { color: '#a78bfa', lucideName: 'waypoints' },
++ queue:    { color: '#c084fc', lucideName: 'waypoints' },
+  worker:   { color: '#a78bfa', lucideName: 'boxes' },
+```
+
+No structural or class changes — just 5 hex literals. The `color-mix(in srgb, ${color} 20%, transparent)` background rendering from MM-028 already produces the right `color(srgb r g b / 0.2)` tint for any color the kind supplies.
 
 ### Result
 
-After implementation (`845815e`):
+After implementation (`1ec7e47`):
 
-**Visual verification (1440 × 900, light theme)**:
-- Icon tile size: 36×36 (`width: 36px, height: 36px`) ✅ matches reference.
-- Icon tile border-radius: 8 px (`border-radius: 8px`) ✅ matches reference.
-- Icon tile background: `color(srgb 0.133333 0.827451 0.933333 / 0.2)` for cdn/webapp/gateway/api ✅ matches reference (same `color(srgb ... / 0.2)` format, same opacity, same color family).
-- Icon tile color (icon stroke): `rgb(34, 211, 238)` = `#22d3ee` ✅ matches reference's `#38bdf8` family (we use Tailwind's cyan-400; reference uses sky-400 — same hue, slightly different RGB). 
-- Icon SVG content: verified for CDN (`M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z`) — exactly matches reference's `lucide-cloud` path.
-- Side-by-side screenshots saved at `.reverse-match/screenshots/iteration-028-reference.png` and `.reverse-match/screenshots/iteration-028-local-after.png`.
-- Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+**Visual verification (1440 × 900, light theme, cleared localStorage)**:
 
-**Categorization**: Fixed — the arch-node chrome now mirrors the reference's tinted Lucide tile design. All 8 node kinds render with the correct icon and the correct color tint.
+| Kind | Local (after) | Reference | Match |
+|---|---|---|---|
+| User | `rgb(56, 189, 248)` | `rgb(56, 189, 248)` | ✅ |
+| CDN | `rgb(56, 189, 248)` | `rgb(56, 189, 248)` | ✅ |
+| Web App | `rgb(52, 211, 153)` | `rgb(52, 211, 153)` | ✅ |
+| API Gateway | `rgb(129, 140, 248)` | `rgb(129, 140, 248)` | ✅ |
+| API | `rgb(34, 211, 238)` | `rgb(34, 211, 238)` | ✅ |
+| Cache | `rgb(244, 114, 182)` | `rgb(244, 114, 182)` | ✅ |
+| Database | `rgb(245, 158, 11)` | `rgb(245, 158, 11)` | ✅ |
+| Event Queue | `rgb(192, 132, 252)` | `rgb(192, 132, 252)` | ✅ |
+| Worker | `rgb(167, 139, 250)` | `rgb(167, 139, 250)` | ✅ |
+
+All 9 kinds now match the reference exactly. Tile background tints match as well — e.g. Web App tile is `color(srgb 0.203922 0.827451 0.6 / 0.2)` (emerald at 20%) in both.
+
+Side-by-side screenshots saved at:
+- `.reverse-match/screenshots/iteration-029-reference.png`
+- `.reverse-match/screenshots/iteration-029-local-before.png`
+- `.reverse-match/screenshots/iteration-029-local-after.png`
+
+Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+
+**Categorization**: Fixed — every node kind now uses the same accent color as the reference, with the matching tinted background.
 
 ### Remaining difference
 
-- Hue family: local uses Tailwind cyan-400 (`#22d3ee`) for the cdn/webapp/gateway/api tint; reference uses Tailwind sky-400 (`#38bdf8`). The visual difference is subtle (cyan vs sky) but measurable in computed-style dumps. This is a single-token swap (`#22d3ee → #38bdf8`) deferred to a future iteration.
+- Worker icon: local uses `boxes` (was chosen in MM-028 to keep visual variety); reference uses `square-function` (Lucide: `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 9h6v6H9z"/>`). Defer to MM-030 — single-token swap.
 - Right cluster missing two buttons (Compare, settings cog) — carried over from MM-027.
 - Header logo SVG width 18×18 vs reference's 33×20 — carried over from MM-027.
 
 ### New mismatches discovered
 
-None — the rest of the page (header, panel, edges, minimap) is unchanged from MM-027.
+None visible from the current scan. The remaining side-by-side differences all live in the header.
 
 ### Next action
 
-MM-029 — pick the next visible mismatch from a side-by-side scan. Likely candidates: align cyan hue with reference's sky (`#22d3ee → #38bbf8` — actually `#38bdf8`), wider brand-mark logo SVG (18×18 → 33×20), add missing Compare + settings cog buttons in the right cluster, or pick a finer detail from the panel/edges.
+MM-030 — pick the next visible mismatch. Likely candidates: Worker icon swap `boxes → square-function`, header right-cluster buttons (Compare + settings cog), header brand-mark SVG width, or pick a finer detail from the edges/panel.
 
 ---
 
@@ -388,6 +429,19 @@ MM-029 — pick the next visible mismatch from a side-by-side scan. Likely candi
 - **Verification**: see Current Iteration §"Result" for the bounding-box / computed-style table and `.reverse-match/screenshots/iteration-028-reference.png` vs `.reverse-match/screenshots/iteration-028-local-after.png`.
 - **Files changed**: `src/canvas/ArchNode.tsx`.
 - **Commit**: `845815e`
+
+### MM-029 — Per-kind arch-node icon tile colors don't match reference (5 of 9 kinds wrong)
+
+- **Category**: Visual / chrome
+- **Severity**: Medium (high visual impact — 4 network tier nodes look identical because they all share cyan) but only one or two colours per node are off, not the chrome itself.
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: the reference uses a distinct hue per kind. Computed `tileColor` for each kind: User `rgb(56, 189, 248)` sky `#38bdf8`, CDN `rgb(56, 189, 248)` sky `#38bdf8`, Web App `rgb(52, 211, 153)` emerald `#34d399`, API Gateway `rgb(129, 140, 248)` indigo `#818cf8`, API `rgb(34, 211, 238)` cyan `#22d3ee`, Cache `rgb(244, 114, 182)` pink `#f472b6`, Database `rgb(245, 158, 11)` amber `#f59e0b`, Event Queue `rgb(192, 132, 252)` purple `#c084fc`, Worker `rgb(167, 139, 250)` violet `#a78bfa`.
+- **Local before**: the `KIND` map in `src/canvas/ArchNode.tsx` consolidated cdn/webapp/gateway/api under one cyan family (`#22d3ee`), used slate `#94a3b8` for the User, and used violet `#a78bfa` for both queue and worker. Result: 5 of 9 kinds (client, cdn, webapp, gateway, queue) render with the wrong tint.
+- **Root cause**: when MM-028 introduced the `KIND` map it copied the per-kind palette from `REVERSE_ENGINEERING.md §4.2` but accidentally grouped the four "edge" kinds under a single cyan, when the reference actually uses 4 different hues for them.
+- **Fix**: in the `KIND` map, swap 5 hex literals to match the reference: client & cdn → `#38bdf8` (sky), webapp → `#34d399` (emerald), gateway → `#818cf8` (indigo), queue → `#c084fc` (purple). No structural or class changes; the `color-mix` background rendering from MM-028 already produces the correct tint for any hex supplied.
+- **Verification**: see Current Iteration §"Result" for the 9-row computed-style table. Every kind now produces the exact same `rgb(...)` value as the reference, both for `tileColor` and `tileBgColor`. Evidence: `.reverse-match/screenshots/iteration-029-reference.png`, `.reverse-match/screenshots/iteration-029-local-before.png`, `.reverse-match/screenshots/iteration-029-local-after.png`.
+- **Files changed**: `src/canvas/ArchNode.tsx`.
+- **Commit**: `1ec7e47`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1295,6 +1349,28 @@ MM-029 — pick the next visible mismatch from a side-by-side scan. Likely candi
 - **Next action**: MM-029 — pick the next visible mismatch. Likely candidates: align cyan hue with reference's sky, widen the brand-mark logo SVG, add missing Compare + settings cog buttons in the right cluster, or pick a finer detail from the panel/edges.
 - **Commit**: `845815e`
 
+### Iteration 29 — fix MM-029: align per-kind arch-node icon tile colors with reference
+
+- **Goal**: Update the per-kind color hex literals in `src/canvas/ArchNode.tsx` so each node's tile uses the same accent color as the reference (sky/emerald/indigo/cyan/pink/amber/purple/violet) instead of collapsing cdn/webapp/gateway/api into a single cyan family.
+- **Reference observation (1440 × 900)**: full per-kind color probe via `svg.parentElement.parentElement` + `getComputedStyle(tile).color`:
+  - User `rgb(56, 189, 248)` = sky `#38bdf8`, CDN `rgb(56, 189, 248)` = sky, Web App `rgb(52, 211, 153)` = emerald `#34d399`, API Gateway `rgb(129, 140, 248)` = indigo `#818cf8`, API `rgb(34, 211, 238)` = cyan `#22d3ee`, Cache `rgb(244, 114, 182)` = pink, Database `rgb(245, 158, 11)` = amber, Event Queue `rgb(192, 132, 252)` = purple `#c084fc`, Worker `rgb(167, 139, 250)` = violet.
+- **Local before**: client `#94a3b8` slate, cdn/webapp/gateway/api all `#22d3ee` cyan, queue `#a78bfa` violet, worker `#a78bfa` violet. Result: 5 of 9 kinds render the wrong color, and 4 of the 9 nodes (cdn/webapp/gateway/api) look identical.
+- **Actions** (in `src/canvas/ArchNode.tsx`, in the `KIND` map):
+  - `client`: `#94a3b8` slate → `#38bdf8` sky.
+  - `cdn`: `#22d3ee` cyan → `#38bdf8` sky.
+  - `webapp`: `#22d3ee` cyan → `#34d399` emerald.
+  - `gateway`: `#22d3ee` cyan → `#818cf8` indigo.
+  - `queue`: `#a78bfa` violet → `#c084fc` purple.
+  - Untouched: `api` `#22d3ee`, `cache` `#f472b6`, `database` `#f59e0b`, `worker` `#a78bfa` — already matched the reference.
+- **Verification (1440 × 900, light theme, cleared localStorage)**:
+  - 9/9 kinds produce the same `tileColor` as the reference (full table in Current Iteration §"Result").
+  - 9/9 kinds produce the matching `tileBgColor` (e.g. Web App tile = `color(srgb 0.203922 0.827451 0.6 / 0.2)` — emerald at 20%).
+  - Side-by-side screenshots: `.reverse-match/screenshots/iteration-029-reference.png` vs `.reverse-match/screenshots/iteration-029-local-after.png` (and a `.reverse-match/screenshots/iteration-029-local-before.png` showing the pre-fix state).
+  - Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-029 fixed. The arch-node tiles now mirror the reference's per-kind color categorisation, so users can identify each network tier by accent color rather than by reading the label. Side observation: the reference uses `square-function` for Worker; local uses `boxes` (a deliberate choice during MM-028 to keep visual variety) — deferred to MM-030.
+- **Next action**: MM-030 — pick the next visible mismatch. Likely candidates: Worker icon swap `boxes → square-function`, header right-cluster buttons (Compare + settings cog), header brand-mark SVG width, or pick a finer detail from the edges/panel.
+- **Commit**: `1ec7e47`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1331,6 +1407,7 @@ MM-029 — pick the next visible mismatch from a side-by-side scan. Likely candi
 | 026  | MM-026 | (same reference) | `.reverse-match/screenshots/iteration-026-local.png` | — | inline in iteration log |
 | 027  | MM-027 | `.reverse-match/screenshots/iteration-027-reference.png` | `.reverse-match/screenshots/iteration-027-local-after.png` | — | inline in iteration log |
 | 028  | MM-028 | `.reverse-match/screenshots/iteration-028-reference.png` | `.reverse-match/screenshots/iteration-028-local-before.png`, `iteration-028-local-after.png` | — | inline in iteration log |
+| 029  | MM-029 | `.reverse-match/screenshots/iteration-029-reference.png` | `.reverse-match/screenshots/iteration-029-local-before.png`, `iteration-029-local-after.png` | — | inline in iteration log |
 
 ---
 
