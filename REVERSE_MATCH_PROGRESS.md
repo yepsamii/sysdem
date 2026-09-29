@@ -18,10 +18,10 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ## Overall Progress
 
-- **Iteration**: 3
-- **Major mismatches remaining**: 2 (top "saved locally" banner, cookie consent card)
-- **Minor mismatches remaining**: several (particle animation, header icon labels, edge label chips, mobile layout)
-- **Verified fixes**: 3 (Milestone 0 shell, MM-001 canvas, MM-002 components aside)
+- **Iteration**: 4
+- **Major mismatches remaining**: 1 (cookie consent card)
+- **Minor mismatches remaining**: several (particle animation, header icon labels, edge label chips, mobile layout, shape SVGs, resize handle)
+- **Verified fixes**: 4 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner)
 - **Regressions introduced**: 0
 
 ---
@@ -30,37 +30,42 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-003 — Top "saved locally" banner missing.
+MM-004 — Cookie consent card missing in the bottom-left corner.
 
 ### Why this mismatch was selected
 
-The banner sits directly below the header and is a persistent chrome element — its presence/absence affects the visual weight of the header region and the perceived height of the canvas. Adding it is a small, isolated change that improves overall fidelity before tackling more complex pieces like the cookie consent modal.
+It's the last remaining major structural mismatch and the only chrome element still absent. It is also the smallest of the remaining additions and finishes the chrome parity for the first-run state.
 
 ### Reference observation
 
-- Dark strip beneath the header: `Your work is saved in this browser only — no account, no server. Use Save to keep a .gravel file, or Copy link to share it.`
-- Three emphasis words styled with bold: "in this browser only", "Save", "Copy link".
-- × close button on the far right.
-- `localStorage["diagramr.seenSavedBanner"] = "1"` (assumption — needs verification) dismisses it permanently.
+- Bottom-left card ~340 px wide.
+- Header row: cookie icon (cyan tinted) + bold title "Cookies".
+- Body copy:
+  > Ads keep GravelGraph free. Google can set cookies to personalise and measure them — decline and you'll still see ads, just generic ones.
+  > Either way your diagrams stay in this browser, and our visitor stats are cookieless. **Privacy & cookies**
+- Two buttons at the bottom: cyan-filled "Accept" and surface "Decline".
+- Persisted to `localStorage["diagramr.cookieConsent"] = { v:1, ads: boolean }`.
 
 ### Local observation
 
-- No banner between header and main.
+- No cookie consent region in the DOM.
 - File: `src/App.tsx`.
 
 ### Root-cause hypothesis
 
-No `<Banners>` sibling exists in the shell.
+Not implemented.
 
 ### Planned change
 
-Insert a `<SavedBanner>` strip between `<Header/>` and `<main>` with:
+Add `<CookieConsent>` overlay positioned bottom-left of the canvas region (absolute, `bottom-4 left-4`) with:
 
-1. Inline copy with `<strong>` for the three emphasis phrases.
-2. × dismiss button on the right that sets `localStorage["gravelgraph.seenSavedBanner"] = "1"`.
-3. Conditional render: hidden if the flag is set.
+1. Cookie icon + title.
+2. Copy + bold link to `/privacy/`.
+3. Accept / Decline buttons.
+4. Persist `localStorage["gravelgraph.cookieConsent"] = { v:1, ads:boolean }`.
+5. Conditional render based on the same flag.
 
-For Milestone 1, no animation, no fade — just static markup with the dismiss interaction.
+For Milestone 1, the "Privacy & cookies" link will route to a static placeholder or open in a new tab — wiring the real privacy page is out of scope.
 
 ---
 
@@ -94,13 +99,11 @@ For Milestone 1, no animation, no fade — just static markup with the dismiss i
 
 - **Category**: Component
 - **Severity**: Medium
-- **Status**: Pending
-- **Reference**: Dismissible dark strip beneath the header: `Your work is saved in this browser only — no account, no server. Use Save to keep a .gravel file, or Copy link to share it.` with a × close on the right
-- **Local**: Not present
-- **Difference**: Banner absent
-- **Evidence**: Reference screenshot top strip
-- **Likely cause**: Not implemented
-- **Planned fix**: Build `<SavedBanner>` with localStorage dismissal flag (`gravelgraph.seenSavedBanner`)
+- **Status**: ✅ Fixed
+- **Reference**: Dismissible dark strip beneath the header with three bold emphasis words.
+- **Local**: `<SavedBanner>` renders between `<Header/>` and `<main>` with the same copy and bold words ("in this browser only", "Save", "Copy link"). Dismiss button sets `localStorage["gravelgraph.seenSavedBanner"]="1"` and hides the strip.
+- **Evidence**: `.reverse-match/screenshots/iteration-003-local.png`
+- **Files changed**: `src/components/layout/SavedBanner.tsx` (new), `src/App.tsx`.
 
 ### MM-004 — Cookie consent card missing
 
@@ -179,6 +182,19 @@ For Milestone 1, no animation, no fade — just static markup with the dismiss i
 - **Verification**: Reloaded at 1440×900. Aside renders at correct width, all sections visible, icons match the live site's arrow directions. Zero console errors.
 - **Result**: MM-002 fixed. Remaining differences: shape buttons still use letter glyphs (not real SVG outlines), panel is fixed-width (resize handle not implemented).
 - **Next action**: MM-003 — top "saved locally" banner.
+- **Commit**: `b581971` MM-002: render left-side Components panel aside
+
+### Iteration 4 — fix MM-003: render top "saved locally" banner
+
+- **Goal**: Add the dismissible top banner with the three bold emphasis words.
+- **Actions**:
+  - Created `src/components/layout/SavedBanner.tsx`:
+    - Reads `localStorage["gravelgraph.seenSavedBanner"]` on mount; hidden if `"1"`.
+    - Renders the exact copy from the reference with three `<strong className="text-fg">` emphasis words.
+    - × dismiss button on the right that sets the flag and hides itself.
+- **Verification**: Reloaded at 1440×900. Banner appears directly under the header, copy matches, dismiss button works.
+- **Result**: MM-003 fixed.
+- **Next action**: MM-004 — cookie consent card.
 - **Commit**: (next)
 
 ---
