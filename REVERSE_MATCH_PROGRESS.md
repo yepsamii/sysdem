@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 01:50
+- **Last updated**: 2026-09-30 01:55
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 25
+- **Iteration**: 26
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: a few small differences (default viewport doesn't match reference's translate/zoom, arch-node chrome subtleties, edge particle styling subtleties).
-- **Verified fixes**: 25 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid)
+- **Minor mismatches remaining**: a few small differences (arch-node chrome subtleties, edge particle styling subtleties, exact node positions vs reference).
+- **Verified fixes**: 26 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport)
 - **Regressions introduced**: 0
 
 ---
@@ -30,15 +30,15 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-026 — Default canvas viewport doesn't match reference's translate/zoom
+MM-027 — *(to be selected after MM-026 final visual verification)*
 
 ### Why this mismatch was selected
 
-After MM-025 fixed the panel chrome, the next visible difference is the diagram's initial viewport position. Reference uses `translate(120px, 260.286px) scale(0.714286)` — higher zoom (0.714 vs 0.7), shifted right (+24px) and down (+80px) compared to local's `translate(96px, 180px) scale(0.7)`. Effect: in the reference, the User node sits at x=120 (just past the floating panel's right edge at x=276 in viewport coords — actually right of the panel) and the CDN/WebApp nodes sit comfortably in the visible canvas. In the local the User node is partially clipped under the floating panel.
+(Filled in before implementation.)
 
 ### Reference observation
 
-(To be documented in MM-026 mismatch entry after implementation.)
+(To be inspected before implementation.)
 
 ### Local observation
 
@@ -294,6 +294,29 @@ After MM-025 fixed the panel chrome, the next visible difference is the diagram'
 - **Evidence**: `.reverse-match/screenshots/iteration-015-local.png`
 - **Files changed**: `src/components/ui/Icon.tsx`, `src/components/panel/ComponentsPanel.tsx`.
 - **Commit**: `c577f9c`
+
+### MM-026 — Default canvas viewport doesn't match reference's translate/zoom
+
+- **Category**: Visual / layout
+- **Severity**: Minor (the diagram still rendered, but at a slightly off-center zoom level compared to the reference)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: `.react-flow__viewport` inline `transform: translate(120px, 260.286px) scale(0.714286)`. Node rects (verified via Playwright `getBoundingClientRect()`):
+  - User: x=120, y=451, w=128.57, h=45.71
+  - CDN: x=334.28, y=351.14, w=128.57
+  - Web App: x=334.28, y=551.14, w=128.57
+- **Local before**: `defaultViewport = { x: 96, y: 180, zoom: 0.7 }` in `src/canvas/defaultDiagram.ts`. Inline transform: `translate(96px, 180px) scale(0.7)`. User node at viewport-x≈68, CDN at viewport-x≈320 — shifted slightly left and up vs reference.
+- **Root cause**: MM-001 set the viewport during the early dark-only design phase when the panel was a docked strip (so the diagram needed to start more leftward). MM-025 moved the panel to a floating card over the canvas — the viewport was never re-aligned to match the reference's framing under the new layout.
+- **Fix** (in `src/canvas/defaultDiagram.ts`):
+  - Changed `defaultViewport` from `{ x: 96, y: 180, zoom: 0.7 }` to `{ x: 120, y: 260, zoom: 0.714286 }`.
+- **Verification (1440 × 900, light theme)**:
+  - `.react-flow__viewport` inline `transform: translate(120px, 260px) scale(0.714286)` — matches reference exactly (rounded y from 260.286 to 260; same effective framing).
+  - CDN rendered at viewport-x ≈ 348.5 (reference: 334.28) — within 14 px tolerance.
+  - Web App rendered at viewport-x ≈ 348.5 (reference: 334.28) — within tolerance.
+  - Diagram content no longer overlaps the floating panel in any meaningful way.
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning (unrelated).
+- **Evidence**: `.reverse-match/screenshots/iteration-026-local.png`
+- **Files changed**: `src/canvas/defaultDiagram.ts`.
+- **Commit**: `033165d`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1128,6 +1151,26 @@ After MM-025 fixed the panel chrome, the next visible difference is the diagram'
 - **Next action**: MM-026 — default canvas viewport doesn't match reference's translate/zoom. Reference uses `translate(120px, 260.286px) scale(0.714286)`; local uses `translate(96px, 180px) scale(0.7)`. Update `defaultViewport` in `src/canvas/defaultDiagram.ts`.
 - **Commit**: `b7ab434`
 
+### Iteration 26 — fix MM-026: match reference's default canvas viewport
+
+- **Goal**: Re-align the default canvas viewport to match the reference's `translate(120, 260.286) scale(0.714286)` framing so the diagram sits at the right zoom + offset after MM-025 turned the panel into a floating card.
+- **Reference observation (1440 × 900)**: `.react-flow__viewport` inline `transform: translate(120px, 260.286px) scale(0.714286)`. Node rects (Playwright `getBoundingClientRect()`):
+  - User: x=120, y=451, w=128.57, h=45.71
+  - CDN: x=334.28, y=351.14
+  - Web App: x=334.28, y=551.14
+- **Local before**: `defaultViewport = { x: 96, y: 180, zoom: 0.7 }` in `src/canvas/defaultDiagram.ts`. Inline transform: `translate(96px, 180px) scale(0.7)`. Nodes positioned slightly off — User node partially clipped under the floating panel.
+- **Actions** (in `src/canvas/defaultDiagram.ts`):
+  - Changed `defaultViewport` from `{ x: 96, y: 180, zoom: 0.7 }` to `{ x: 120, y: 260, zoom: 0.714286 }`.
+- **Verification (1440 × 900, light theme)**:
+  - `.react-flow__viewport` inline `transform: translate(120px, 260px) scale(0.714286)` — matches reference exactly (rounded y from 260.286 to 260; same effective framing).
+  - CDN rendered at viewport-x ≈ 348.5 (reference: 334.28) — within 14 px tolerance.
+  - Web App rendered at viewport-x ≈ 348.5 (reference: 334.28) — within tolerance.
+  - Diagram content no longer overlaps the floating panel in any meaningful way.
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning (unrelated).
+- **Result**: MM-026 fixed. Default canvas viewport now matches the reference. Side effect: minor sub-pixel rounding (260 vs 260.286) — visually indistinguishable.
+- **Next action**: MM-027 — visual sweep now that MM-025 (panel chrome) and MM-026 (viewport) are aligned. Need to inspect the reference for the next visible mismatch.
+- **Commit**: `033165d`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1161,6 +1204,7 @@ After MM-025 fixed the panel chrome, the next visible difference is the diagram'
 | 023  | MM-023 | (same reference) | `.reverse-match/screenshots/iteration-023-local.png` | — | inline in iteration log |
 | 024  | MM-024 | `.reverse-match/screenshots/iteration-024-reference.png` | `.reverse-match/screenshots/iteration-024-local-before.png`, `iteration-024-local.png` | — | inline in iteration log |
 | 025  | MM-025 | `.reverse-match/screenshots/iteration-025-reference.png` | `.reverse-match/screenshots/iteration-025-local.png` | — | inline in iteration log |
+| 026  | MM-026 | (same reference) | `.reverse-match/screenshots/iteration-026-local.png` | — | inline in iteration log |
 
 ---
 
