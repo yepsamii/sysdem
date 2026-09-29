@@ -18,7 +18,7 @@ const KIND: Record<
   cache:    { color: '#f472b6', icon: null, lucideName: 'zap' },
   database: { color: '#f59e0b', icon: null, lucideName: 'database' },
   queue:    { color: '#c084fc', icon: null, lucideName: 'waypoints' },
-  worker:   { color: '#a78bfa', icon: null, lucideName: 'boxes' },
+  worker:   { color: '#a78bfa', icon: null, lucideName: 'square-function' },
 };
 
 export function ArchNode({ data, selected }: NodeProps) {
