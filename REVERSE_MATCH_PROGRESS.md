@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 00:42
+- **Last updated**: 2026-09-30 00:48
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 21
+- **Iteration**: 22
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: several (search functionality, stencils import/export wiring, default theme might be dark vs light depending on OS preference)
-- **Verified fixes**: 21 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle)
+- **Minor mismatches remaining**: several (stencils import/export wiring, default theme might be dark vs light depending on OS preference, panel chrome — reference panel is a floating rounded card with shadow vs local docked flat panel)
+- **Verified fixes**: 22 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter)
 - **Regressions introduced**: 0
 
 ---
@@ -30,11 +30,11 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-022 — Components panel search input is purely cosmetic; reference actually filters items by name (case-insensitive substring match across all groups, with empty groups auto-hiding and matching groups auto-expanding).
+MM-023 — Stencils import/export buttons in the Components panel are wired to no-ops; reference actually lets the user upload / download a JSON file of saved stencils.
 
 ### Why this mismatch was selected
 
-After MM-021 completes, the next most-visible interaction gap is the search input. The user can type in it but nothing filters, so the feature feels broken.
+After MM-022, the stencils row's two icon buttons (↓ import + ↑ export) are decorative — they have `title` tooltips but no `onClick` handlers. The italic helper copy below ("Select elements, then 'Save as stencil' to reuse them here.") references a feature that doesn't exist yet.
 
 ### Reference observation
 
@@ -42,11 +42,11 @@ After MM-021 completes, the next most-visible interaction gap is the search inpu
 
 ### Local observation
 
-The search `<input type="search">` has no `onChange` / state. The `GROUPS` array and item rendering never read any search query.
+Both `<button>` elements in the Stencils row have only `title` attributes and no click handlers. There is no `<input type="file">` for import and no `URL.createObjectURL` for export.
 
 ### Root-cause hypothesis
 
-MM-002 scaffolded the search input as a UI placeholder. Filtering logic was always deferred.
+MM-002 scaffolded the Stencils row UI to match the reference's chrome, but actual file I/O was always deferred. The reference stores stencils in `localStorage` and exposes them as a JSON file.
 
 ### Planned change
 
@@ -294,6 +294,38 @@ MM-002 scaffolded the search input as a UI placeholder. Filtering logic was alwa
 - **Evidence**: `.reverse-match/screenshots/iteration-015-local.png`
 - **Files changed**: `src/components/ui/Icon.tsx`, `src/components/panel/ComponentsPanel.tsx`.
 - **Commit**: `c577f9c`
+
+### MM-022 — Components panel search input is non-functional
+
+- **Category**: Interaction / behaviour
+- **Severity**: Medium (visible feature gap; the search input exists but does nothing, making the panel feel broken)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: search input is an `<input>` (no `type="search"` attribute in the reference — but the local uses `type="search"` which is fine for the clear-button UX). Placeholder: "Search components & services". Filtering behavior (verified by typing "postgres" and "docker" via Playwright `dispatchEvent`):
+  - Case-insensitive substring match on item names.
+  - Groups with matches auto-expand and are kept visible.
+  - Groups with no matches are hidden entirely.
+  - Group label count badge shows match count.
+  - Clearing the query restores the original open/closed state per group.
+  - Reference site also has nested sub-categories (e.g. AWS → Databases) that participate in the filter. The local panel uses a flat `GROUPS` array, so this iteration implements the equivalent flat-group filtering.
+- **Local before**: search `<input>` had no `value` or `onChange` props. Typing did nothing. The `GROUPS.map(...)` render always iterated every group and every item regardless of any query.
+- **Root cause**: MM-002 scaffolded the search input as a UI placeholder. Filtering logic was always deferred.
+- **Fix** (in `src/components/panel/ComponentsPanel.tsx`):
+  - Added `const [query, setQuery] = useState('')` and `const q = query.trim().toLowerCase()`.
+  - Added `const visibleGroups = q ? GROUPS.map(...).filter(g => g.items.length > 0) : GROUPS`. The map step filters items whose `name.toLowerCase().includes(q)`.
+  - Added `const isOpen = (label) => q ? true : !!openMap[label]`. When the query is non-empty, all visible groups are forced open. When the query is empty, the original `openMap` is restored.
+  - Added `value={query}` and `onChange={(e) => setQuery(e.target.value)}` to the `<input>`.
+  - Updated the badge count: `const badgeCount = q ? group.items.length : (group.displayCount ?? group.items.length)` — shows match count when searching, default count otherwise.
+  - Changed the group-render iteration from `GROUPS.map(...)` to `visibleGroups.map(...)` and replaced `openMap[group.label]` reads with `isOpen(group.label)`.
+- **Verification (1440 × 900, dark theme)**:
+  - Typing "postgres" into the search input: only "Databases" group visible, expanded, showing 1 item (PostgreSQL) with count badge "1".
+  - Typing "docker": only "DevOps & Observability" group visible, expanded, showing 1 item (Docker) with count badge "1".
+  - Typing "db": "Databases" group expanded, showing 2 items (MongoDB, DuckDB — case-insensitive substring match works) with count badge "2".
+  - Typing "storage": 3 groups visible ("Data & Storage", "Google Cloud", "Azure") each expanded with their respective matches (Storage / Cloud Storage / Blob Storage) and count badge "1" each.
+  - Clearing the search: all 16 groups return to their original open/closed state — Shapes / Clients & Network + 5 provider sections open, rest closed. No regression.
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning from MM-016.
+- **Evidence**: `.reverse-match/screenshots/iteration-022-local.png`
+- **Files changed**: `src/components/panel/ComponentsPanel.tsx`.
+- **Commit**: `7573f42`
 
 ### MM-021 — Components panel has no draggable resize handle
 
@@ -880,6 +912,29 @@ MM-002 scaffolded the search input as a UI placeholder. Filtering logic was alwa
 - **Next action**: MM-022 — wire the search input to filter items by name (case-insensitive substring match) and auto-expand groups with matches.
 - **Commit**: `6ccb5d8`
 
+### Iteration 22 — fix MM-022: Components panel search filter
+
+- **Goal**: Make the existing search input actually filter items by name (case-insensitive substring match), auto-expanding matching groups and hiding non-matching ones — matching the reference's behaviour.
+- **Reference observation (1440 × 900)**: search input filters items by case-insensitive substring on item name. Groups with matches auto-expand and are kept visible; groups with no matches are hidden entirely. Group label count badge shows match count. Verified by typing "postgres", "docker", "db", "storage" via Playwright `dispatchEvent` on the live reference.
+- **Local before**: search `<input>` had no `value` or `onChange` props. Typing did nothing. The `GROUPS.map(...)` render always iterated every group and every item regardless of any query.
+- **Actions** (in `src/components/panel/ComponentsPanel.tsx`):
+  - Added `const [query, setQuery] = useState('')` and `const q = query.trim().toLowerCase()`.
+  - Added `const visibleGroups = q ? GROUPS.map(g => ({...g, items: g.items.filter(it => it.name.toLowerCase().includes(q))})).filter(g => g.items.length > 0) : GROUPS`.
+  - Added `const isOpen = (label) => q ? true : !!openMap[label]`. When the query is non-empty, all visible groups are forced open. When the query is empty, the original `openMap` is restored.
+  - Added `value={query}` and `onChange={(e) => setQuery(e.target.value)}` to the `<input>`.
+  - Updated the badge count: shows match count when searching, default count otherwise.
+  - Changed the group-render iteration from `GROUPS.map(...)` to `visibleGroups.map(...)` and replaced `openMap[group.label]` reads with `isOpen(group.label)`.
+- **Verification (1440 × 900, dark theme)**:
+  - "postgres" → Databases group, 1 item (PostgreSQL), badge "1".
+  - "docker" → DevOps & Observability group, 1 item (Docker), badge "1".
+  - "db" → Databases group, 2 items (MongoDB, DuckDB), badge "2" (case-insensitive substring match works).
+  - "storage" → 3 groups (Data & Storage, Google Cloud, Azure) each with 1 item, badges "1" each.
+  - Clearing search → all 16 groups return to original open/closed state.
+  - Zero console errors.
+- **Result**: MM-022 fixed. Search now functions. Remaining mismatches: stencils import/export wiring, default theme, panel chrome (floating card vs docked flat).
+- **Next action**: MM-023 — wire the Stencils row's import/export buttons to actually upload / download a JSON file.
+- **Commit**: `7573f42`
+
 ---
 
 ## Per-Iteration Evidence
@@ -909,6 +964,7 @@ MM-002 scaffolded the search input as a UI placeholder. Filtering logic was alwa
 | 019  | MM-019 | (same reference) | `.reverse-match/screenshots/iteration-019-local.png`, `iteration-019-devops.png` | — | inline in iteration log |
 | 020  | MM-020 | (same reference) | `.reverse-match/screenshots/iteration-020-local.png` | — | inline in iteration log |
 | 021  | MM-021 | (same reference) | `.reverse-match/screenshots/iteration-021-local.png` | — | inline in iteration log |
+| 022  | MM-022 | (same reference) | `.reverse-match/screenshots/iteration-022-local.png` | — | inline in iteration log |
 
 ---
 
