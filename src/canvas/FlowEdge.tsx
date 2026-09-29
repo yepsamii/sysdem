@@ -1,4 +1,4 @@
-import { BaseEdge, getStraightPath, type EdgeProps } from '@xyflow/react';
+import { BaseEdge, EdgeLabelRenderer, getStraightPath, type EdgeProps } from '@xyflow/react';
 import { useFlow } from '../store/flow';
 
 interface AnimationSpec {
@@ -37,19 +37,34 @@ export function FlowEdge(props: EdgeProps) {
   const token = a.tokenLabel;
   const enabled = a.enabled !== false;
 
-  const [edgePath] = getStraightPath({
+  const [edgePath, labelX, labelY] = getStraightPath({
     sourceX, sourceY, targetX, targetY,
   });
+
+  const labelEl = d.label && (
+    <EdgeLabelRenderer>
+      <div
+        className="nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-xs text-fg pointer-events-auto"
+        style={{ transform: `translate(-50%,-50%) translate(${labelX}px, ${labelY}px)` }}
+        title="Drag to slide along the edge · double-click to centre"
+      >
+        {d.label}
+      </div>
+    </EdgeLabelRenderer>
+  );
 
   // Don't render any animation when paused or disabled.
   if (paused || !enabled) {
     return (
-      <BaseEdge
-        id={id}
-        path={edgePath}
-        markerEnd={markerEnd}
-        style={{ stroke: 'var(--color-border-strong)', strokeWidth: 1.5 }}
-      />
+      <>
+        <BaseEdge
+          id={id}
+          path={edgePath}
+          markerEnd={markerEnd}
+          style={{ stroke: 'var(--color-border-strong)', strokeWidth: 1.5 }}
+        />
+        {labelEl}
+      </>
     );
   }
 
@@ -114,6 +129,7 @@ export function FlowEdge(props: EdgeProps) {
           );
         })}
       </g>
+      {labelEl}
     </>
   );
 }

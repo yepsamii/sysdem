@@ -18,10 +18,10 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ## Overall Progress
 
-- **Iteration**: 6
+- **Iteration**: 7
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: several (header icon labels, edge label chips, mobile layout, shape SVGs, resize handle, attribution visibility, flow-mode radios)
-- **Verified fixes**: 6 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation)
+- **Minor mismatches remaining**: several (header icon labels, mobile layout, shape SVGs, resize handle, attribution visibility, flow-mode radios)
+- **Verified fixes**: 7 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips)
 - **Regressions introduced**: 0
 
 ---
@@ -30,31 +30,26 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-007 — Edge label chips (static HTML divs rendered through `<EdgeLabelRenderer>`) are absent.
+MM-008 — Toolbar Export / Present buttons need visible text labels.
 
 ### Why this mismatch was selected
 
-After the particles, the edge labels are the second most prominent edge-side element. They sit on top of the particles and follow the path's midpoint, but offset so the particle can travel underneath. Without them, the diagram has no readable on-edge context (request/response, asset, app shell, etc.). They're a small, isolated change.
+The reference shows "Export" and "Present" as labeled chips (icon + text). Mine shows them icon-only. This is a small, isolated change that improves the visual weight and clarity of two primary actions in the header.
 
 ### Reference observation
 
-- Static HTML divs positioned absolutely at the midpoint of each edge.
-- Class: `nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-xs`.
-- Content: e.g. "request / response", "static assets", "app shell", "route", "session lookup", "publish event", "consume".
-- Style: `transform: translate(-50%, -50%) translate(Xpx, Ypx)` updated in real-time on drag.
+- Export button: download icon + "Export" text.
+- Present button: present icon + "Present" text.
+- Help and the flow-mode icons remain icon-only.
 
 ### Local observation
 
-- Edges render but no label chips.
-- File: `src/canvas/Canvas.tsx` (xyflow `<EdgeLabelRenderer>` not yet used).
-
-### Root-cause hypothesis
-
-`<EdgeLabelRenderer>` from `@xyflow/react` not used in FlowEdge.
+- All header buttons are icon-only.
+- File: `src/components/layout/Header.tsx`.
 
 ### Planned change
 
-In `src/canvas/FlowEdge.tsx`, after computing the path, also compute the midpoint `(mx, my)` from `getStraightPath`. Render a `<EdgeLabelRenderer>` containing an absolutely-positioned div with `bg-surface border-border text-xs px-1.5 py-0.5 rounded` and the label text. Skip if the edge has no `data.label`.
+Convert the Export and Present buttons to `inline-flex items-center gap-1.5 rounded-md px-2 py-1.5` containing the icon + a `text-xs font-medium` text label. Use the same hover treatment as the icon buttons.
 
 ---
 
@@ -133,12 +128,11 @@ In `src/canvas/FlowEdge.tsx`, after computing the path, also compute the midpoin
 
 - **Category**: Edge UI
 - **Severity**: Medium
-- **Status**: Pending
-- **Reference**: Static HTML divs at edge midpoints showing labels like "request / response", "asset", "app shell", "route", "session lookup", "publish event", "consume". Class: `nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-xs`.
-- **Local**: No labels — only particles and token labels on top of the path.
-- **Evidence**: Compare edge label markup captured in REVERSE_ENGINEERING.md §3.5.
-- **Likely cause**: `<EdgeLabelRenderer>` from `@xyflow/react` not used.
-- **Planned fix**: Add `<EdgeLabelRenderer>` inside `FlowEdge` with the label content if `data.label` is set.
+- **Status**: ✅ Fixed
+- **Reference**: Static HTML divs at edge midpoints showing labels like "request / response", "static assets", "app shell", "route", "session lookup", "publish event", "consume".
+- **Local**: Each labelled edge now renders an `<EdgeLabelRenderer>` with `nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-xs` div, positioned via `transform: translate(-50%,-50%) translate(labelX, labelY)` using `getStraightPath`'s midpoint.
+- **Evidence**: `.reverse-match/screenshots/iteration-006-local.png` shows all 7 labelled edges with chips.
+- **Files changed**: `src/canvas/FlowEdge.tsx`.
 
 ---
 
@@ -236,6 +230,19 @@ In `src/canvas/FlowEdge.tsx`, after computing the path, also compute the midpoin
 - **Verification**: 25 `<animateMotion>` elements after load (13 particle circles + 12 token labels). Click Pause → label flips to "Resume data flow", `aria-pressed=true`, and `animateMotion` count drops to 0. Click Resume → counts return. Zero console errors.
 - **Result**: MM-006 fixed. The headline visual effect is now visible and toggleable.
 - **Next action**: MM-007 — edge label chips at edge midpoints.
+- **Commit**: `988c15e` MM-006: animate data-flow particles along edges via SMIL
+
+### Iteration 7 — fix MM-007: edge label chips at edge midpoints
+
+- **Goal**: Render the static HTML label div at each labelled edge's midpoint.
+- **Actions**:
+  - In `src/canvas/FlowEdge.tsx`:
+    - Switched `getStraightPath` destructuring to `[edgePath, labelX, labelY]`.
+    - Added an `<EdgeLabelRenderer>` block that renders a `nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-xs` div positioned via `transform: translate(-50%,-50%) translate(labelX,labelY)`. Conditional on `data.label`.
+    - Rendered in both the paused branch and the animated branch.
+- **Verification**: Reloaded at 1440×900. Seven chips visible: "static assets", "app shell", "request / response", "route", "session lookup", "publish event", "consume". Zero console errors.
+- **Result**: MM-007 fixed.
+- **Next action**: MM-008 — toolbar Export / Present labels.
 - **Commit**: (next)
 
 ---
