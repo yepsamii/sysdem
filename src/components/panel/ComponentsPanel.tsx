@@ -5,6 +5,8 @@ import { useUi } from '../../store/ui';
 interface ComponentItem {
   name: string;
   iconName: IconName;
+  /** Optional semantic color used to tint the tile background + icon stroke. */
+  iconColor?: string;
 }
 
 interface Group {
@@ -13,7 +15,20 @@ interface Group {
   defaultOpen?: boolean;
 }
 
-function ItemIcon({ name }: { name: IconName }) {
+function ItemIcon({ name, color }: { name: IconName; color?: string }) {
+  if (color) {
+    return (
+      <div
+        className="h-9 w-9 rounded-md flex items-center justify-center border border-border shrink-0"
+        style={{
+          background: `color-mix(in srgb, ${color} 20%, transparent 80%)`,
+          color,
+        }}
+      >
+        <Icon name={name} size={15} strokeWidth={2} />
+      </div>
+    );
+  }
   return (
     <div className="h-9 w-9 rounded-md flex items-center justify-center bg-surface-2 text-fg border border-border shrink-0">
       <Icon name={name} size={15} strokeWidth={2} />
@@ -63,10 +78,39 @@ const GROUPS: Group[] = [
   {
     label: 'Compute',
     items: [
-      { name: 'Server',  iconName: 'server' },
+      { name: 'Web App', iconName: 'app-window' },
       { name: 'API',     iconName: 'server-cog' },
       { name: 'Service', iconName: 'app-window' },
       { name: 'Function',iconName: 'square-function' },
+    ],
+  },
+  {
+    label: 'Data & Storage',
+    items: [
+      { name: 'Database', iconName: 'database',     iconColor: 'rgb(245, 158, 11)' },
+      { name: 'NoSQL',    iconName: 'database-zap', iconColor: 'rgb(251, 146, 60)' },
+      { name: 'Cache',    iconName: 'zap',          iconColor: 'rgb(244, 114, 182)' },
+      { name: 'Storage',  iconName: 'hard-drive',   iconColor: 'rgb(148, 163, 184)' },
+    ],
+  },
+  {
+    label: 'Messaging',
+    items: [
+      { name: 'Queue', iconName: 'waypoints', iconColor: 'rgb(192, 132, 252)' },
+    ],
+  },
+  {
+    label: 'Security & External',
+    items: [
+      { name: 'Auth',     iconName: 'shield-check', iconColor: 'rgb(52, 211, 153)' },
+      { name: 'External', iconName: 'globe',        iconColor: 'rgb(148, 163, 184)' },
+    ],
+  },
+  {
+    label: 'Structure',
+    items: [
+      { name: 'Group', iconName: 'boxes',       iconColor: 'rgb(100, 116, 139)' },
+      { name: 'Note',  iconName: 'sticky-note', iconColor: 'rgb(251, 191, 36)' },
     ],
   },
 ];
@@ -189,7 +233,7 @@ export function ComponentsPanel() {
                       type="button"
                       className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-border bg-surface hover:bg-surface-2 transition-colors text-left min-w-0"
                     >
-                      {item.iconName ? <ItemIcon name={item.iconName} /> : null}
+                      {item.iconName ? <ItemIcon name={item.iconName} color={item.iconColor} /> : null}
                       <span className="text-xs font-medium truncate" title={item.name}>{item.name}</span>
                     </button>
                   ))}
