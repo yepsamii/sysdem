@@ -18,10 +18,10 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ## Overall Progress
 
-- **Iteration**: 17
+- **Iteration**: 18
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: several (resize handle, real brand SVGs for the remaining 8 provider sections — currently using generic Lucide placeholders, panel header brand icon, search functionality, stencils import/export wiring, default theme might be dark vs light depending on OS preference)
-- **Verified fixes**: 17 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases section brand icons)
+- **Minor mismatches remaining**: several (resize handle, real brand SVGs for the remaining 6 provider sections — Messaging & Streaming, DevOps & Observability, SaaS & Identity, panel header brand icon, search functionality, stencils import/export wiring, default theme might be dark vs light depending on OS preference)
+- **Verified fixes**: 18 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases section brand icons, MM-018 Data & Analytics section brand icons)
 - **Regressions introduced**: 0
 
 ---
@@ -30,11 +30,11 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-018 — Data & Analytics provider section items still render with generic Lucide icons (Snowflake, Databricks, Spark, Airflow, ClickHouse, Elasticsearch, Looker). Reference uses real brand SVGs.
+MM-019 — Messaging & Streaming provider items (Kafka, RabbitMQ) and DevOps & Observability provider items (Docker, Kubernetes, Terraform, NGINX, Prometheus, Grafana, Datadog, Sentry, GitHub, GitLab) still use generic Lucide placeholders. Reference uses real brand SVGs.
 
 ### Why this mismatch was selected
 
-MM-017 delivered slice 1 (8 Databases items, all open-by-default). The next-largest visible impact is the Data & Analytics section, which is also open-by-default and exposes 7 items.
+MM-017 + MM-018 delivered Databases + Data & Analytics (both open-by-default). The next-largest visible gap is the 12-item DevOps & Observability section (also open-by-default).
 
 ### Reference observation
 
@@ -42,11 +42,11 @@ MM-017 delivered slice 1 (8 Databases items, all open-by-default). The next-larg
 
 ### Local observation
 
-After MM-017, the Databases section shows brand SVGs. The Data & Analytics section below still uses generic Lucide icons (`database` cylinder for Snowflake, `database` for Databricks, `zap` for Spark, `route` for Airflow, `database` for ClickHouse, `search` for Elasticsearch, `monitor-smartphone` for Looker).
+After MM-018, the Messaging & Streaming section shows Kafka and RabbitMQ both using the `waypoints` Lucide icon (the same one as the first-party Queue). DevOps & Observability shows Docker / Kubernetes using `app-window` / `boxes`, Terraform / NGINX using `route` / `server`, and Prometheus / Grafana / Datadog / Sentry / GitHub / GitLab using `monitor-smartphone` / `shield-check` / `app-window`. None of these are brand-recognizable.
 
 ### Root-cause hypothesis
 
-MM-017 sliced provider-icon replacement to keep micro-commits bounded. Continuing with the same pattern for the next section.
+MM-017 sliced provider-icon replacement to keep micro-commits bounded. Continuing with the same pattern for the next sections.
 
 ### Planned change
 
@@ -294,6 +294,40 @@ MM-017 sliced provider-icon replacement to keep micro-commits bounded. Continuin
 - **Evidence**: `.reverse-match/screenshots/iteration-015-local.png`
 - **Files changed**: `src/components/ui/Icon.tsx`, `src/components/panel/ComponentsPanel.tsx`.
 - **Commit**: `c577f9c`
+
+### MM-018 — Data & Analytics provider items render with generic Lucide icons instead of real brand SVGs
+
+- **Category**: Visual / branding
+- **Severity**: Medium (open-by-default section, 7 items)
+- **Status**: ✅ Fixed (slice 2 of provider-icons — Data & Analytics; Messaging & Streaming, DevOps & Observability, SaaS & Identity deferred to MM-019+)
+- **Reference observation (1440 × 900)**: each Data & Analytics item renders a 15×15 brand SVG with `viewBox="0 0 24 24"` and `fill="currentColor"`. Wrapper span carries `color-mix` style with the brand color. Brand colors verified via `getComputedStyle(svg).color`:
+  - Snowflake: `rgb(41, 181, 232)` cyan
+  - Databricks: `rgb(255, 54, 33)` red
+  - Apache Spark: `rgb(226, 90, 28)` orange
+  - Airflow: `rgb(1, 124, 238)` blue
+  - ClickHouse: `rgb(250, 255, 105)` yellow
+  - Elasticsearch: `rgb(0, 85, 113)` dark teal
+  - Looker: `rgb(66, 133, 244)` blue
+- **Local before**: each item rendered a generic Lucide placeholder (`database` cylinder for Snowflake / Databricks / ClickHouse, `zap` for Spark, `route` for Airflow, `search` for Elasticsearch, `monitor-smartphone` for Looker).
+- **Root cause**: MM-015 used generic Lucide icons as a structural placeholder. MM-017 delivered the Databases section. MM-018 continues the same pattern for Data & Analytics.
+- **Fix**:
+  - `src/components/ui/Icon.tsx`:
+    - Extended `IconName` union with 7 brand names: `brand-snowflake`, `brand-databricks`, `brand-apache-spark`, `brand-airflow`, `brand-clickhouse`, `brand-elasticsearch`, `brand-looker`.
+    - Added 7 brand SVG paths to the `paths` map (verbatim from the reference DOM).
+    - The brand renderer branch (`fill="currentColor"` + `stroke="none"`) added in MM-017 covers these names automatically — no renderer change needed.
+  - `src/components/panel/ComponentsPanel.tsx`:
+    - Replaced the 7 placeholder `iconName` values in the Data & Analytics group with their brand-specific names and added `iconColor` matching each brand's official color.
+- **Verification (1440 × 900, dark theme)**:
+  - `document.querySelector('aside[aria-label="Components"]')` returns 7 brand-SVG buttons in the Data & Analytics section.
+  - Each button's `<svg>` has `fill="currentColor"` and `stroke="none"`. SVG innerHTML lengths: 2364 (Snowflake), 326 (Databricks), 1744 (Spark), 2153 (Airflow), 150 (ClickHouse), 378 (Elasticsearch), 1002 (Looker).
+  - Tile wrapper has the expected inline style with the brand color (e.g. `background: color-mix(in srgb, rgb(41, 181, 232) 20%, transparent 80%); color: rgb(41, 181, 232);` for Snowflake). Computed `color` on the SVG path resolves to the brand color via currentColor inheritance.
+  - Visual screenshot confirms each item shows its correct brand logo with the brand-specific tint.
+  - Databases section unchanged (still uses MM-017 brand SVGs).
+  - Messaging & Streaming, DevOps & Observability, SaaS & Identity sections unchanged (still use generic Lucide placeholders — deferred to MM-019+).
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning from MM-016.
+- **Evidence**: `.reverse-match/screenshots/iteration-018-local.png`
+- **Files changed**: `src/components/ui/Icon.tsx`, `src/components/panel/ComponentsPanel.tsx`.
+- **Commit**: (this iteration)
 
 ### MM-017 — Databases provider items render with generic Lucide icons instead of real brand SVGs
 
@@ -662,6 +696,30 @@ MM-017 sliced provider-icon replacement to keep micro-commits bounded. Continuin
   - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning from MM-016 (unrelated to MM-017).
 - **Result**: MM-017 fixed. Databases section now uses real brand SVGs identical to the reference. The Data & Analytics section (also open-by-default) remains the next-largest visible gap.
 - **Next action**: MM-018 — replace placeholder Lucide icons in the Data & Analytics section with brand SVGs (Snowflake, Databricks, Apache Spark, Airflow, ClickHouse, Elasticsearch, Looker).
+- **Commit**: `6a76ce3`
+
+### Iteration 18 — fix MM-018: brand SVGs for Data & Analytics section
+
+- **Goal**: Continue the provider-icon replacement from MM-017 with the 7 Data & Analytics items.
+- **Reference observation (1440 × 900)**: each Data & Analytics item renders a 15×15 brand SVG with `fill="currentColor"`. Brand colors verified: Snowflake cyan, Databricks red, Spark orange, Airflow blue, ClickHouse yellow, Elasticsearch dark teal, Looker blue.
+- **Local before**: each item rendered a generic Lucide placeholder (database cylinder for Snowflake / Databricks / ClickHouse, zap for Spark, route for Airflow, search for Elasticsearch, monitor-smartphone for Looker).
+- **Actions**:
+  - `src/components/ui/Icon.tsx`:
+    - Extended `IconName` union with 7 brand names: `brand-snowflake`, `brand-databricks`, `brand-apache-spark`, `brand-airflow`, `brand-clickhouse`, `brand-elasticsearch`, `brand-looker`.
+    - Added 7 brand SVG paths to the `paths` map (verbatim from the reference DOM). No renderer changes — MM-017's `brand-` prefix branch handles these names automatically.
+  - `src/components/panel/ComponentsPanel.tsx`:
+    - Replaced the 7 placeholder `iconName` values in the Data & Analytics group with their brand-specific names.
+    - Added `iconColor` for each item matching the brand colors extracted from the reference.
+- **Verification (1440 × 900, dark theme)**:
+  - 7 brand-SVG buttons in the Data & Analytics section.
+  - Each `<svg>` has `fill="currentColor"` and `stroke="none"`. SVG innerHTML lengths: 2364 / 326 / 1744 / 2153 / 150 / 378 / 1002.
+  - Tile wrapper has the expected inline style with the brand color.
+  - Visual screenshot confirms each item shows its correct brand logo with the brand-specific tint.
+  - Databases section unchanged (still uses MM-017 brand SVGs).
+  - Messaging & Streaming, DevOps & Observability, SaaS & Identity sections unchanged (still use generic Lucide placeholders — deferred to MM-019+).
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-018 fixed. Data & Analytics section now uses real brand SVGs identical to the reference. Three provider sections remain (Messaging & Streaming, DevOps & Observability, SaaS & Identity).
+- **Next action**: MM-019 — replace placeholder Lucide icons in Messaging & Streaming + DevOps & Observability sections with brand SVGs (Kafka, RabbitMQ, Docker, Kubernetes, Terraform, NGINX, Prometheus, Grafana, Datadog, Sentry, GitHub, GitLab).
 - **Commit**: (this iteration)
 
 ---
@@ -689,6 +747,7 @@ MM-017 sliced provider-icon replacement to keep micro-commits bounded. Continuin
 | 015  | MM-015 | (same reference) | `.reverse-match/screenshots/iteration-015-local.png` | — | inline in iteration log |
 | 016  | MM-016 | (same reference) | `.reverse-match/screenshots/iteration-016-local.png` | — | inline in iteration log |
 | 017  | MM-017 | (same reference) | `.reverse-match/screenshots/iteration-017-local.png` | — | inline in iteration log |
+| 018  | MM-018 | (same reference) | `.reverse-match/screenshots/iteration-018-local.png` | — | inline in iteration log |
 
 ---
 
