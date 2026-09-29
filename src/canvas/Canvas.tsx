@@ -1,10 +1,11 @@
 import { Background, Controls, MiniMap, ReactFlow, type EdgeTypes, type NodeTypes } from '@xyflow/react';
 import { useMemo } from 'react';
 import { ArchNode } from './ArchNode';
+import { FlowEdge } from './FlowEdge';
 import { defaultEdges, defaultNodes, defaultViewport } from './defaultDiagram';
 
 const nodeTypes: NodeTypes = { arch: ArchNode };
-const edgeTypes: EdgeTypes = { flow: undefined as never };
+const edgeTypes: EdgeTypes = { flow: FlowEdge };
 
 export function Canvas() {
   const nodes = useMemo(() => defaultNodes, []);

@@ -18,10 +18,10 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ## Overall Progress
 
-- **Iteration**: 5
+- **Iteration**: 6
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: several (particle animation, header icon labels, edge label chips, mobile layout, shape SVGs, resize handle, attribution visibility)
-- **Verified fixes**: 5 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system)
+- **Minor mismatches remaining**: several (header icon labels, edge label chips, mobile layout, shape SVGs, resize handle, attribution visibility, flow-mode radios)
+- **Verified fixes**: 6 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation)
 - **Regressions introduced**: 0
 
 ---
@@ -30,39 +30,31 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-006 — Edge particle animation: edges are static lines, but the reference animates colored particles + token labels along each edge via `<animateMotion>`.
+MM-007 — Edge label chips (static HTML divs rendered through `<EdgeLabelRenderer>`) are absent.
 
 ### Why this mismatch was selected
 
-The particles are the **headline visual feature** of GravelGraph. The reference animates 22 particles on the default diagram (data-phase staggered, two directions per edge, token labels like HTTPS / SQL / route / event). Without them, the canvas looks like a generic diagram tool. Fixing this is a high-impact visual change that brings the local noticeably closer to the reference's character. It also moves us from Milestone 1 (static canvas) into Milestone 2 (functional canvas).
+After the particles, the edge labels are the second most prominent edge-side element. They sit on top of the particles and follow the path's midpoint, but offset so the particle can travel underneath. Without them, the diagram has no readable on-edge context (request/response, asset, app shell, etc.). They're a small, isolated change.
 
 ### Reference observation
 
-- Each edge has 1–2 particles per direction (`data-phase` 0..1, `data-dir` forward/reverse).
-- Particle = `<circle r="3.2" fill="#…">` with `<animateMotion dur="20s" begin="-phase*20s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear" path="M…L…L…">`.
-- Token label = `<text font-size="9" font-family="var(--font-mono)">` riding the same path with the same duration, just offset by `begin="0s"` so it trails the dot slightly.
-- Pause behaviour removes `<animateMotion>` from the DOM (not `dur="0s"`).
-- Colours come from `edge.data.animation.color` (cyan, emerald, pink, amber, violet, indigo, sky).
+- Static HTML divs positioned absolutely at the midpoint of each edge.
+- Class: `nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-xs`.
+- Content: e.g. "request / response", "static assets", "app shell", "route", "session lookup", "publish event", "consume".
+- Style: `transform: translate(-50%, -50%) translate(Xpx, Ypx)` updated in real-time on drag.
 
 ### Local observation
 
-- Edges render as plain SVG paths with no `<animateMotion>` children.
-- File: `src/canvas/Canvas.tsx` (no custom edge type yet; `edgeTypes.flow` is set to `undefined as never`).
+- Edges render but no label chips.
+- File: `src/canvas/Canvas.tsx` (xyflow `<EdgeLabelRenderer>` not yet used).
 
 ### Root-cause hypothesis
 
-No custom edge component. The plan called this out as Milestone 2 work.
+`<EdgeLabelRenderer>` from `@xyflow/react` not used in FlowEdge.
 
 ### Planned change
 
-1. Create `src/canvas/FlowEdge.tsx` — a custom xyflow edge that:
-   - Renders the SVG path with `stroke="var(--color-border-strong)"`, `strokeWidth={1.5}`.
-   - For each particle defined by `data.animation.density` × direction, mounts a `<circle>` + `<text>` with `<animateMotion>` whose `path` is computed from xyflow's source/target handle positions.
-   - Reads `paused` state from a small `flowStore` (default `true` for this iteration, since the toolbar Pause button is still decorative).
-2. Wire `edgeTypes.flow = FlowEdge` in `Canvas.tsx`.
-3. Smoke test: count `animateMotion` after load — should be 9 (one particle per edge in this fixture).
-
-For this iteration, no pause toggle, no flow-mode radios affecting timing — just the base animation working. Those refinements follow in MM-007…MM-008.
+In `src/canvas/FlowEdge.tsx`, after computing the path, also compute the midpoint `(mx, my)` from `getStraightPath`. Render a `<EdgeLabelRenderer>` containing an absolutely-positioned div with `bg-surface border-border text-xs px-1.5 py-0.5 rounded` and the label text. Skip if the edge has no `data.label`.
 
 ---
 
@@ -125,6 +117,28 @@ For this iteration, no pause toggle, no flow-mode radios affecting timing — ju
 - **Evidence**: Toolbar aria-labels vs visual chrome in reference
 - **Likely cause**: Local Header uses only icons
 - **Planned fix**: Add text labels next to `download` and `present` icons in the same style as the reference
+
+### MM-006 — Edge particle animation missing (HEADLINE feature)
+
+- **Category**: Major visual feature
+- **Severity**: High
+- **Status**: ✅ Fixed
+- **Reference**: 22 particles + token labels riding edges via SMIL `<animateMotion>`; pause removes them from the DOM.
+- **Local**: 25 `<animateMotion>` after load (13 particle circles + 12 token labels). Per-edge color / density / direction / token label all driven by `edge.data.animation`. Pause button removes all `<animateMotion>` from the DOM (25 → 0); Resume restores.
+- **Result**: Headline visual effect works and is toggleable.
+- **Evidence**: `.reverse-match/screenshots/iteration-005-local.png` shows `HTML`, `HTTPS`, `asset`, `route`, `GET`, `SQL`, `event`, `msg` token labels riding edges with the right per-kind colours.
+- **Files changed**: `src/canvas/FlowEdge.tsx` (new), `src/store/flow.ts` (new), `src/canvas/Canvas.tsx`, `src/components/layout/Header.tsx`.
+
+### MM-007 — Edge label chips missing
+
+- **Category**: Edge UI
+- **Severity**: Medium
+- **Status**: Pending
+- **Reference**: Static HTML divs at edge midpoints showing labels like "request / response", "asset", "app shell", "route", "session lookup", "publish event", "consume". Class: `nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-xs`.
+- **Local**: No labels — only particles and token labels on top of the path.
+- **Evidence**: Compare edge label markup captured in REVERSE_ENGINEERING.md §3.5.
+- **Likely cause**: `<EdgeLabelRenderer>` from `@xyflow/react` not used.
+- **Planned fix**: Add `<EdgeLabelRenderer>` inside `FlowEdge` with the label content if `data.label` is set.
 
 ---
 
@@ -204,6 +218,24 @@ For this iteration, no pause toggle, no flow-mode radios affecting timing — ju
 - **Verification**: Cookie card renders with cyan accent on cookie icon + link + Accept button; Decline button uses bordered surface. Re-running earlier shots shows the whole app is now colour-correct: banner text emphasis, header buttons, node card borders, aside search input, components panel cards all use the right palette.
 - **Result**: MM-004 fixed.
 - **Next action**: MM-006 — edge particle animation (the headline visual effect).
+- **Commit**: `eaa0565` MM-004: render cookie consent card; wire Tailwind v4 colour tokens
+
+### Iteration 6 — fix MM-006: edge particle animation + pause toggle
+
+- **Goal**: Bring up the headline visual effect — colored particles + token labels riding each edge via SMIL `<animateMotion>` — and wire the toolbar Pause button.
+- **Actions**:
+  - Created `src/store/flow.ts` (zustand store: `paused`, `mode`, `togglePaused`, `setMode`).
+  - Created `src/canvas/FlowEdge.tsx`:
+    - Uses xyflow `getStraightPath` to derive the SVG path from source/target handle positions.
+    - Renders a `<BaseEdge>` for the line stroke.
+    - For each particle defined by `data.animation.density × direction`, renders `<circle r="3.2" fill={color}>` with `<animateMotion dur={BASE_DUR/speed}s begin="-phase*dur" repeatCount="indefinite" keyPoints="0;1" calcMode="linear" path={...}>`.
+    - If `data.animation.tokenLabel` is set, also rides a `<text fontSize=9 fontFamily=var(--font-mono) fill={color}>token</text>` on the same path, slightly behind the dot.
+    - When `paused` is true OR `data.animation.enabled === false`, returns only the static path (no `<animateMotion>`) — matching the reference's pause behaviour (DOM removal rather than `dur="0s"`).
+  - Updated `src/canvas/Canvas.tsx`: `edgeTypes.flow = FlowEdge`.
+  - Updated `src/components/layout/Header.tsx`: Pause button now reads `paused` from `useFlow`, toggles it, and swaps the icon between `pause` and `play`.
+- **Verification**: 25 `<animateMotion>` elements after load (13 particle circles + 12 token labels). Click Pause → label flips to "Resume data flow", `aria-pressed=true`, and `animateMotion` count drops to 0. Click Resume → counts return. Zero console errors.
+- **Result**: MM-006 fixed. The headline visual effect is now visible and toggleable.
+- **Next action**: MM-007 — edge label chips at edge midpoints.
 - **Commit**: (next)
 
 ---

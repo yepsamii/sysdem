@@ -1,9 +1,12 @@
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../../store/theme';
+import { useFlow } from '../../store/flow';
 
 export function Header() {
   const theme = useTheme((s) => s.theme);
   const toggle = useTheme((s) => s.toggle);
+  const paused = useFlow((s) => s.paused);
+  const togglePaused = useFlow((s) => s.togglePaused);
 
   const iconBtn =
     'inline-flex items-center justify-center rounded-md p-1.5 transition-colors hover:bg-surface-2 text-fg disabled:opacity-40 disabled:pointer-events-none';
@@ -76,8 +79,14 @@ export function Header() {
         <button type="button" aria-label="Scenario — narrated steps" className={iconBtn} aria-pressed="false">
           <Icon name="scenario" />
         </button>
-        <button type="button" aria-label="Pause data flow" className={iconBtn} aria-pressed="true">
-          <Icon name="pause" />
+        <button
+          type="button"
+          aria-label={paused ? 'Resume data flow' : 'Pause data flow'}
+          className={iconBtn}
+          aria-pressed={paused}
+          onClick={togglePaused}
+        >
+          <Icon name={paused ? 'play' : 'pause'} />
         </button>
         <button type="button" aria-label="Help — shortcuts, about & contact" className={iconBtn}>
           <Icon name="help" />
