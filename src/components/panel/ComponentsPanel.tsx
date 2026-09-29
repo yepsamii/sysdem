@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Icon } from '../ui/Icon';
+import { useUi } from '../../store/ui';
 
 interface ComponentItem {
   name: string;
@@ -77,6 +78,9 @@ export function ComponentsPanel() {
     return init;
   });
 
+  const componentsOpen = useUi((s) => s.componentsOpen);
+  const setComponentsOpen = useUi((s) => s.setComponentsOpen);
+
   const toggle = (label: string) => setOpenMap((m) => ({ ...m, [label]: !m[label] }));
   const allOpen = GROUPS.every((g) => openMap[g.label]);
   const allClosed = GROUPS.every((g) => !openMap[g.label]);
@@ -95,7 +99,11 @@ export function ComponentsPanel() {
   return (
     <aside
       aria-label="Components"
-      className="shrink-0 w-[280px] h-full border-r border-border bg-surface flex flex-col overflow-hidden"
+      className={
+        componentsOpen
+          ? 'fixed top-12 left-0 z-30 w-[280px] bottom-0 border-r border-border bg-surface flex flex-col overflow-hidden lg:static lg:shrink-0 lg:z-auto lg:w-[280px] lg:h-full shadow-panel lg:shadow-none'
+          : 'hidden lg:flex lg:shrink-0 lg:w-[280px] lg:h-full lg:border-r lg:border-border lg:bg-surface lg:flex-col lg:overflow-hidden'
+      }
     >
       {/* Header */}
       <header className="h-10 px-3 flex items-center justify-between border-b border-border">
@@ -104,6 +112,7 @@ export function ComponentsPanel() {
           type="button"
           aria-label="Close Components"
           className="inline-flex items-center justify-center rounded-md p-1 hover:bg-surface-2 text-fg"
+          onClick={() => setComponentsOpen(false)}
         >
           <Icon name="x" size={14} />
         </button>

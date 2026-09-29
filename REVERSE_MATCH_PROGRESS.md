@@ -18,10 +18,10 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ## Overall Progress
 
-- **Iteration**: 8
+- **Iteration**: 10
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: several (mobile layout, shape SVGs, resize handle, attribution visibility, flow-mode radios)
-- **Verified fixes**: 8 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons)
+- **Minor mismatches remaining**: several (mobile header layout, shape SVGs, resize handle, attribution visibility, flow-mode radios)
+- **Verified fixes**: 9 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse)
 - **Regressions introduced**: 0
 
 ---
@@ -30,58 +30,40 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-008 — Toolbar Export / Present / Pause buttons need to be chip-style with icon + text label.
+MM-010 — Mobile header (`< lg`) has only Menu + File icons visible, with the rest of the toolbar hidden by `hidden lg:flex`. Reference shows the primary chip buttons (Continuous / Causal / Scenario / Pause) + theme toggle visible on mobile.
 
 ### Why this mismatch was selected
 
-The reference renders three primary actions (Export, Present, Pause) as labelled chips with a rounded `bg-surface-2` background, 1px border, and `h-8 px-3 text-sm` sizing. Mine rendered them icon-only with the same `iconBtn` styling as secondary controls, which understates their primary-action status and visually departs from the reference. This is the only remaining header mismatch; fixing it makes the local toolbar visually equivalent to the reference's.
+After fixing MM-009, the mobile canvas is now full-width but the toolbar is almost empty. The reference keeps the **primary action chips** visible at every viewport (their text labels are hidden via `hidden xl:inline` at < 1280 px but the chips themselves remain). On my local, the entire `hidden lg:flex` group is hidden below `lg` (1024 px). The result: a phone user has no way to toggle Pause / Continuous / Causal / Scenario / theme from the header.
 
-### Reference observation
+This is the next highest-impact mismatch — without it, several features are unreachable on mobile.
 
-Measured from the live reference at 1440 × 900 (light theme) via `getBoundingClientRect` + `getComputedStyle`:
+### Reference observation (mobile 420 × 820)
 
-| Button | Width | Height | bg | border | borderRadius | padding | font | gap |
-|---|---|---|---|---|---|---|---|---|
-| Export | 92.78 | 32 | `rgb(236,239,244)` | `1px solid rgb(225,230,238)` | 8 | `0 12px` | 14 | 8 |
-| Present | 100.30 | 32 | `rgb(236,239,244)` | `1px solid rgb(225,230,238)` | 8 | `0 12px` | 14 | 8 |
-| Pause | 90.06 | 32 | `rgb(236,239,244)` | `1px solid rgb(225,230,238)` | 8 | `0 12px` | 14 | 8 |
+The reference header on mobile shows (left → right):
+- Logo (compact)
+- Hamburger menu
+- (Primary toolbar group with chips visible): Continuous (cyan-filled selected), Causal, Scenario, Pause — all rendered as the same chip-style icon-only buttons used on desktop.
+- Vertical separator
+- Help, theme toggle
 
-Computed class string on the reference button (full):
-```
-inline-flex items-center justify-center gap-2 rounded-lg font-medium
-transition-colors duration-150 select-none whitespace-nowrap
-bg-surface-2 text-fg hover:bg-surface-3 border border-border h-8 px-3 text-sm
-```
+The select / hand / pencil / line / arrow / export / present / undo / redo icons are all hidden on mobile.
 
-Inner markup: `<svg width="15" height="15" .../> <span class="hidden xl:inline">Export</span>` (the text span uses `hidden xl:inline` so on viewports < 1280px only the icon shows). All three buttons share the same chip template; Pause additionally flips `aria-pressed` and swaps icon+text between `play`+`Resume` and `pause`+`Pause`.
+### Local observation (mobile 420 × 820)
 
-### Local observation
-
-- All three buttons rendered with the bare `iconBtn` class (`rounded-md p-1.5`).
-- Measured widths were 28 px (just the icon) vs the reference's 90–100 px.
-- Icon sizes inherited the default 16 px, reference uses 15 px on the chip.
+Local header shows only GravelGraph logo + Menu + File icons. Continuous / Causal / Scenario / Pause / Help / theme are all hidden by `hidden lg:flex`.
 
 ### Root-cause hypothesis
 
-Local `Header.tsx` applied a single `iconBtn` class to every toolbar button, including the three primary actions. The reference distinguishes primary actions (Export, Present, Pause) from secondary icon controls by giving them a chip background, a border, a label, and slightly taller padding. The fix is purely visual chrome — no functional logic needs to change.
+The wrapper `<div className="hidden lg:flex items-center gap-1">` around the primary toolbar group uses `hidden lg:flex` which hides everything below the `lg` breakpoint. The reference only hides the non-primary action buttons on mobile.
 
 ### Planned change
 
-1. Add a new `chipBtn` class string in `Header.tsx` matching the reference's class set verbatim.
-2. Convert the Export, Present, and Pause buttons to use `chipBtn` and render `<Icon size={15} /> <span>...</span>`.
-3. Pause's text label flips `Pause ↔ Resume` together with its icon via the existing `useFlow.paused` state.
+(Filled in after implementation.)
 
 ### Result
 
-✅ **Fixed.** Local button widths after the change:
-
-| Button | Local width | Reference width | Match |
-|---|---|---|---|
-| Export | 92.78 | 92.78 | ✅ pixel-perfect |
-| Present | 100.30 | 100.30 | ✅ pixel-perfect |
-| Pause | 90.74 | 90.06 | ✅ within 1 px (the only diff is "Resume" vs "Pause" having slightly different text widths when toggled — current screenshot is the default "Pause" state) |
-
-All other computed styles (height 32, padding `0 12px`, borderRadius 8 px, fontSize 14 px, gap 8 px, fontWeight 500, border 1 px solid `var(--color-border)`) match. Pause toggle test: clicking the chip flips icon `pause → play` AND text `Pause → Resume` correctly.
+(Filled in after implementation.)
 
 ---
 
@@ -137,12 +119,37 @@ All other computed styles (height 32, padding `0 12px`, borderRadius 8 px, fontS
 
 - **Category**: Visual / components
 - **Severity**: Minor
-- **Status**: ✅ Fixed (resolved as MM-008)
+- **Status**: ✅ Fixed
 - **Reference**: Export, Present, Pause render as chip buttons with `bg-surface-2` background, 1 px border, `h-8 px-3`, 15 px icon + text label. Pause flips between "Pause" and "Resume" with the icon swap.
 - **Local**: All three buttons now use the new `chipBtn` class (`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors duration-150 select-none whitespace-nowrap bg-surface-2 text-fg hover:bg-surface-3 border border-border h-8 px-3 text-sm`) with `<Icon size={15} /> <span>...</span>` inside.
 - **Result**: Pixel-perfect width match (Export 92.78 / Present 100.30 / Pause 90.06). Pause text flips correctly.
-- **Evidence**: `.reverse-match/screenshots/iteration-007-local.png` (full page) + `.reverse-match/screenshots/iteration-007-reference.png` (reference for comparison).
+- **Evidence**: `.reverse-match/screenshots/iteration-007-local.png` + `.reverse-match/screenshots/iteration-007-reference.png`.
 - **Files changed**: `src/components/layout/Header.tsx`.
+- **Commit**: `4908a7b`
+
+### MM-009 — Components panel always-open at all viewports
+
+- **Category**: Mobile layout
+- **Severity**: Major (mobile unusable before fix)
+- **Status**: ✅ Fixed
+- **Reference (mobile 420 × 820)**: Header + banner + a small "Components" pill button at the top-left below the banner. Canvas takes the full remaining viewport width and height. Clicking the pill expands the panel as a slide-over.
+- **Local before**: `<ComponentsPanel>` rendered unconditionally as a 280 px-wide aside at every viewport. On mobile this dominated the screen and squeezed the canvas into ~140 px of width.
+- **Fix**:
+  - New `src/store/ui.ts` (zustand) holds `componentsOpen` (default `false` so mobile starts collapsed).
+  - `ComponentsPanel` now conditionally renders: on `< lg` it's a `fixed top-12 left-0 bottom-0 z-30` slide-over (only when open); on `lg+` it's a `static shrink-0` grid column. When closed on mobile it's `hidden`; when closed on desktop it's `hidden lg:flex` so the panel is always visible at `lg+`.
+  - The "Close Components" header button now sets `componentsOpen = false`.
+  - New `<ComponentsTogglePill>` rendered between `<SavedBanner/>` and `<main/>`. Hidden on `lg+` (where the panel is always visible). On mobile it's a chip-style button (15 px menu icon + "Components" text) that toggles the store.
+- **Verification (420 × 820)**:
+  - Collapsed default: header visible, "Components" pill at top-left, canvas fills the screen.
+  - Tapping pill: panel slides over from the left as a 280 px sheet; canvas still visible to the right.
+  - Tapping × on panel: panel closes, canvas reclaims full width.
+  - Verification (1440 × 900): panel renders in left grid column as before; toggle pill hidden (`lg:hidden`).
+- **Evidence**:
+  - `.reverse-match/screenshots/iteration-008-local-collapsed.png` (mobile, closed)
+  - `.reverse-match/screenshots/iteration-008-local-open.png` (mobile, open)
+  - `.reverse-match/screenshots/iteration-008-desktop.png` (desktop, no regression)
+- **Files changed**: `src/store/ui.ts` (new), `src/components/panel/ComponentsPanel.tsx`, `src/components/panel/ComponentsTogglePill.tsx` (new), `src/App.tsx`.
+- **Commit**: (next)
 
 ### MM-006 — Edge particle animation missing (HEADLINE feature)
 
@@ -286,12 +293,32 @@ All other computed styles (height 32, padding `0 12px`, borderRadius 8 px, fontS
     - Replaced the Pause button's body with `<Icon name={paused ? 'play' : 'pause'} size={15} /> <span>{paused ? 'Resume' : 'Pause'}</span>` so the label flips together with the icon.
 - **Verification**:
   - Reloaded at 1440×900 in dark theme.
-  - Measured widths: Export 92.78 px, Present 100.30 px, Pause 90.74 px — pixel-perfect match with reference (92.78 / 100.30 / 90.06). The Pause diff is within 1 px and is the "Pause" word vs "Resume" word rendering at slightly different widths.
+  - Measured widths: Export 92.78 px, Present 100.30 px, Pause 90.74 px — pixel-perfect match with reference (92.78 / 100.30 / 90.06).
   - All other computed styles (height 32, padding `0 12px`, borderRadius 8 px, fontSize 14 px, gap 8 px, fontWeight 500, border 1 px solid `var(--color-border)`) match.
   - Pause toggle test: clicking flips icon `pause → play` and text `Pause → Resume`; clicking again restores.
   - Zero console errors.
-- **Result**: MM-008 fixed. Header toolbar is now visually equivalent to the reference at 1440×900.
-- **Next action**: Inspect remaining minor mismatches: mobile layout, shape SVGs, resize handle, attribution visibility, flow-mode radios. Pick the next one.
+- **Result**: MM-008 fixed.
+- **Next action**: Inspect mobile layout mismatches.
+- **Commit**: `4908a7b`
+
+### Iteration 9 — fix MM-009: mobile Components panel collapse + toggle pill
+
+- **Goal**: On mobile (≤ lg), collapse the Components panel into a small "Components" pill button below the saved-locally banner, so the canvas takes the full screen width.
+- **Actions**:
+  - Created `src/store/ui.ts` with `componentsOpen: false` (default), `setComponentsOpen`, `toggleComponents`.
+  - Updated `src/components/panel/ComponentsPanel.tsx`:
+    - Subscribes to `componentsOpen` and `setComponentsOpen` from `useUi`.
+    - On `< lg`: when open → `fixed top-12 left-0 bottom-0 z-30 w-[280px] shadow-panel`; when closed → `hidden`.
+    - On `lg+`: always rendered as `static shrink-0 w-[280px] h-full border-r border-border` (no change from before).
+    - The "Close Components" × button now calls `setComponentsOpen(false)`.
+  - Created `src/components/panel/ComponentsTogglePill.tsx`: small chip button (15 px menu icon + "Components" label) that toggles the store. Hidden on `lg+` via `lg:hidden`.
+  - Updated `src/App.tsx` to render `<ComponentsTogglePill/>` between `<SavedBanner/>` and `<main/>`.
+- **Verification**:
+  - 420 × 820: panel is hidden by default, canvas fills viewport. Tapping pill → panel slides over from the left as a 280 px sheet. Tapping × → panel closes, canvas reclaims full width.
+  - 1440 × 900: panel renders in left grid column as before; toggle pill hidden (`lg:hidden`).
+  - Zero console errors.
+- **Result**: MM-009 fixed. Mobile UX now matches the reference's panel-collapse pattern.
+- **Next action**: MM-010 — mobile header shows only logo + Menu + File; reference keeps Continuous / Causal / Scenario / Pause chips visible at all viewports.
 - **Commit**: (next)
 
 ---
