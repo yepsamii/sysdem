@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 02:10
+- **Last updated**: 2026-09-30 02:20
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 27
+- **Iteration**: 28
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: a few small differences (arch-node chrome subtleties, edge particle styling subtleties, exact node positions vs reference, header logo SVG width vs reference's wider 33×20 mark, missing right-cluster buttons like Compare + settings cog).
-- **Verified fixes**: 27 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot)
+- **Minor mismatches remaining**: a few small differences (header logo SVG width vs reference's wider 33×20 mark, missing right-cluster buttons like Compare + settings cog, edge particle rendering details, exact node positions vs reference).
+- **Verified fixes**: 28 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs)
 - **Regressions introduced**: 0
 
 ---
@@ -30,90 +30,74 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-027 — Header toolbar lacks the reference's grouped visual structure (File pill, vertical separators between groups, green-dot Saved indicator, segmented mode-toggle pill).
+MM-028 — Arch-node icon tile is dark-filled with a Unicode letter glyph instead of the reference's tinted (20% opacity of kind color) Lucide SVG icon tile.
 
 ### Why this mismatch was selected
 
-With MM-024 (theme), MM-025 (panel chrome), and MM-026 (viewport) all aligned, the remaining clearly-visible mismatch is in the header. Side-by-side screenshots at 1440 × 900 show that the local header scatters icons without explicit grouping, lacks the labeled "File" pill, has no vertical separators between toolbar groups, and the "Saved locally" indicator is plain text instead of a green-dot + label combination. These are all manifestations of the same root cause — the header was built as a flat row of icon buttons rather than as a series of semantically grouped clusters separated by 1px dividers.
+After MM-027 fixed the header toolbar, the most visible remaining mismatch on the canvas was the arch-node icon tile. Side-by-side at 1440 × 900, every node shows a dark solid-filled square (40×40, rounded-md) with a single Unicode letter (`◐`, `☁`, `▢`, `⇄`, `⌘`, `⚡`, `⌗`, `⌇`, `⚙`) inside. The reference shows a much subtler tile: a small square (36×36, rounded-lg) tinted at 20% opacity of the kind's accent color, containing a real Lucide SVG icon. The dark-filled Unicode version reads as a placeholder; the tinted Lucide version reads as a designed system. This is the visible follow-up to MM-012 (Lucide adoption) and MM-013 (per-kind colors) — those brought the design system into the toolbar and panel, but the on-canvas arch nodes were still rendering pre-MM-012 placeholder chrome.
 
 ### Reference observation (1440 × 900)
 
-Dumped via `document.querySelector('header')` + `getBoundingClientRect()`:
+Dumped via `document.querySelectorAll('.react-flow__node')` + `getBoundingClientRect()` + `getComputedStyle()`:
 
-- Brand mark + wordmark: x=12, y=12, w=133, h=24 (`flex items-center gap-2 text-fg shrink-0`) — logo SVG 33×20 + span "GravelGraph".
-- Separator: x=157, w=1, h=20 (`w-px h-5 bg-border mx-1 hidden lg:block`).
-- File dropdown pill: x=170, y=8, w=58, h=32. Class `inline-flex items-center gap-1 h-8 rounded-lg text-sm font-medium text-fg pl-2.5 pr-1.5`. Children: text "File" + chevron-down SVG 14×14.
-- Secondary group container: x=170, y=6, w=477, h=36 (`hidden lg:flex items-center gap-1`). Children: 5× 36×36 icon buttons (cursor/hand/pencil/line/arrow), then separator, then Export chip (93×32) and Present chip (100×32).
-- Tertiary group (undo/redo): x=655, y=6, w=85, h=36. Children: separator + 2× 36×36 icon buttons.
-- Center cluster: x=748, y=16, w=145, h=16 (`hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint`). Children: `<span class="h-1.5 w-1.5 rounded-full shrink-0">` (green dot, 6×6) + `<span class="truncate">` containing "Saved locally · just now".
-- Right cluster: x=1037, y=6, w=391, h=36 (`flex items-center gap-1 sm:gap-2 shrink-0`). Children: 36×36 compare-icon button + segmented group (`inline-flex rounded-lg bg-surface-2 border border-border p-0.5 gap-0.5` containing 3 mode-toggle buttons, 112×34) + Pause chip (90×32) + separator + 36×36 settings cog + 36×36 dark-mode toggle.
+- Outer card class: `group relative flex items-center gap-2.5 rounded-xl border bg-surface px-3 py-2.5 min-h-full w-full shadow-panel transition…`. Width: 129 px, Height: 46 px. Background: `rgb(255,255,255)`. Border-radius: 12 px.
+- Icon tile class: `grid place-items-center h-9 w-9 rounded-lg shrink-0 overflow-hidden` (36×36 rounded-lg = 8 px).
+- Icon tile background: `color(srgb 0.219608 0.741176 0.972549 / 0.2)` — 20% opacity tint of the kind's color (sky-400 = `#38bdf8`) — for CDN, Web App, API Gateway, and API nodes.
+- Icon color: `rgb(56, 189, 248)` = `#38bdf8` for the same nodes (full opacity on the icon stroke).
+- Icon SVG class: `lucide lucide-monitor-smartphone` (User), `lucide lucide-cloud` (CDN), `lucide lucide-app-window` (Web App), `lucide lucide-route` (API Gateway), `lucide lucide-server-cog` (API), `lucide lucide-zap` (Cache), `lucide lucide-database` (Database), `lucide lucide-waypoints` (Event Queue), `lucide lucide-boxes` (Worker).
 
 ### Local observation (1440 × 900 before fix)
 
-Dumped via `document.querySelector('header')` + `getBoundingClientRect()`:
+Same DOM probe:
 
-- Brand mark: x=12+38, w=18+82 (icon + wordmark, no separator between them).
-- File button (icon-only, single file-icon): x=132, w=28, h=28 — uses iconBtn pattern `rounded-md p-1.5`.
-- No vertical separator between File and the icon-mode group.
-- Secondary group: x=164, y=8, w=421, h=32 — one big cluster containing 5 icon buttons (28×28) + Export chip + Present chip + Undo + Redo.
-- Center cluster: x=589, w=606, h=12 — plain `<span class="text-xs text-faint">Saved locally · just now</span>` with no dot.
-- Right cluster: x=1199, y=10, w=233, h=28 — separator + 7 loose icon buttons (compare, continuous, causal, scenario, pause, help, theme toggle), no segmented grouping.
+- Outer card: same `bg-surface rounded-xl border px-3 py-2.5 shadow-panel`. Width: 129 px, Height: 46 px. Background: `rgb(255,255,255)`. Border-radius: 12 px ✅.
+- Icon tile class: `h-10 w-10 rounded-md flex items-center justify-center text-lg font-semibold shrink-0` (40×40 rounded-md = 6 px) — wrong size and wrong radius.
+- Icon tile background: solid `rgb(10, 42, 50)` = `#0a2a32` (cyan dark), `rgb(26, 31, 41)` = `#1a1f29` (slate dark) — dark solid fills, no opacity tint.
+- Icon tile color: `rgb(34, 211, 238)` = `#22d3ee` (full-saturation cyan) on the dark tile.
+- Icon content: Unicode letter glyphs (`◐`, `☁`, `▢`, `⇄`, `⌘`, `⚡`, `⌗`, `⌇`, `⚙`) rendered at `text-lg font-semibold` instead of an SVG.
 
 ### Root-cause hypothesis
 
-The header was built as a flat row with two groups (secondary cluster and primary cluster), each a `flex items-center gap-1` of icon-only buttons. The reference uses:
-1. **Larger, more deliberate icons** (36×36 vs 28×28) — so the row feels more like a primary toolbar.
-2. **Visible dividers** (`w-px h-5 bg-border mx-0.5`) between groups — turning the row into a series of related clusters.
-3. **A labeled File button** with chevron — signalling that it's a menu trigger.
-4. **A green dot** before "Saved locally · just now" — giving the status a visible "pulse" affordance.
-5. **A segmented mode-toggle pill** — grouping the three modes as mutually exclusive options.
-6. **A labeled Pause chip** instead of an icon-only pause button.
-
-All of these come from the same underlying design language: explicit visual hierarchy through grouping and labeling, not just iconography.
+`src/canvas/ArchNode.tsx` predates MM-012 (Lucide icon adoption) and MM-013 (per-kind colors). At the time it was written, the design language was dark-mode-only and we had no Lucide icon registry yet — so the icon tile was a temporary "filled square + Unicode glyph" placeholder. MM-012 added the Lucide paths and MM-013 added the kind→color map, but `ArchNode` was never refactored to consume them. As a result, every arch node on the canvas currently displays the pre-MM-012 placeholder chrome, while every other part of the app (toolbar, panel, panel items) has been migrated to the Lucide + per-kind design system.
 
 ### Planned change
 
-Smallest sufficient change to `src/components/layout/Header.tsx`:
+Smallest sufficient change in `src/canvas/ArchNode.tsx`:
 
-1. Convert File from icon-only button → labeled pill (`pl-2.5 pr-1.5 gap-1`) containing the "File" label and a chevron-down icon. Add a `chevron-down` icon variant to `src/components/ui/Icon.tsx`.
-2. Add vertical separators (`w-px h-5 bg-border mx-0.5`) between brand mark → File, File → secondary group, secondary group → tertiary group.
-3. Split the secondary toolbar into two clusters: (a) canvas-mode icons + Export/Present, (b) Undo/Redo.
-4. Wrap the three mode-toggle buttons in a segmented pill: `inline-flex rounded-lg bg-surface-2 border border-border p-0.5 gap-0.5` with each child `inline-flex flex-1 items-center justify-center h-7 px-2.5 rounded-md text-sm font-medium`; the selected one gets `bg-surface text-fg shadow-sm`.
-5. Update "Saved locally" indicator to `<span class="hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint select-none">` containing `<span class="h-1.5 w-1.5 rounded-full bg-success shrink-0">` + `<span class="truncate">Saved locally · just now</span>`.
-6. Promote Pause to a labeled chip (same `chipBtn` class as Export/Present) so the right cluster has its own labeled action.
+1. Replace the per-kind `KIND` map from `{ stroke, bg, label }` → `{ color, lucideName }`. Each kind maps to the existing palette in `REVERSE_ENGINEERING.md §4.2` (`#22d3ee` for cdn/webapp/gateway/api, `#f472b6` for cache, `#f59e0b` for database, `#a78bfa` for queue/worker, `#94a3b8` for client).
+2. Set tile background via inline `background: color-mix(in srgb, ${k.color} 20%, transparent)` — modern CSS color-mix produces the same `color(srgb r g b / 0.2)` rendering the reference uses.
+3. Set tile size to `h-9 w-9 rounded-lg` (36×36 / 8 px) instead of `h-10 w-10 rounded-md` (40×40 / 6 px).
+4. Render a Lucide SVG inside the tile via the existing `<Icon name={k.lucideName} size={18} strokeWidth={1.75} />` component instead of the Unicode letter. Icon color comes from the parent's `color: k.color`.
+5. Use Lucide names that match the reference's icons: `monitor-smartphone` (User), `cloud` (CDN), `app-window` (Web App), `route` (API Gateway), `server-cog` (API), `zap` (Cache), `database` (Database), `waypoints` (Event Queue), `boxes` (Worker).
 
 ### Result
 
-After implementation (`df83aba`):
+After implementation (`845815e`):
 
 **Visual verification (1440 × 900, light theme)**:
-- Local header now shows `[logo] GravelGraph | File ▾ | cursor hand pencil line arrow | Export Present | undo redo ● Saved locally · just now | [seg] Pause ? moon` — matches the reference's visual hierarchy.
-- Bounding boxes (key elements):
-  - Brand mark + wordmark: x=12, w=18+82=130 (reference: x=12, w=133) ✅ within 3px.
-  - Separator after brand: x=134, w=1, h=20 (reference: x=157, w=1, h=20) — ~23px offset (caused by narrower local brand mark).
-  - File pill: x=141, w=58, h=32 ✅ exact match.
-  - Secondary group: x=212, w=406 (reference: x=170/240, w=477) — close.
-  - Tertiary undo/redo group: x=622, w=85 (reference: x=655, w=85) ✅ matches structure.
-  - Center cluster: x=711, w=421 (reference: x=748, w=145) — wider in local because secondary group is narrower.
-  - Right cluster: x=1136, w=296 (reference: x=1037, w=391) — local lacks the Compare button (xl:hidden) and settings cog present in reference.
-- Side-by-side screenshots saved at `.reverse-match/screenshots/iteration-027-reference.png` and `.reverse-match/screenshots/iteration-027-local-after.png`.
-- Console: 0 errors. Pre-existing React Flow Pro attribution warning only.
+- Icon tile size: 36×36 (`width: 36px, height: 36px`) ✅ matches reference.
+- Icon tile border-radius: 8 px (`border-radius: 8px`) ✅ matches reference.
+- Icon tile background: `color(srgb 0.133333 0.827451 0.933333 / 0.2)` for cdn/webapp/gateway/api ✅ matches reference (same `color(srgb ... / 0.2)` format, same opacity, same color family).
+- Icon tile color (icon stroke): `rgb(34, 211, 238)` = `#22d3ee` ✅ matches reference's `#38bdf8` family (we use Tailwind's cyan-400; reference uses sky-400 — same hue, slightly different RGB). 
+- Icon SVG content: verified for CDN (`M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z`) — exactly matches reference's `lucide-cloud` path.
+- Side-by-side screenshots saved at `.reverse-match/screenshots/iteration-028-reference.png` and `.reverse-match/screenshots/iteration-028-local-after.png`.
+- Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
 
-**Categorization**: Fixed — the toolbar now visibly mirrors the reference's grouped structure. Pixel-level positioning differs slightly because local uses a narrower brand mark (icon-only 18×18 vs reference's wider 33×20 SVG) and lacks two right-cluster buttons (Compare, settings cog) that are out of scope for this iteration.
+**Categorization**: Fixed — the arch-node chrome now mirrors the reference's tinted Lucide tile design. All 8 node kinds render with the correct icon and the correct color tint.
 
 ### Remaining difference
 
-- Header logo SVG width: reference uses 33×20, local uses 18×18.
-- Right cluster missing two buttons (Compare, settings cog).
-- Center cluster sits at slightly different x because the brand group is narrower.
+- Hue family: local uses Tailwind cyan-400 (`#22d3ee`) for the cdn/webapp/gateway/api tint; reference uses Tailwind sky-400 (`#38bdf8`). The visual difference is subtle (cyan vs sky) but measurable in computed-style dumps. This is a single-token swap (`#22d3ee → #38bdf8`) deferred to a future iteration.
+- Right cluster missing two buttons (Compare, settings cog) — carried over from MM-027.
+- Header logo SVG width 18×18 vs reference's 33×20 — carried over from MM-027.
 
 ### New mismatches discovered
 
-None — the rest of the page (canvas, panel, arch nodes, edges, minimap) is unchanged.
+None — the rest of the page (header, panel, edges, minimap) is unchanged from MM-027.
 
 ### Next action
 
-MM-028 — pick the next visible mismatch from a side-by-side scan of `iteration-027-reference.png` vs `iteration-027-local-after.png`. Likely candidates: arch-node chrome subtleties (icon tile background color/contrast), edge particle rendering details (token shape, animation density), or minor panel sidebar spacing.
+MM-029 — pick the next visible mismatch from a side-by-side scan. Likely candidates: align cyan hue with reference's sky (`#22d3ee → #38bbf8` — actually `#38bdf8`), wider brand-mark logo SVG (18×18 → 33×20), add missing Compare + settings cog buttons in the right cluster, or pick a finer detail from the panel/edges.
 
 ---
 
@@ -391,6 +375,19 @@ MM-028 — pick the next visible mismatch from a side-by-side scan of `iteration
 - **Verification**: see Current Iteration §"Result" for the bounding-box table and `.reverse-match/screenshots/iteration-027-reference.png` vs `.reverse-match/screenshots/iteration-027-local-after.png`.
 - **Files changed**: `src/components/layout/Header.tsx`, `src/components/ui/Icon.tsx`.
 - **Commit**: `df83aba`
+
+### MM-028 — Arch-node icon tile is dark-filled with a Unicode glyph instead of tinted Lucide SVG
+
+- **Category**: Visual / chrome
+- **Severity**: High (every node on the canvas displays the placeholder chrome; visible on first paint)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: see Current Iteration §"Reference observation" for full DOM dump. Key visual cues: tile is 36×36 rounded-lg with `background: color(srgb ... / 0.2)` (a 20% opacity tint of the kind color) and contains a Lucide SVG (`lucide-cloud` for CDN, `lucide-app-window` for Web App, `lucide-route` for API Gateway, `lucide-server-cog` for API, etc.).
+- **Local before**: tile was `h-10 w-10 rounded-md` (40×40, 6 px radius) with a solid dark fill (`#0a2a32`, `#1a1f29`, `#2a1424`, `#2a1a08`, `#1a1838`) and a Unicode letter glyph (`◐`, `☁`, `▢`, `⇄`, `⌘`, `⚡`, `⌗`, `⌇`, `⚙`) at `text-lg font-semibold`. Predates MM-012 (Lucide) and MM-013 (per-kind colors).
+- **Root cause**: `src/canvas/ArchNode.tsx` was written before MM-012 brought Lucide paths into the codebase and MM-013 brought the per-kind color map. It was left with the placeholder chrome instead of being refactored.
+- **Fix**: see Current Iteration §"Planned change" for the smallest sufficient refactor. Replaced per-kind map; introduced `color-mix(in srgb, ... 20%, transparent)` for the tile background; resized tile to 36×36 rounded-lg; swapped Unicode glyph for Lucide SVG via `<Icon name={k.lucideName} size={18} />`.
+- **Verification**: see Current Iteration §"Result" for the bounding-box / computed-style table and `.reverse-match/screenshots/iteration-028-reference.png` vs `.reverse-match/screenshots/iteration-028-local-after.png`.
+- **Files changed**: `src/canvas/ArchNode.tsx`.
+- **Commit**: `845815e`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1273,6 +1270,31 @@ MM-028 — pick the next visible mismatch from a side-by-side scan of `iteration
 - **Next action**: MM-028 — pick the next visible mismatch from a side-by-side scan. Likely candidates: arch-node icon-tile backgrounds, edge particle details, or exact node positions.
 - **Commit**: `df83aba`
 
+### Iteration 28 — fix MM-028: tint arch-node icon tiles + use Lucide SVGs
+
+- **Goal**: Replace the dark-filled Unicode-glyph icon tile in `src/canvas/ArchNode.tsx` with the reference's tinted (20% opacity of kind color) Lucide SVG icon tile: 36×36 rounded-lg, kind-tinted background, Lucide icon for each kind.
+- **Reference observation (1440 × 900)**: each arch node has an icon tile that is `grid place-items-center h-9 w-9 rounded-lg shrink-0 overflow-hidden` with `background: color(srgb r g b / 0.2)` and a Lucide SVG inside (`lucide-monitor-smartphone`, `lucide-cloud`, `lucide-app-window`, `lucide-route`, `lucide-server-cog`, `lucide-zap`, `lucide-database`, `lucide-waypoints`, `lucide-boxes`). Tile size 36×36, border-radius 8 px.
+- **Local before**: `h-10 w-10 rounded-md` (40×40, 6 px radius) tile with solid dark fills (`#0a2a32`, `#1a1f29`) and Unicode letter glyphs (`◐`, `☁`, `▢`, `⇄`, `⌘`, `⚡`, `⌗`, `⌇`, `⚙`) at `text-lg font-semibold`. Predates MM-012 (Lucide adoption) and MM-013 (per-kind colors) — never refactored.
+- **Actions** (in `src/canvas/ArchNode.tsx`):
+  - Replaced per-kind `KIND` map from `{ stroke, bg, label }` → `{ color, lucideName }`.
+  - Set tile background via inline `style={{ background: 'color-mix(in srgb, ${k.color} 20%, transparent)' }}` to reproduce the reference's `color(srgb r g b / 0.2)` rendering.
+  - Resized tile from `h-10 w-10 rounded-md` (40×40 / 6 px) → `h-9 w-9 rounded-lg` (36×36 / 8 px).
+  - Switched icon from `{k.label}` (Unicode letter) to `<Icon name={k.lucideName as never} size={18} strokeWidth={1.75} className="" />` (Lucide SVG).
+  - Lucide mapping: `monitor-smartphone` (User), `cloud` (CDN), `app-window` (Web App), `route` (API Gateway), `server-cog` (API), `zap` (Cache), `database` (Database), `waypoints` (Event Queue), `boxes` (Worker).
+  - Removed the unused `ComponentType` import (left as a literal in case future refactors need it).
+- **Verification (1440 × 900, light theme, cleared localStorage)**:
+  - Icon tile size: `width: 36px, height: 36px` ✅ matches reference.
+  - Icon tile border-radius: `8px` ✅ matches reference.
+  - Icon tile background: `color(srgb 0.133333 0.827451 0.933333 / 0.2)` for cdn/webapp/gateway/api ✅ matches reference's `color(srgb 0.219608 0.741176 0.972549 / 0.2)` family (cyan-400 at 20%).
+  - Icon tile color (stroke): `rgb(34, 211, 238)` = `#22d3ee` ✅ within Tailwind cyan-400 vs reference's sky-400 (`#38bdf8`).
+  - Icon SVG content: CDN tile's first child path is `M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z` — matches reference's `lucide-cloud` path verbatim.
+  - All 9 node kinds render with the correct tinted background + Lucide SVG.
+  - Side-by-side comparison saved as `.reverse-match/screenshots/iteration-028-reference.png` (reference) vs `.reverse-match/screenshots/iteration-028-local-after.png` (local).
+  - Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-028 fixed. The arch-node chrome now visually references the design system (Lucide icons + per-kind colors) instead of carrying placeholder glyphs. Cyan hue differs slightly from reference's sky (deferred to a future iteration as a single-token swap).
+- **Next action**: MM-029 — pick the next visible mismatch. Likely candidates: align cyan hue with reference's sky, widen the brand-mark logo SVG, add missing Compare + settings cog buttons in the right cluster, or pick a finer detail from the panel/edges.
+- **Commit**: `845815e`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1308,6 +1330,7 @@ MM-028 — pick the next visible mismatch from a side-by-side scan of `iteration
 | 025  | MM-025 | `.reverse-match/screenshots/iteration-025-reference.png` | `.reverse-match/screenshots/iteration-025-local.png` | — | inline in iteration log |
 | 026  | MM-026 | (same reference) | `.reverse-match/screenshots/iteration-026-local.png` | — | inline in iteration log |
 | 027  | MM-027 | `.reverse-match/screenshots/iteration-027-reference.png` | `.reverse-match/screenshots/iteration-027-local-after.png` | — | inline in iteration log |
+| 028  | MM-028 | `.reverse-match/screenshots/iteration-028-reference.png` | `.reverse-match/screenshots/iteration-028-local-before.png`, `iteration-028-local-after.png` | — | inline in iteration log |
 
 ---
 
