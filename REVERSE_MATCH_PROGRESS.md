@@ -18,10 +18,10 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ## Overall Progress
 
-- **Iteration**: 2
-- **Major mismatches remaining**: 3 (components aside, cookie consent, top banner)
-- **Minor mismatches remaining**: several (header icon labels, particle animation, etc.)
-- **Verified fixes**: 2 (Milestone 0 shell + MM-001 canvas)
+- **Iteration**: 3
+- **Major mismatches remaining**: 2 (top "saved locally" banner, cookie consent card)
+- **Minor mismatches remaining**: several (particle animation, header icon labels, edge label chips, mobile layout)
+- **Verified fixes**: 3 (Milestone 0 shell, MM-001 canvas, MM-002 components aside)
 - **Regressions introduced**: 0
 
 ---
@@ -30,44 +30,37 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-002 — Components aside missing on the left side.
+MM-003 — Top "saved locally" banner missing.
 
 ### Why this mismatch was selected
 
-The aside is a structural sibling of the canvas in the reference (`.gg-shell` → `<main>` (flex-1) + `<aside>`), and removing it would force a layout-level comparison fix before visual fidelity. Once the aside exists, the right-toolbar cluster and the main canvas can be compared with the same expectations in both implementations.
+The banner sits directly below the header and is a persistent chrome element — its presence/absence affects the visual weight of the header region and the perceived height of the canvas. Adding it is a small, isolated change that improves overall fidelity before tackling more complex pieces like the cookie consent modal.
 
 ### Reference observation
 
-- `<aside aria-label="Components">` rendered on the left of `<main>`, ~280 px wide.
-- Header inside the aside: bold title "Components" and a close (×) button on the right.
-- Search input with magnifier icon and placeholder "Search components & services".
-- "Expand all" / "Collapse all" buttons below search.
-- Below those: a "STENCILS" group (italic helper text "Select elements, then 'Save as stencil' to reuse them here." + Import ↑ and Export ↓ icon buttons on the right).
-- Below Stencils: collapsible "SHAPES" group with count badge "8" and 8 buttons in a 2-column grid (Rectangle, Rounded, Ellipse, Diamond, Triangle, Hexagon, Cylinder, Text).
-- Below Shapes: collapsible "CLIENTS & NETWORK" group with count "4" and items Client, CDN, API Gateway, Load Balancer.
+- Dark strip beneath the header: `Your work is saved in this browser only — no account, no server. Use Save to keep a .gravel file, or Copy link to share it.`
+- Three emphasis words styled with bold: "in this browser only", "Save", "Copy link".
+- × close button on the far right.
+- `localStorage["diagramr.seenSavedBanner"] = "1"` (assumption — needs verification) dismisses it permanently.
 
 ### Local observation
 
-- No `<aside>` exists in the DOM.
-- `<main>` is the only child of `.gg-shell` below the header.
+- No banner between header and main.
 - File: `src/App.tsx`.
 
 ### Root-cause hypothesis
 
-`<Aside>` component never implemented. No components panel CSS or markup exists.
+No `<Banners>` sibling exists in the shell.
 
 ### Planned change
 
-Add `<ComponentsPanel>` (initially non-resizable, fixed 280 px width) under `<main>` in a `flex` row, with:
+Insert a `<SavedBanner>` strip between `<Header/>` and `<main>` with:
 
-1. Title + close button.
-2. Search input (placeholder only — filtering comes later).
-3. "Expand all" / "Collapse all" buttons (no-op for now).
-4. STENCILS group header.
-5. SHAPES group with 8 buttons in 2-col grid + count badge.
-6. CLIENTS & NETWORK group with 4 buttons + count badge.
+1. Inline copy with `<strong>` for the three emphasis phrases.
+2. × dismiss button on the right that sets `localStorage["gravelgraph.seenSavedBanner"] = "1"`.
+3. Conditional render: hidden if the flag is set.
 
-For Milestone 1 acceptance, the visual geometry (width, padding, scroll behaviour) is what matters — click behaviour is not in scope this iteration.
+For Milestone 1, no animation, no fade — just static markup with the dismiss interaction.
 
 ---
 
@@ -90,13 +83,12 @@ For Milestone 1 acceptance, the visual geometry (width, padding, scroll behaviou
 
 - **Category**: Major structural
 - **Severity**: Major
-- **Status**: Pending
-- **Reference**: Left-side `<aside aria-label="Components">` ~280 px wide, with title + close, search input, Expand/Collapse all buttons, STENCILS group, SHAPES group (Rectangle/Rounded/Ellipse/Diamond/Triangle/Hexagon/Cylinder/Text), CLIENTS & NETWORK (Client/CDN/API Gateway/Load Balancer), COMPUTE group
-- **Local**: Nothing — `<main>` is empty
-- **Difference**: Sidebar component entirely absent
-- **Evidence**: Reference screenshot left side
-- **Likely cause**: Not implemented yet
-- **Planned fix**: Build `<ComponentsPanel>` aside with at least Shapes + Clients & Network + Compute + first-run Stencils stub
+- **Status**: ✅ Fixed
+- **Reference**: Left-side `<aside aria-label="Components">` ~280 px wide with title, close button, search input, Expand all / Collapse all, Stencils row, Shapes (8) + Clients & Network (4) + Compute (4) groups with chevron + count badges
+- **Local**: `<aside aria-label="Components">` renders with the same width, header layout, search input, Expand/Collapse buttons, Stencils row with ↓ import / ↑ export icons (matching the live site), and three collapsible groups with chevron + count badges. SVG icons on the close / chevron / expand / collapse / import / export buttons.
+- **Result**: Geometry matches. Two minor remaining differences documented as future mismatches: (a) shape icons in the buttons are letter glyphs rather than real Lucide SVG outlines, and (b) the group is not yet resizable (no `<hr role="separator">`).
+- **Evidence**: `.reverse-match/screenshots/iteration-002-local.png`
+- **Files changed**: `src/App.tsx`, `src/components/panel/ComponentsPanel.tsx` (new), `src/components/ui/Icon.tsx` (added `upload` icon).
 
 ### MM-003 — Top "saved locally" banner missing
 
@@ -169,6 +161,24 @@ For Milestone 1 acceptance, the visual geometry (width, padding, scroll behaviou
 - **Verification**: Reloaded http://127.0.0.1:5173 at 1440×900; 9 nodes and 9 edges render, dot background visible, controls bottom-left, minimap bottom-right with expected palette. Zero console errors.
 - **Result**: MM-001 fixed. Remaining differences inside the canvas (particle animation, edge label chips, custom curve smoothing) are deferred to Milestone 2.
 - **Next action**: MM-002 — add the left-side Components aside.
+- **Commit**: `e3fb1b3` MM-001: render React Flow canvas with default System Architecture
+
+### Iteration 3 — fix MM-002: render Components aside on the left
+
+- **Goal**: Bring up the left-side Components panel.
+- **Actions**:
+  - Created `src/components/panel/ComponentsPanel.tsx`:
+    - Header: title "Components" + close button with `aria-label="Close Components"`.
+    - Search input with magnifier and placeholder "Search components & services".
+    - Expand all / Collapse all buttons with title attributes (`Expand every section` / `Collapse every section`).
+    - Stencils row: `Stencils` label + ↓ import + ↑ export SVG buttons (down-arrow / up-arrow), italic helper copy.
+    - Three groups (Shapes 8, Clients & Network 4, Compute 4) with chevron + label + count, default-open for Shapes and Clients & Network, collapsible.
+    - 2-col grid of items per group with icon chip + name.
+  - Updated `src/components/ui/Icon.tsx` to add `upload` icon (used elsewhere).
+  - Restructured `<App>` to use `<main className="flex">` with `<ComponentsPanel/>` + `<div className="flex-1"><Canvas/></div>`.
+- **Verification**: Reloaded at 1440×900. Aside renders at correct width, all sections visible, icons match the live site's arrow directions. Zero console errors.
+- **Result**: MM-002 fixed. Remaining differences: shape buttons still use letter glyphs (not real SVG outlines), panel is fixed-width (resize handle not implemented).
+- **Next action**: MM-003 — top "saved locally" banner.
 - **Commit**: (next)
 
 ---

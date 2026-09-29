@@ -2,7 +2,7 @@ import { type ButtonHTMLAttributes, forwardRef } from 'react';
 
 type IconName =
   | 'menu' | 'file' | 'cursor' | 'hand' | 'pencil' | 'line' | 'arrow'
-  | 'download' | 'present' | 'undo' | 'redo' | 'compare'
+  | 'download' | 'upload' | 'present' | 'undo' | 'redo' | 'compare'
   | 'continuous' | 'causal' | 'scenario' | 'pause' | 'play' | 'help'
   | 'sun' | 'moon' | 'logo' | 'settings' | 'search' | 'plus' | 'minus'
   | 'fit' | 'lock' | 'unlock' | 'x' | 'check' | 'circle' | 'square';
@@ -16,6 +16,7 @@ const paths: Record<IconName, string> = {
   line: 'M4 20L20 4',
   arrow: 'M4 20L20 4 M14 4h6v6',
   download: 'M12 4v12 M6 12l6 6 6-6 M4 20h16',
+  upload: 'M12 20V8 M6 12l6-6 6 6 M4 4h16',
   present: 'M3 4h18v12H3z M8 20h8 M12 16v4',
   undo: 'M9 14l-5-5 5-5 M4 9h10a6 6 0 0 1 0 12h-4',
   redo: 'M15 14l5-5-5-5 M20 9H10a6 6 0 0 0 0 12h4',
