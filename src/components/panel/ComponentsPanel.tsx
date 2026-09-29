@@ -268,6 +268,23 @@ export function ComponentsPanel() {
     storageKey: 'gravelgraph.componentsPanel.width',
   });
 
+  // Search query (case-insensitive substring filter across item names).
+  const [query, setQuery] = useState('');
+  const q = query.trim().toLowerCase();
+
+  // Derived groups: when querying, filter items + drop empty groups + force-expand.
+  const visibleGroups = q
+    ? GROUPS
+        .map((g) => ({
+          ...g,
+          items: g.items.filter((it) => it.name.toLowerCase().includes(q)),
+        }))
+        .filter((g) => g.items.length > 0)
+    : GROUPS;
+
+  // Per-group open flag: query overrides openMap to force-expand matching groups.
+  const isOpen = (label: string) => (q ? true : !!openMap[label]);
+
   const toggle = (label: string) => setOpenMap((m) => ({ ...m, [label]: !m[label] }));
   const allOpen = GROUPS.every((g) => openMap[g.label]);
   const allClosed = GROUPS.every((g) => !openMap[g.label]);
@@ -317,6 +334,8 @@ export function ComponentsPanel() {
             type="search"
             placeholder="Search components & services"
             aria-label="Search components and services"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             className="w-full pl-7 pr-2 h-8 rounded-md bg-surface-2 border border-border text-sm placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/40"
           />
         </div>
@@ -356,9 +375,11 @@ export function ComponentsPanel() {
 
       {/* Component groups (scrollable) */}
       <div className="flex-1 overflow-y-auto mt-2 pb-3">
-        {GROUPS.map((group) => {
-          const open = openMap[group.label];
+        {visibleGroups.map((group) => {
+          const open = isOpen(group.label);
           const variant = group.variant ?? 'default';
+          // Badge count: when searching show match count, otherwise show default count.
+          const badgeCount = q ? group.items.length : (group.displayCount ?? group.items.length);
           return (
             <section
               key={group.label}
@@ -382,10 +403,10 @@ export function ComponentsPanel() {
                 <span className="truncate">{group.label}</span>
                 {variant === 'provider' ? (
                   <span className="ml-auto shrink-0 rounded-full bg-surface-3 px-1.5 text-[10px] normal-case tracking-normal text-muted">
-                    {group.displayCount ?? group.items.length}
+                    {badgeCount}
                   </span>
                 ) : (
-                  <span className="ml-auto text-faint font-normal">{group.items.length}</span>
+                  <span className="ml-auto text-faint font-normal">{badgeCount}</span>
                 )}
               </button>
               {open && (
