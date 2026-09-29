@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 00:18
+- **Last updated**: 2026-09-30 00:30
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 18
+- **Iteration**: 19
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: several (resize handle, real brand SVGs for the remaining 6 provider sections — Messaging & Streaming, DevOps & Observability, SaaS & Identity, panel header brand icon, search functionality, stencils import/export wiring, default theme might be dark vs light depending on OS preference)
-- **Verified fixes**: 18 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases section brand icons, MM-018 Data & Analytics section brand icons)
+- **Minor mismatches remaining**: several (resize handle, real brand SVGs for SaaS & Identity only, panel header brand icon, search functionality, stencils import/export wiring, default theme might be dark vs light depending on OS preference)
+- **Verified fixes**: 19 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases section brand icons, MM-018 Data & Analytics section brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons)
 - **Regressions introduced**: 0
 
 ---
@@ -30,11 +30,11 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-019 — Messaging & Streaming provider items (Kafka, RabbitMQ) and DevOps & Observability provider items (Docker, Kubernetes, Terraform, NGINX, Prometheus, Grafana, Datadog, Sentry, GitHub, GitLab) still use generic Lucide placeholders. Reference uses real brand SVGs.
+MM-020 — SaaS & Identity provider items (Stripe, Auth0, Okta, Firebase) still use generic Lucide placeholders. Reference uses real brand SVGs.
 
 ### Why this mismatch was selected
 
-MM-017 + MM-018 delivered Databases + Data & Analytics (both open-by-default). The next-largest visible gap is the 12-item DevOps & Observability section (also open-by-default).
+After MM-019 completes (Messaging & Streaming + DevOps & Observability), the only remaining open-by-default provider section using placeholders is SaaS & Identity (4 items). Closing it out finishes the brand-icon replacement work started in MM-017.
 
 ### Reference observation
 
@@ -42,11 +42,11 @@ MM-017 + MM-018 delivered Databases + Data & Analytics (both open-by-default). T
 
 ### Local observation
 
-After MM-018, the Messaging & Streaming section shows Kafka and RabbitMQ both using the `waypoints` Lucide icon (the same one as the first-party Queue). DevOps & Observability shows Docker / Kubernetes using `app-window` / `boxes`, Terraform / NGINX using `route` / `server`, and Prometheus / Grafana / Datadog / Sentry / GitHub / GitLab using `monitor-smartphone` / `shield-check` / `app-window`. None of these are brand-recognizable.
+After MM-019, the SaaS & Identity section still shows Stripe (`app-window`), Auth0 (`shield-check`), Okta (`shield-check`), Firebase (`zap`) — all generic Lucide placeholders. The other 8 provider sections now use real brand SVGs.
 
 ### Root-cause hypothesis
 
-MM-017 sliced provider-icon replacement to keep micro-commits bounded. Continuing with the same pattern for the next sections.
+MM-017/018/019 sliced provider-icon replacement to keep micro-commits bounded. MM-020 closes the loop on SaaS & Identity.
 
 ### Planned change
 
@@ -294,6 +294,37 @@ MM-017 sliced provider-icon replacement to keep micro-commits bounded. Continuin
 - **Evidence**: `.reverse-match/screenshots/iteration-015-local.png`
 - **Files changed**: `src/components/ui/Icon.tsx`, `src/components/panel/ComponentsPanel.tsx`.
 - **Commit**: `c577f9c`
+
+### MM-019 — Messaging & Streaming + DevOps & Observability provider items render with generic Lucide icons instead of real brand SVGs
+
+- **Category**: Visual / branding
+- **Severity**: Medium (both sections are open-by-default; 13 brand items total)
+- **Status**: ✅ Fixed (slice 3 of provider-icons — Messaging & Streaming + DevOps & Observability; SaaS & Identity deferred to MM-020)
+- **Reference observation (1440 × 900)**: each item in both sections renders a 15×15 brand SVG with `viewBox="0 0 24 24"` and `fill="currentColor"`. Wrapper span carries `color-mix` style with the brand color. Brand colors and SVG shapes verified by extracting `svg.outerHTML` and computed `color` for each item in the live reference DOM:
+  - **Messaging & Streaming** (2 items): Kafka `rgb(123, 123, 123)` gray, RabbitMQ `rgb(255, 102, 0)` orange.
+  - **DevOps & Observability** (11 items): Docker `rgb(36, 150, 237)` blue, Kubernetes `rgb(50, 108, 229)` blue, Terraform `rgb(132, 79, 186)` purple, NGINX `rgb(0, 150, 57)` green, Cloudflare `rgb(243, 128, 32)` orange, Prometheus `rgb(230, 82, 44)` red, Grafana `rgb(244, 104, 0)` orange, Datadog `rgb(99, 44, 166)` purple, Sentry `rgb(54, 45, 89)` dark slate, GitHub `rgb(139, 148, 158)` slate, GitLab `rgb(252, 109, 38)` orange.
+- **Local before**: each item rendered a generic Lucide placeholder — Kafka/RabbitMQ both used `waypoints` (same as first-party Queue); Docker used `app-window`, Kubernetes `boxes`, Terraform `route`, NGINX `server`, Cloudflare `app-window`, Prometheus `monitor-smartphone`, Grafana `shield-check`, Datadog `app-window`, Sentry `app-window`, GitHub `monitor-smartphone`, GitLab `app-window`. None of these are brand-recognizable.
+- **Root cause**: MM-015 added provider section structure + placeholder Lucide icons as a stand-in for the ~50+ brand SVGs. MM-017 (Databases) and MM-018 (Data & Analytics) began the replacement work. MM-019 continues with Messaging & Streaming + DevOps & Observability, the last two multi-item provider sections with placeholders.
+- **Fix**:
+  - `src/components/ui/Icon.tsx`:
+    - Extended `IconName` union with 13 brand names: `brand-kafka`, `brand-rabbitmq`, `brand-docker`, `brand-kubernetes`, `brand-terraform`, `brand-nginx`, `brand-cloudflare`, `brand-prometheus`, `brand-grafana`, `brand-datadog`, `brand-sentry`, `brand-github`, `brand-gitlab`.
+    - Added 13 brand SVG paths to the `paths` map (verbatim from the reference DOM). No renderer change — MM-017's `brand-` prefix branch handles these names automatically.
+  - `src/components/panel/ComponentsPanel.tsx`:
+    - Replaced the 2 placeholder `iconName` values in Messaging & Streaming with `brand-kafka` / `brand-rabbitmq`.
+    - Replaced the 11 placeholder `iconName` values in DevOps & Observability with the 11 brand-specific names listed above.
+    - Added `iconColor` for each item matching the brand colors extracted from the reference.
+- **Verification (1440 × 900, dark theme)**:
+  - DOM inspection: all 13 brand SVGs render with `fill="currentColor"` and `stroke="none"`. Each button has exactly 1 `<path>` child (the brand glyph).
+  - Tile wrappers carry the expected inline style with the brand color (e.g. `background: color-mix(in srgb, rgb(36, 150, 237) 20%, transparent 80%); color: rgb(36, 150, 237);` for Docker).
+  - Visual screenshot of the DevOps & Observability section shows Docker whale blue, Kubernetes wheel purple, Terraform purple, NGINX green, Cloudflare orange cloud, Prometheus red flame, Grafana orange G, Datadog purple, Sentry dark slate, GitHub gray octocat, GitLab orange fox — all visually distinct.
+  - Databases and Data & Analytics sections unchanged (still use MM-017/018 brand SVGs).
+  - SaaS & Identity section unchanged (still uses generic Lucide placeholders — deferred to MM-020).
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning from MM-016 (unrelated).
+- **Evidence**:
+  - `.reverse-match/screenshots/iteration-019-local.png` (full page)
+  - `.reverse-match/screenshots/iteration-019-devops.png` (DevOps panel only)
+- **Files changed**: `src/components/ui/Icon.tsx`, `src/components/panel/ComponentsPanel.tsx`.
+- **Commit**: `6382088`
 
 ### MM-018 — Data & Analytics provider items render with generic Lucide icons instead of real brand SVGs
 
@@ -719,8 +750,33 @@ MM-017 sliced provider-icon replacement to keep micro-commits bounded. Continuin
   - Messaging & Streaming, DevOps & Observability, SaaS & Identity sections unchanged (still use generic Lucide placeholders — deferred to MM-019+).
   - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning.
 - **Result**: MM-018 fixed. Data & Analytics section now uses real brand SVGs identical to the reference. Three provider sections remain (Messaging & Streaming, DevOps & Observability, SaaS & Identity).
-- **Next action**: MM-019 — replace placeholder Lucide icons in Messaging & Streaming + DevOps & Observability sections with brand SVGs (Kafka, RabbitMQ, Docker, Kubernetes, Terraform, NGINX, Prometheus, Grafana, Datadog, Sentry, GitHub, GitLab).
-- **Commit**: (this iteration)
+- **Next action**: MM-019 — replace placeholder Lucide icons in Messaging & Streaming + DevOps & Observability sections with brand SVGs (Kafka, RabbitMQ, Docker, Kubernetes, Terraform, NGINX, Cloudflare, Prometheus, Grafana, Datadog, Sentry, GitHub, GitLab).
+- **Commit**: `e2c0149`
+
+### Iteration 19 — fix MM-019: brand SVGs for Messaging & Streaming + DevOps & Observability
+
+- **Goal**: Continue the provider-icon replacement from MM-017/018 with the 2 Messaging & Streaming items and 11 DevOps & Observability items (13 brand SVGs total — the last large multi-item section).
+- **Reference observation (1440 × 900)**: each item renders a 15×15 brand SVG with `fill="currentColor"`. Brand colors and SVG shapes verified via Playwright `browser_evaluate` on the live reference DOM — see MM-019 mismatch entry for the full color list.
+- **Local before**: each item rendered a generic Lucide placeholder (waypoints / app-window / boxes / route / server / monitor-smartphone / shield-check). None were brand-recognizable.
+- **Actions**:
+  - `src/components/ui/Icon.tsx`:
+    - Extended `IconName` union with 13 brand names: `brand-kafka`, `brand-rabbitmq`, `brand-docker`, `brand-kubernetes`, `brand-terraform`, `brand-nginx`, `brand-cloudflare`, `brand-prometheus`, `brand-grafana`, `brand-datadog`, `brand-sentry`, `brand-github`, `brand-gitlab`.
+    - Added 13 brand SVG paths to the `paths` map (verbatim from the reference DOM). The brand renderer branch (`fill="currentColor"` + `stroke="none"`) added in MM-017 covers these names automatically.
+  - `src/components/panel/ComponentsPanel.tsx`:
+    - Replaced 2 placeholder `iconName` values in Messaging & Streaming with `brand-kafka` / `brand-rabbitmq`.
+    - Replaced 11 placeholder `iconName` values in DevOps & Observability with their brand-specific names.
+    - Added `iconColor` for each item matching the brand colors extracted from the reference.
+- **Verification (1440 × 900, dark theme)**:
+  - DOM inspection confirms 13 brand-SVG buttons: each `<svg>` has `fill="currentColor"`, `stroke="none"`, and exactly 1 `<path>` child.
+  - Tile wrappers carry the expected inline `color-mix` style with the brand color for each item.
+  - Visual screenshot of DevOps & Observability section confirms distinct brand logos: Docker whale, Kubernetes wheel, Terraform, NGINX, Cloudflare cloud, Prometheus flame, Grafana, Datadog, Sentry, GitHub octocat, GitLab fox — all visually distinct.
+  - Visual screenshot of Messaging & Streaming shows Kafka and RabbitMQ brand glyphs.
+  - Databases and Data & Analytics sections unchanged.
+  - SaaS & Identity section still uses generic Lucide placeholders (deferred to MM-020).
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-019 fixed. Two more provider sections now use real brand SVGs. Only SaaS & Identity (4 items) remains with generic placeholders.
+- **Next action**: MM-020 — replace placeholder Lucide icons in SaaS & Identity section with brand SVGs (Stripe, Auth0, Okta, Firebase).
+- **Commit**: `6382088`
 
 ---
 
@@ -748,6 +804,7 @@ MM-017 sliced provider-icon replacement to keep micro-commits bounded. Continuin
 | 016  | MM-016 | (same reference) | `.reverse-match/screenshots/iteration-016-local.png` | — | inline in iteration log |
 | 017  | MM-017 | (same reference) | `.reverse-match/screenshots/iteration-017-local.png` | — | inline in iteration log |
 | 018  | MM-018 | (same reference) | `.reverse-match/screenshots/iteration-018-local.png` | — | inline in iteration log |
+| 019  | MM-019 | (same reference) | `.reverse-match/screenshots/iteration-019-local.png`, `iteration-019-devops.png` | — | inline in iteration log |
 
 ---
 
