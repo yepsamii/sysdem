@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 00:36
+- **Last updated**: 2026-09-30 00:42
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 20
+- **Iteration**: 21
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: several (resize handle, search functionality, stencils import/export wiring, default theme might be dark vs light depending on OS preference). Brand-icon replacement is complete for all 9 provider sections.
-- **Verified fixes**: 20 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons)
+- **Minor mismatches remaining**: several (search functionality, stencils import/export wiring, default theme might be dark vs light depending on OS preference)
+- **Verified fixes**: 21 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle)
 - **Regressions introduced**: 0
 
 ---
@@ -30,11 +30,11 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-021 — Components panel is fixed at 280 px width; reference has a draggable resize handle (cursor: ew-resize) on the right edge that lets the user shrink/expand the panel width.
+MM-022 — Components panel search input is purely cosmetic; reference actually filters items by name (case-insensitive substring match across all groups, with empty groups auto-hiding and matching groups auto-expanding).
 
 ### Why this mismatch was selected
 
-Brand-icon replacement is now complete across all 9 provider sections (MM-017/018/019/020). The remaining mismatches are all interaction-level (resize, search filtering, stencils wiring, default theme). Resize is the most visible — the panel's right edge lacks the drag affordance entirely.
+After MM-021 completes, the next most-visible interaction gap is the search input. The user can type in it but nothing filters, so the feature feels broken.
 
 ### Reference observation
 
@@ -42,11 +42,11 @@ Brand-icon replacement is now complete across all 9 provider sections (MM-017/01
 
 ### Local observation
 
-The `<aside>` has `lg:w-[280px]` hardcoded. No resize handle, no draggable right border. The only way to change panel width is to edit the source.
+The search `<input type="search">` has no `onChange` / state. The `GROUPS` array and item rendering never read any search query.
 
 ### Root-cause hypothesis
 
-MM-002 scaffolded the panel at a fixed 280 px. Resize behaviour was always deferred. The reference uses a small drag handle on the right edge that adjusts the inline `width` style of the aside.
+MM-002 scaffolded the search input as a UI placeholder. Filtering logic was always deferred.
 
 ### Planned change
 
@@ -294,6 +294,36 @@ MM-002 scaffolded the panel at a fixed 280 px. Resize behaviour was always defer
 - **Evidence**: `.reverse-match/screenshots/iteration-015-local.png`
 - **Files changed**: `src/components/ui/Icon.tsx`, `src/components/panel/ComponentsPanel.tsx`.
 - **Commit**: `c577f9c`
+
+### MM-021 — Components panel has no draggable resize handle
+
+- **Category**: Interaction / behavior
+- **Severity**: Minor (small QoL feature; panel width is locked at 280 px)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: panel `<aside>` has a 6 px-wide vertical separator at its right edge with `role="separator"` and `class="absolute top-0 bottom-0 w-1.5 cursor-col-resize select-none hover:bg-accent/40 active:bg-accent/60 transition-colors right-0"`. Inline style `touch-action: none`. Pointer-event props: `onPointerDown`, `onPointerMove`, `onPointerUp`. Current panel width stored as inline `style="width: 264px; max-width: calc(50% - 1.5rem);"` on the `<aside>` (the reference's persisted width, currently 264 px — user-resized from a default).
+- **Local before**: `<aside>` had `lg:w-[280px]` hardcoded with no resize affordance. No separator element. No way to change panel width without editing source.
+- **Root cause**: MM-002 scaffolded the panel at a fixed 280 px width and the resize behaviour was always deferred. The reference uses a small drag handle that updates the aside's inline `width` on pointer drag.
+- **Fix**:
+  - Created `src/hooks/usePanelResize.ts` — a self-contained React hook that:
+    - Provides `separatorProps` (role + class + style + pointer-event handlers) to spread onto a `<div>`.
+    - On `pointerdown`: captures the pointer, records the starting width + X, sets `cursor: col-resize` and `user-select: none` on `body`.
+    - On `pointermove`: updates the target element's inline `width` to `clamp(startW + delta, minWidth=200, maxFraction*innerWidth)`, also sets inline `max-width: calc(50% - 1.5rem)` to match the reference's constraint.
+    - On `pointerup`: releases the pointer capture, restores body styles, and persists the final width to `localStorage[storageKey]` if provided.
+    - On mount: reads `localStorage[storageKey]` and restores the persisted width if it's within bounds.
+  - `src/components/panel/ComponentsPanel.tsx`:
+    - Imported `usePanelResize`.
+    - Called the hook with `{ targetSelector: 'aside[aria-label="Components"]', minWidth: 200, maxFraction: 0.5, storageKey: 'gravelgraph.componentsPanel.width' }`.
+    - Added `relative` to both layout variants of the aside's className so the absolutely-positioned separator lands on the right edge.
+    - Rendered `<div {...separatorProps} />` as the first child of the aside (before the header), with class string matching the reference: `hidden lg:block absolute top-0 bottom-0 w-1.5 cursor-col-resize select-none hover:bg-accent/40 active:bg-accent/60 transition-colors right-0 z-10`. The `hidden lg:block` keeps the handle out of the mobile slide-over.
+- **Verification (1440 × 900, dark theme)**:
+  - DOM inspection: aside contains a `<div role="separator">` with `cursor: col-resize`, width 6 px, height 852 px (= aside height), positioned at x=273 (aside right edge=280). Class string matches the reference.
+  - Drag test: simulated pointer events move the panel from 280 px to 360 px (delta +80 px matches drag distance). Width is also persisted to localStorage as `339.67` (the measured final width).
+  - Persistence test: after reload, the aside renders at 339.67 px with inline `style="width: 339.672px; max-width: calc(50% - 1.5rem);"`.
+  - Mobile (420 × 820): aside is `display: none` by default (collapsed); separator is also `display: none`. When mobile panel is opened via toggle pill, aside is `display: flex` and the separator is still `display: none` (hidden by `hidden lg:block`).
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning from MM-016 (unrelated).
+- **Evidence**: `.reverse-match/screenshots/iteration-021-local.png`
+- **Files changed**: `src/hooks/usePanelResize.ts` (new), `src/components/panel/ComponentsPanel.tsx`.
+- **Commit**: `6ccb5d8`
 
 ### MM-020 — SaaS & Identity provider items render with generic Lucide icons instead of real brand SVGs
 
@@ -829,6 +859,27 @@ MM-002 scaffolded the panel at a fixed 280 px. Resize behaviour was always defer
 - **Next action**: MM-021 — Components panel resize handle. The reference's panel has a draggable resize affordance on the right edge (`<hr role="separator">` or similar) that adjusts the panel's width.
 - **Commit**: `9778b70`
 
+### Iteration 21 — fix MM-021: draggable resize handle on Components panel
+
+- **Goal**: Add the drag-to-resize affordance to the Components panel's right edge, matching the reference's `role="separator"` element.
+- **Reference observation (1440 × 900)**: panel `<aside>` has a 6 px-wide vertical separator at its right edge with `role="separator"`, `class="absolute top-0 bottom-0 w-1.5 cursor-col-resize select-none hover:bg-accent/40 active:bg-accent/60 transition-colors right-0"`, and inline `style="touch-action: none;"`. Pointer-event props: `onPointerDown`, `onPointerMove`, `onPointerUp`. Width stored as inline `style="width: 264px; max-width: calc(50% - 1.5rem);"` on the `<aside>`.
+- **Local before**: `<aside>` had `lg:w-[280px]` hardcoded with no resize affordance. No separator element. No way to change panel width without editing source.
+- **Actions**:
+  - Created `src/hooks/usePanelResize.ts` — a self-contained React hook providing pointer-event handler props that adjust a target element's inline `width` on drag. Supports min/max bounds and localStorage persistence.
+  - `src/components/panel/ComponentsPanel.tsx`:
+    - Imported and called the hook with `{ targetSelector: 'aside[aria-label="Components"]', minWidth: 200, maxFraction: 0.5, storageKey: 'gravelgraph.componentsPanel.width' }`.
+    - Added `relative` to both layout variants of the aside's className so the absolutely-positioned separator lands on the right edge.
+    - Rendered `<div {...separatorProps} />` as the first child of the aside with the reference's exact class string. The `hidden lg:block` keeps the handle out of the mobile slide-over.
+- **Verification (1440 × 900, dark theme)**:
+  - DOM inspection: aside contains a `<div role="separator">` with `cursor: col-resize`, width 6 px, height 852 px (= aside height), positioned at x=273 (aside right edge=280). Class string matches the reference.
+  - Drag test: simulated pointer events move the panel from 280 px to 360 px (delta +80 px matches drag distance). Width is also persisted to localStorage as `339.67` (the measured final width).
+  - Persistence test: after reload, the aside renders at 339.67 px with inline `style="width: 339.672px; max-width: calc(50% - 1.5rem);"`.
+  - Mobile (420 × 820): aside is `display: none` by default (collapsed); separator is also `display: none`. When mobile panel is opened via toggle pill, aside is `display: flex` and the separator is still `display: none` (hidden by `hidden lg:block`).
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning from MM-016 (unrelated).
+- **Result**: MM-021 fixed. The panel can now be resized by dragging its right edge; the width persists across reloads. Remaining mismatches: search functionality, stencils import/export wiring, default theme.
+- **Next action**: MM-022 — wire the search input to filter items by name (case-insensitive substring match) and auto-expand groups with matches.
+- **Commit**: `6ccb5d8`
+
 ---
 
 ## Per-Iteration Evidence
@@ -857,6 +908,7 @@ MM-002 scaffolded the panel at a fixed 280 px. Resize behaviour was always defer
 | 018  | MM-018 | (same reference) | `.reverse-match/screenshots/iteration-018-local.png` | — | inline in iteration log |
 | 019  | MM-019 | (same reference) | `.reverse-match/screenshots/iteration-019-local.png`, `iteration-019-devops.png` | — | inline in iteration log |
 | 020  | MM-020 | (same reference) | `.reverse-match/screenshots/iteration-020-local.png` | — | inline in iteration log |
+| 021  | MM-021 | (same reference) | `.reverse-match/screenshots/iteration-021-local.png` | — | inline in iteration log |
 
 ---
 
