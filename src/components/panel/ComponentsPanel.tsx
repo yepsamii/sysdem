@@ -240,10 +240,10 @@ const GROUPS: Group[] = [
     variant: 'provider',
     defaultOpen: true,
     items: [
-      { name: 'Stripe', iconName: 'app-window' },
-      { name: 'Auth0',  iconName: 'shield-check' },
-      { name: 'Okta',   iconName: 'shield-check' },
-      { name: 'Firebase', iconName: 'zap' },
+      { name: 'Stripe',   iconName: 'brand-stripe',   iconColor: 'rgb(99, 91, 255)' },
+      { name: 'Auth0',    iconName: 'brand-auth0',    iconColor: 'rgb(235, 84, 36)' },
+      { name: 'Okta',     iconName: 'brand-okta',     iconColor: 'rgb(0, 125, 193)' },
+      { name: 'Firebase', iconName: 'brand-firebase', iconColor: 'rgb(255, 202, 40)' },
     ],
   },
 ];
