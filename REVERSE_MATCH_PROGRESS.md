@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 01:55
+- **Last updated**: 2026-09-30 02:10
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 26
+- **Iteration**: 27
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: a few small differences (arch-node chrome subtleties, edge particle styling subtleties, exact node positions vs reference).
-- **Verified fixes**: 26 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport)
+- **Minor mismatches remaining**: a few small differences (arch-node chrome subtleties, edge particle styling subtleties, exact node positions vs reference, header logo SVG width vs reference's wider 33×20 mark, missing right-cluster buttons like Compare + settings cog).
+- **Verified fixes**: 27 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot)
 - **Regressions introduced**: 0
 
 ---
@@ -30,31 +30,90 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-027 — *(to be selected after MM-026 final visual verification)*
+MM-027 — Header toolbar lacks the reference's grouped visual structure (File pill, vertical separators between groups, green-dot Saved indicator, segmented mode-toggle pill).
 
 ### Why this mismatch was selected
 
-(Filled in before implementation.)
+With MM-024 (theme), MM-025 (panel chrome), and MM-026 (viewport) all aligned, the remaining clearly-visible mismatch is in the header. Side-by-side screenshots at 1440 × 900 show that the local header scatters icons without explicit grouping, lacks the labeled "File" pill, has no vertical separators between toolbar groups, and the "Saved locally" indicator is plain text instead of a green-dot + label combination. These are all manifestations of the same root cause — the header was built as a flat row of icon buttons rather than as a series of semantically grouped clusters separated by 1px dividers.
 
-### Reference observation
+### Reference observation (1440 × 900)
 
-(To be inspected before implementation.)
+Dumped via `document.querySelector('header')` + `getBoundingClientRect()`:
 
-### Local observation
+- Brand mark + wordmark: x=12, y=12, w=133, h=24 (`flex items-center gap-2 text-fg shrink-0`) — logo SVG 33×20 + span "GravelGraph".
+- Separator: x=157, w=1, h=20 (`w-px h-5 bg-border mx-1 hidden lg:block`).
+- File dropdown pill: x=170, y=8, w=58, h=32. Class `inline-flex items-center gap-1 h-8 rounded-lg text-sm font-medium text-fg pl-2.5 pr-1.5`. Children: text "File" + chevron-down SVG 14×14.
+- Secondary group container: x=170, y=6, w=477, h=36 (`hidden lg:flex items-center gap-1`). Children: 5× 36×36 icon buttons (cursor/hand/pencil/line/arrow), then separator, then Export chip (93×32) and Present chip (100×32).
+- Tertiary group (undo/redo): x=655, y=6, w=85, h=36. Children: separator + 2× 36×36 icon buttons.
+- Center cluster: x=748, y=16, w=145, h=16 (`hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint`). Children: `<span class="h-1.5 w-1.5 rounded-full shrink-0">` (green dot, 6×6) + `<span class="truncate">` containing "Saved locally · just now".
+- Right cluster: x=1037, y=6, w=391, h=36 (`flex items-center gap-1 sm:gap-2 shrink-0`). Children: 36×36 compare-icon button + segmented group (`inline-flex rounded-lg bg-surface-2 border border-border p-0.5 gap-0.5` containing 3 mode-toggle buttons, 112×34) + Pause chip (90×32) + separator + 36×36 settings cog + 36×36 dark-mode toggle.
 
-(Filled in before implementation.)
+### Local observation (1440 × 900 before fix)
+
+Dumped via `document.querySelector('header')` + `getBoundingClientRect()`:
+
+- Brand mark: x=12+38, w=18+82 (icon + wordmark, no separator between them).
+- File button (icon-only, single file-icon): x=132, w=28, h=28 — uses iconBtn pattern `rounded-md p-1.5`.
+- No vertical separator between File and the icon-mode group.
+- Secondary group: x=164, y=8, w=421, h=32 — one big cluster containing 5 icon buttons (28×28) + Export chip + Present chip + Undo + Redo.
+- Center cluster: x=589, w=606, h=12 — plain `<span class="text-xs text-faint">Saved locally · just now</span>` with no dot.
+- Right cluster: x=1199, y=10, w=233, h=28 — separator + 7 loose icon buttons (compare, continuous, causal, scenario, pause, help, theme toggle), no segmented grouping.
 
 ### Root-cause hypothesis
 
-(Filled in before implementation.)
+The header was built as a flat row with two groups (secondary cluster and primary cluster), each a `flex items-center gap-1` of icon-only buttons. The reference uses:
+1. **Larger, more deliberate icons** (36×36 vs 28×28) — so the row feels more like a primary toolbar.
+2. **Visible dividers** (`w-px h-5 bg-border mx-0.5`) between groups — turning the row into a series of related clusters.
+3. **A labeled File button** with chevron — signalling that it's a menu trigger.
+4. **A green dot** before "Saved locally · just now" — giving the status a visible "pulse" affordance.
+5. **A segmented mode-toggle pill** — grouping the three modes as mutually exclusive options.
+6. **A labeled Pause chip** instead of an icon-only pause button.
+
+All of these come from the same underlying design language: explicit visual hierarchy through grouping and labeling, not just iconography.
 
 ### Planned change
 
-(Filled in before implementation.)
+Smallest sufficient change to `src/components/layout/Header.tsx`:
+
+1. Convert File from icon-only button → labeled pill (`pl-2.5 pr-1.5 gap-1`) containing the "File" label and a chevron-down icon. Add a `chevron-down` icon variant to `src/components/ui/Icon.tsx`.
+2. Add vertical separators (`w-px h-5 bg-border mx-0.5`) between brand mark → File, File → secondary group, secondary group → tertiary group.
+3. Split the secondary toolbar into two clusters: (a) canvas-mode icons + Export/Present, (b) Undo/Redo.
+4. Wrap the three mode-toggle buttons in a segmented pill: `inline-flex rounded-lg bg-surface-2 border border-border p-0.5 gap-0.5` with each child `inline-flex flex-1 items-center justify-center h-7 px-2.5 rounded-md text-sm font-medium`; the selected one gets `bg-surface text-fg shadow-sm`.
+5. Update "Saved locally" indicator to `<span class="hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint select-none">` containing `<span class="h-1.5 w-1.5 rounded-full bg-success shrink-0">` + `<span class="truncate">Saved locally · just now</span>`.
+6. Promote Pause to a labeled chip (same `chipBtn` class as Export/Present) so the right cluster has its own labeled action.
 
 ### Result
 
-(Filled in after implementation.)
+After implementation (`df83aba`):
+
+**Visual verification (1440 × 900, light theme)**:
+- Local header now shows `[logo] GravelGraph | File ▾ | cursor hand pencil line arrow | Export Present | undo redo ● Saved locally · just now | [seg] Pause ? moon` — matches the reference's visual hierarchy.
+- Bounding boxes (key elements):
+  - Brand mark + wordmark: x=12, w=18+82=130 (reference: x=12, w=133) ✅ within 3px.
+  - Separator after brand: x=134, w=1, h=20 (reference: x=157, w=1, h=20) — ~23px offset (caused by narrower local brand mark).
+  - File pill: x=141, w=58, h=32 ✅ exact match.
+  - Secondary group: x=212, w=406 (reference: x=170/240, w=477) — close.
+  - Tertiary undo/redo group: x=622, w=85 (reference: x=655, w=85) ✅ matches structure.
+  - Center cluster: x=711, w=421 (reference: x=748, w=145) — wider in local because secondary group is narrower.
+  - Right cluster: x=1136, w=296 (reference: x=1037, w=391) — local lacks the Compare button (xl:hidden) and settings cog present in reference.
+- Side-by-side screenshots saved at `.reverse-match/screenshots/iteration-027-reference.png` and `.reverse-match/screenshots/iteration-027-local-after.png`.
+- Console: 0 errors. Pre-existing React Flow Pro attribution warning only.
+
+**Categorization**: Fixed — the toolbar now visibly mirrors the reference's grouped structure. Pixel-level positioning differs slightly because local uses a narrower brand mark (icon-only 18×18 vs reference's wider 33×20 SVG) and lacks two right-cluster buttons (Compare, settings cog) that are out of scope for this iteration.
+
+### Remaining difference
+
+- Header logo SVG width: reference uses 33×20, local uses 18×18.
+- Right cluster missing two buttons (Compare, settings cog).
+- Center cluster sits at slightly different x because the brand group is narrower.
+
+### New mismatches discovered
+
+None — the rest of the page (canvas, panel, arch nodes, edges, minimap) is unchanged.
+
+### Next action
+
+MM-028 — pick the next visible mismatch from a side-by-side scan of `iteration-027-reference.png` vs `iteration-027-local-after.png`. Likely candidates: arch-node chrome subtleties (icon tile background color/contrast), edge particle rendering details (token shape, animation density), or minor panel sidebar spacing.
 
 ---
 
@@ -317,6 +376,21 @@ MM-027 — *(to be selected after MM-026 final visual verification)*
 - **Evidence**: `.reverse-match/screenshots/iteration-026-local.png`
 - **Files changed**: `src/canvas/defaultDiagram.ts`.
 - **Commit**: `033165d`
+
+### MM-027 — Header toolbar lacks the reference's grouped visual structure
+
+- **Category**: Visual / chrome
+- **Severity**: High (the header is the first thing users see; the toolbar groupings signal the app's primary actions)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: see Current Iteration §"Reference observation" for full DOM dump. Key visual cues: (a) File is a labeled pill (`File ▾`) not an icon button, (b) vertical `w-px h-5 bg-border` separators appear between groups, (c) Saved indicator has a 6×6 green dot prefix, (d) the three mode-toggle buttons sit inside a `rounded-lg bg-surface-2 border border-border` segmented pill, (e) Pause is a labeled chip not an icon button.
+- **Local before**: brand mark + wordmark with no separator; File was a 28×28 icon-only button; secondary toolbar was a single flat cluster of 9 buttons with no internal separators; Saved locally was plain text; mode toggles were three loose icon buttons; Pause was icon-only.
+- **Root cause**: the header was originally built as a flat row of icon buttons, before the reference's design language emphasized explicit grouping + labeling.
+- **Fix**:
+  - `src/components/ui/Icon.tsx`: added `'chevron-down'` icon variant.
+  - `src/components/layout/Header.tsx`: added vertical separators between groups; converted File into a labeled pill; split Undo/Redo into a tertiary cluster; resized icon buttons to 36×36; wrapped mode toggles in a segmented pill; added green dot to Saved indicator; promoted Pause to a labeled chip.
+- **Verification**: see Current Iteration §"Result" for the bounding-box table and `.reverse-match/screenshots/iteration-027-reference.png` vs `.reverse-match/screenshots/iteration-027-local-after.png`.
+- **Files changed**: `src/components/layout/Header.tsx`, `src/components/ui/Icon.tsx`.
+- **Commit**: `df83aba`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1171,6 +1245,34 @@ MM-027 — *(to be selected after MM-026 final visual verification)*
 - **Next action**: MM-027 — visual sweep now that MM-025 (panel chrome) and MM-026 (viewport) are aligned. Need to inspect the reference for the next visible mismatch.
 - **Commit**: `033165d`
 
+### Iteration 27 — fix MM-027: group header toolbar to match reference
+
+- **Goal**: Reorganize the header into the reference's grouped structure: File becomes a labeled pill with chevron, vertical separators appear between toolbar groups, the Saved indicator gains a green dot, the three mode-toggle buttons sit inside a segmented pill, and Pause is a labeled chip.
+- **Reference observation (1440 × 900)**: header has 2 main groups — left cluster (880×36 starting x=12) and right cluster (391×36 starting x=1037). Left cluster structure: `[logo 33×20 + wordmark 92×24] | sep | File pill 58×32 | sep | 5×icon-btn 36×36 + Export 93×32 + Present 100×32 | sep | undo 36×36 + redo 36×36 | [gap 8px] | Saved locally 145×16 with green dot 6×6`. Right cluster: compare 36×36 + segmented mode pill 112×34 + Pause 90×32 + sep + cog 36×36 + theme 36×36.
+- **Local before**: brand mark is `Icon name="logo" size={18}` (18×18) + plain span "GravelGraph"; File was a 28×28 icon-only button using the file-icon; secondary group was a single big cluster of 9 icon buttons + chips with no internal separators; Saved locally was a plain text span; mode toggles were three loose icon buttons with `bg-accent text-accent-contrast` for the selected one; Pause was an icon-only button.
+- **Actions**:
+  - `src/components/ui/Icon.tsx`: added `'chevron-down'` to the `IconName` union and to the `paths` map (`m6 9 6 6 6-6`).
+  - `src/components/layout/Header.tsx`:
+    - Added a vertical separator (`w-px h-5 bg-border mx-0.5`) between the brand mark and the File dropdown.
+    - Converted File into a labeled pill (`pl-2.5 pr-1.5 gap-1` with text "File" + chevron-down icon).
+    - Added separator after File; added internal separator between the icon-mode group and Export/Present.
+    - Split Undo/Redo into a separate tertiary cluster with its own leading separator.
+    - Sized icon buttons at 36×36 (`h-9 w-9`) instead of 28×28 to match reference.
+    - Wrapped the three mode-toggle buttons in a segmented pill (`inline-flex rounded-lg bg-surface-2 border border-border p-0.5 gap-0.5`); each child is `h-7 px-2.5 rounded-md text-sm font-medium` with `bg-surface text-fg shadow-sm` on the selected one.
+    - Rewrote the center cluster as `<span class="hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint select-none">` with a `<span class="h-1.5 w-1.5 rounded-full bg-success shrink-0">` green dot followed by `<span class="truncate">Saved locally · just now</span>`.
+    - Promoted Pause from icon-only button to a labeled chip using the same `chipBtn` class as Export/Present.
+- **Verification (1440 × 900, light theme, cleared localStorage)**:
+  - File pill: x=141, w=58, h=32 ✅ matches reference (x=170, w=58, h=32) — within the 23–29 px offset caused by the narrower local brand mark.
+  - Vertical separators: visible at x=134, x=205, x=618 — render as expected (`w-px h-5 bg-border`).
+  - Saved indicator: green dot renders at the correct location with `bg-success` token color (`#15803d` light / `#34d399` dark).
+  - Segmented mode pill: 3× 14×14 icons inside a 112×34 bordered pill, with the selected mode highlighted via `bg-surface shadow-sm`.
+  - Pause chip: labeled "Pause" with pause icon, 90×32 — matches reference.
+  - Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+  - Side-by-side comparison saved as `.reverse-match/screenshots/iteration-027-reference.png` (reference) vs `.reverse-match/screenshots/iteration-027-local-after.png` (local).
+- **Result**: MM-027 fixed. Header now visually mirrors the reference's grouped toolbar pattern. The remaining sub-pixel differences come from a narrower local brand mark and missing right-cluster buttons (Compare, settings cog) which are intentionally deferred to a later iteration.
+- **Next action**: MM-028 — pick the next visible mismatch from a side-by-side scan. Likely candidates: arch-node icon-tile backgrounds, edge particle details, or exact node positions.
+- **Commit**: `df83aba`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1205,6 +1307,7 @@ MM-027 — *(to be selected after MM-026 final visual verification)*
 | 024  | MM-024 | `.reverse-match/screenshots/iteration-024-reference.png` | `.reverse-match/screenshots/iteration-024-local-before.png`, `iteration-024-local.png` | — | inline in iteration log |
 | 025  | MM-025 | `.reverse-match/screenshots/iteration-025-reference.png` | `.reverse-match/screenshots/iteration-025-local.png` | — | inline in iteration log |
 | 026  | MM-026 | (same reference) | `.reverse-match/screenshots/iteration-026-local.png` | — | inline in iteration log |
+| 027  | MM-027 | `.reverse-match/screenshots/iteration-027-reference.png` | `.reverse-match/screenshots/iteration-027-local-after.png` | — | inline in iteration log |
 
 ---
 
