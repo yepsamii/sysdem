@@ -1,5 +1,6 @@
 import { Background, Controls, MiniMap, ReactFlow, type EdgeTypes, type NodeTypes } from '@xyflow/react';
 import { useMemo } from 'react';
+import { useTheme } from '../store/theme';
 import { ArchNode } from './ArchNode';
 import { FlowEdge } from './FlowEdge';
 import { defaultEdges, defaultNodes, defaultViewport } from './defaultDiagram';
@@ -10,6 +11,7 @@ const edgeTypes: EdgeTypes = { flow: FlowEdge };
 export function Canvas() {
   const nodes = useMemo(() => defaultNodes, []);
   const edges = useMemo(() => defaultEdges, []);
+  const theme = useTheme((s) => s.theme);
 
   return (
     <ReactFlow
@@ -20,7 +22,7 @@ export function Canvas() {
       defaultViewport={defaultViewport}
       minZoom={0.2}
       maxZoom={2}
-      colorMode="dark"
+      colorMode={theme}
       proOptions={{ hideAttribution: true }}
       fitView={false}
       panOnScroll

@@ -1,11 +1,39 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0b0e14" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0b0e14" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f6f8fb" media="(prefers-color-scheme: light)" />
     <title>GravelGraph — Free architecture diagrams with live data flow</title>
+    <script>
+      // Synchronous theme bootstrap — matches the reference's behaviour: resolve
+      // the initial theme from localStorage, then from prefers-color-scheme, then
+      // default to dark. Runs before <body> paints to avoid a flash of the wrong theme.
+      (function () {
+        try {
+          var raw = localStorage.getItem('gravelgraph.theme');
+          var stored;
+          if (raw) {
+            try {
+              var parsed = JSON.parse(raw);
+              stored = parsed && parsed.state && parsed.state.theme;
+            } catch (_) {
+              stored = raw;
+            }
+          }
+          var theme = stored === 'dark' || stored === 'light'
+            ? stored
+            : (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+          document.documentElement.classList.toggle('dark', theme === 'dark');
+          document.documentElement.dataset.theme = theme;
+        } catch (_) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
   </head>
   <body class="h-dvh w-full overflow-hidden">
     <noscript>
