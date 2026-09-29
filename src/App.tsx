@@ -1,6 +1,7 @@
 import { Canvas } from './canvas/Canvas';
 import { Header } from './components/layout/Header';
 import { SavedBanner } from './components/layout/SavedBanner';
+import { CookieConsent } from './components/overlays/CookieConsent';
 import { ComponentsPanel } from './components/panel/ComponentsPanel';
 
 export default function App() {
@@ -12,6 +13,7 @@ export default function App() {
         <ComponentsPanel />
         <div className="flex-1 min-w-0 relative">
           <Canvas />
+          <CookieConsent />
         </div>
       </main>
     </div>

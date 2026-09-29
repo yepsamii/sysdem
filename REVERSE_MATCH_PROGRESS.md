@@ -18,10 +18,10 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ## Overall Progress
 
-- **Iteration**: 4
-- **Major mismatches remaining**: 1 (cookie consent card)
-- **Minor mismatches remaining**: several (particle animation, header icon labels, edge label chips, mobile layout, shape SVGs, resize handle)
-- **Verified fixes**: 4 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner)
+- **Iteration**: 5
+- **Major mismatches remaining**: 0
+- **Minor mismatches remaining**: several (particle animation, header icon labels, edge label chips, mobile layout, shape SVGs, resize handle, attribution visibility)
+- **Verified fixes**: 5 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system)
 - **Regressions introduced**: 0
 
 ---
@@ -30,42 +30,39 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-004 — Cookie consent card missing in the bottom-left corner.
+MM-006 — Edge particle animation: edges are static lines, but the reference animates colored particles + token labels along each edge via `<animateMotion>`.
 
 ### Why this mismatch was selected
 
-It's the last remaining major structural mismatch and the only chrome element still absent. It is also the smallest of the remaining additions and finishes the chrome parity for the first-run state.
+The particles are the **headline visual feature** of GravelGraph. The reference animates 22 particles on the default diagram (data-phase staggered, two directions per edge, token labels like HTTPS / SQL / route / event). Without them, the canvas looks like a generic diagram tool. Fixing this is a high-impact visual change that brings the local noticeably closer to the reference's character. It also moves us from Milestone 1 (static canvas) into Milestone 2 (functional canvas).
 
 ### Reference observation
 
-- Bottom-left card ~340 px wide.
-- Header row: cookie icon (cyan tinted) + bold title "Cookies".
-- Body copy:
-  > Ads keep GravelGraph free. Google can set cookies to personalise and measure them — decline and you'll still see ads, just generic ones.
-  > Either way your diagrams stay in this browser, and our visitor stats are cookieless. **Privacy & cookies**
-- Two buttons at the bottom: cyan-filled "Accept" and surface "Decline".
-- Persisted to `localStorage["diagramr.cookieConsent"] = { v:1, ads: boolean }`.
+- Each edge has 1–2 particles per direction (`data-phase` 0..1, `data-dir` forward/reverse).
+- Particle = `<circle r="3.2" fill="#…">` with `<animateMotion dur="20s" begin="-phase*20s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear" path="M…L…L…">`.
+- Token label = `<text font-size="9" font-family="var(--font-mono)">` riding the same path with the same duration, just offset by `begin="0s"` so it trails the dot slightly.
+- Pause behaviour removes `<animateMotion>` from the DOM (not `dur="0s"`).
+- Colours come from `edge.data.animation.color` (cyan, emerald, pink, amber, violet, indigo, sky).
 
 ### Local observation
 
-- No cookie consent region in the DOM.
-- File: `src/App.tsx`.
+- Edges render as plain SVG paths with no `<animateMotion>` children.
+- File: `src/canvas/Canvas.tsx` (no custom edge type yet; `edgeTypes.flow` is set to `undefined as never`).
 
 ### Root-cause hypothesis
 
-Not implemented.
+No custom edge component. The plan called this out as Milestone 2 work.
 
 ### Planned change
 
-Add `<CookieConsent>` overlay positioned bottom-left of the canvas region (absolute, `bottom-4 left-4`) with:
+1. Create `src/canvas/FlowEdge.tsx` — a custom xyflow edge that:
+   - Renders the SVG path with `stroke="var(--color-border-strong)"`, `strokeWidth={1.5}`.
+   - For each particle defined by `data.animation.density` × direction, mounts a `<circle>` + `<text>` with `<animateMotion>` whose `path` is computed from xyflow's source/target handle positions.
+   - Reads `paused` state from a small `flowStore` (default `true` for this iteration, since the toolbar Pause button is still decorative).
+2. Wire `edgeTypes.flow = FlowEdge` in `Canvas.tsx`.
+3. Smoke test: count `animateMotion` after load — should be 9 (one particle per edge in this fixture).
 
-1. Cookie icon + title.
-2. Copy + bold link to `/privacy/`.
-3. Accept / Decline buttons.
-4. Persist `localStorage["gravelgraph.cookieConsent"] = { v:1, ads:boolean }`.
-5. Conditional render based on the same flag.
-
-For Milestone 1, the "Privacy & cookies" link will route to a static placeholder or open in a new tab — wiring the real privacy page is out of scope.
+For this iteration, no pause toggle, no flow-mode radios affecting timing — just the base animation working. Those refinements follow in MM-007…MM-008.
 
 ---
 
@@ -109,13 +106,13 @@ For Milestone 1, the "Privacy & cookies" link will route to a static placeholder
 
 - **Category**: Component
 - **Severity**: Medium
-- **Status**: Pending
-- **Reference**: Bottom-left card with cookie icon, "Ads keep GravelGraph free…" copy, "Privacy & cookies" link, Accept/Decline buttons. Persisted via `diagramr.cookieConsent`
-- **Local**: Not present
-- **Difference**: Consent banner absent
-- **Evidence**: Reference screenshot bottom-left
-- **Likely cause**: Not implemented
-- **Planned fix**: Build `<CookieConsent>` region with `Accept`/`Decline` toggling `localStorage["gravelgraph.cookieConsent"]`
+- **Status**: ✅ Fixed
+- **Reference**: Bottom-left card with cookie icon, copy, "Privacy & cookies" link, cyan Accept / bordered Decline buttons. Persisted via `diagramr.cookieConsent`.
+- **Local**: `<CookieConsent>` overlay positioned bottom-left (raised to `bottom-20 left-4` to clear the zoom controls) with cyan cookie icon, copy, cyan **Privacy & cookies** link, cyan-filled Accept + bordered Decline buttons. Persists `localStorage["gravelgraph.cookieConsent"] = { v:1, ads:boolean }` and hides on subsequent loads.
+- **Result**: Geometry and palette match. Accept button now uses cyan accent (Tailwind v4 `@theme` colour tokens wired up in this iteration).
+- **Evidence**: `.reverse-match/screenshots/iteration-004-local.png`
+- **Files changed**: `src/components/overlays/CookieConsent.tsx` (new), `src/App.tsx`, `src/styles/tailwind.css` (moved colour tokens into `@theme` so `bg-accent`/`text-fg`/`text-muted`/`text-faint`/`border-border`/`bg-surface`/`bg-canvas` resolve as utilities).
+- **Side effect of this iteration**: token-system fix retroactively improves the entire app — header, banner, aside, and node card colours all became correct.
 
 ### MM-005 — Header toolbar buttons lack visible text labels
 
@@ -195,6 +192,18 @@ For Milestone 1, the "Privacy & cookies" link will route to a static placeholder
 - **Verification**: Reloaded at 1440×900. Banner appears directly under the header, copy matches, dismiss button works.
 - **Result**: MM-003 fixed.
 - **Next action**: MM-004 — cookie consent card.
+- **Commit**: `bd8eedf` MM-003: render top "saved locally" dismissible banner
+
+### Iteration 5 — fix MM-004: cookie consent card + token system fix
+
+- **Goal**: Add bottom-left consent card and fix the Tailwind v4 token system so accent colours resolve.
+- **Actions**:
+  - Created `src/components/overlays/CookieConsent.tsx`: card with cookie icon, copy, cyan Privacy & cookies link, cyan Accept + bordered Decline buttons. Reads / writes `localStorage["gravelgraph.cookieConsent"]`.
+  - Positioned at `bottom-20 left-4` (raised to clear the xyflow zoom Controls).
+  - **Token-system fix** in `src/styles/tailwind.css`: moved all `--color-*` from `:root` into `@theme {}` block so Tailwind v4 generates the corresponding `bg-*` / `text-*` / `border-*` utilities (`bg-accent`, `text-fg`, `text-muted`, `text-faint`, `border-border`, `bg-surface`, `bg-canvas`).
+- **Verification**: Cookie card renders with cyan accent on cookie icon + link + Accept button; Decline button uses bordered surface. Re-running earlier shots shows the whole app is now colour-correct: banner text emphasis, header buttons, node card borders, aside search input, components panel cards all use the right palette.
+- **Result**: MM-004 fixed.
+- **Next action**: MM-006 — edge particle animation (the headline visual effect).
 - **Commit**: (next)
 
 ---
