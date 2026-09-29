@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 00:30
+- **Last updated**: 2026-09-30 00:36
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 19
+- **Iteration**: 20
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: several (resize handle, real brand SVGs for SaaS & Identity only, panel header brand icon, search functionality, stencils import/export wiring, default theme might be dark vs light depending on OS preference)
-- **Verified fixes**: 19 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases section brand icons, MM-018 Data & Analytics section brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons)
+- **Minor mismatches remaining**: several (resize handle, search functionality, stencils import/export wiring, default theme might be dark vs light depending on OS preference). Brand-icon replacement is complete for all 9 provider sections.
+- **Verified fixes**: 20 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons)
 - **Regressions introduced**: 0
 
 ---
@@ -30,11 +30,11 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-020 — SaaS & Identity provider items (Stripe, Auth0, Okta, Firebase) still use generic Lucide placeholders. Reference uses real brand SVGs.
+MM-021 — Components panel is fixed at 280 px width; reference has a draggable resize handle (cursor: ew-resize) on the right edge that lets the user shrink/expand the panel width.
 
 ### Why this mismatch was selected
 
-After MM-019 completes (Messaging & Streaming + DevOps & Observability), the only remaining open-by-default provider section using placeholders is SaaS & Identity (4 items). Closing it out finishes the brand-icon replacement work started in MM-017.
+Brand-icon replacement is now complete across all 9 provider sections (MM-017/018/019/020). The remaining mismatches are all interaction-level (resize, search filtering, stencils wiring, default theme). Resize is the most visible — the panel's right edge lacks the drag affordance entirely.
 
 ### Reference observation
 
@@ -42,11 +42,11 @@ After MM-019 completes (Messaging & Streaming + DevOps & Observability), the onl
 
 ### Local observation
 
-After MM-019, the SaaS & Identity section still shows Stripe (`app-window`), Auth0 (`shield-check`), Okta (`shield-check`), Firebase (`zap`) — all generic Lucide placeholders. The other 8 provider sections now use real brand SVGs.
+The `<aside>` has `lg:w-[280px]` hardcoded. No resize handle, no draggable right border. The only way to change panel width is to edit the source.
 
 ### Root-cause hypothesis
 
-MM-017/018/019 sliced provider-icon replacement to keep micro-commits bounded. MM-020 closes the loop on SaaS & Identity.
+MM-002 scaffolded the panel at a fixed 280 px. Resize behaviour was always deferred. The reference uses a small drag handle on the right edge that adjusts the inline `width` style of the aside.
 
 ### Planned change
 
@@ -294,6 +294,35 @@ MM-017/018/019 sliced provider-icon replacement to keep micro-commits bounded. M
 - **Evidence**: `.reverse-match/screenshots/iteration-015-local.png`
 - **Files changed**: `src/components/ui/Icon.tsx`, `src/components/panel/ComponentsPanel.tsx`.
 - **Commit**: `c577f9c`
+
+### MM-020 — SaaS & Identity provider items render with generic Lucide icons instead of real brand SVGs
+
+- **Category**: Visual / branding
+- **Severity**: Minor (last remaining open-by-default section with placeholders; 4 items)
+- **Status**: ✅ Fixed (slice 4 — final slice — closes the provider-icon replacement started in MM-017)
+- **Reference observation (1440 × 900)**: each item renders a 15×15 brand SVG with `viewBox="0 0 24 24"` and `fill="currentColor"`. Wrapper span carries `color-mix` style with the brand color. Brand colors and SVG shapes verified by extracting `svg.outerHTML` and computed `color` for each item in the live reference DOM:
+  - **Stripe**: `rgb(99, 91, 255)` indigo (S glyph)
+  - **Auth0**: `rgb(235, 84, 36)` orange-red (shield/lozenge)
+  - **Okta**: `rgb(0, 125, 193)` blue (concentric rings)
+  - **Firebase**: `rgb(255, 202, 40)` yellow (flame)
+- **Local before**: each item rendered a generic Lucide placeholder — Stripe (`app-window`), Auth0 (`shield-check`), Okta (`shield-check`), Firebase (`zap`). None were brand-recognizable.
+- **Root cause**: MM-015 added provider section structure + placeholder Lucide icons as a stand-in for the brand SVGs. MM-017/018/019 progressively replaced the brand SVGs for Databases / Data & Analytics / Messaging & Streaming + DevOps & Observability. MM-020 closes the loop on the last open-by-default section.
+- **Fix**:
+  - `src/components/ui/Icon.tsx`:
+    - Extended `IconName` union with 4 brand names: `brand-stripe`, `brand-auth0`, `brand-okta`, `brand-firebase`.
+    - Added 4 brand SVG paths to the `paths` map (verbatim from the reference DOM). The brand renderer branch (`fill="currentColor"` + `stroke="none"`) added in MM-017 covers these names automatically.
+  - `src/components/panel/ComponentsPanel.tsx`:
+    - Replaced the 4 placeholder `iconName` values in SaaS & Identity with `brand-stripe` / `brand-auth0` / `brand-okta` / `brand-firebase`.
+    - Added `iconColor` for each item matching the brand colors extracted from the reference.
+- **Verification (1440 × 900, dark theme)**:
+  - DOM inspection confirms 4 brand-SVG buttons: each `<svg>` has `fill="currentColor"`, `stroke="none"`, and exactly 1 `<path>` child. Inner lengths match the reference exactly: 496 (Stripe), 258 (Auth0), 149 (Okta), 1833 (Firebase).
+  - Tile wrappers carry the expected inline `color-mix` style with the brand color for each item.
+  - Visual screenshot confirms each item shows its correct brand logo with the brand-specific tint: Stripe indigo S, Auth0 orange shield/lozenge, Okta blue rings, Firebase yellow flame.
+  - All other provider sections unchanged (Databases / Data & Analytics / Messaging & Streaming / DevOps & Observability still use MM-017/018/019 brand SVGs).
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning from MM-016.
+- **Evidence**: `.reverse-match/screenshots/iteration-020-local.png`
+- **Files changed**: `src/components/ui/Icon.tsx`, `src/components/panel/ComponentsPanel.tsx`.
+- **Commit**: `9778b70`
 
 ### MM-019 — Messaging & Streaming + DevOps & Observability provider items render with generic Lucide icons instead of real brand SVGs
 
@@ -778,6 +807,28 @@ MM-017/018/019 sliced provider-icon replacement to keep micro-commits bounded. M
 - **Next action**: MM-020 — replace placeholder Lucide icons in SaaS & Identity section with brand SVGs (Stripe, Auth0, Okta, Firebase).
 - **Commit**: `6382088`
 
+### Iteration 20 — fix MM-020: brand SVGs for SaaS & Identity
+
+- **Goal**: Close out the provider-icon replacement started in MM-017 with the final 4 items in the SaaS & Identity section.
+- **Reference observation (1440 × 900)**: each item renders a 15×15 brand SVG with `fill="currentColor"`. Brand colors verified via Playwright `browser_evaluate` on the live reference DOM — Stripe `rgb(99, 91, 255)`, Auth0 `rgb(235, 84, 36)`, Okta `rgb(0, 125, 193)`, Firebase `rgb(255, 202, 40)`. SVG paths extracted verbatim.
+- **Local before**: each item rendered a generic Lucide placeholder (app-window / shield-check / shield-check / zap). None were brand-recognizable.
+- **Actions**:
+  - `src/components/ui/Icon.tsx`:
+    - Extended `IconName` union with 4 brand names: `brand-stripe`, `brand-auth0`, `brand-okta`, `brand-firebase`.
+    - Added 4 brand SVG paths to the `paths` map (verbatim from the reference DOM). No renderer change — MM-017's `brand-` prefix branch handles these names automatically.
+  - `src/components/panel/ComponentsPanel.tsx`:
+    - Replaced 4 placeholder `iconName` values in SaaS & Identity with `brand-stripe` / `brand-auth0` / `brand-okta` / `brand-firebase`.
+    - Added `iconColor` for each item matching the brand colors extracted from the reference.
+- **Verification (1440 × 900, dark theme)**:
+  - DOM inspection confirms 4 brand-SVG buttons: each `<svg>` has `fill="currentColor"`, `stroke="none"`, and exactly 1 `<path>` child. Inner lengths match the reference exactly: 496 / 258 / 149 / 1833.
+  - Tile wrappers carry the expected inline `color-mix` style with the brand color for each item.
+  - Visual screenshot confirms each item shows its correct brand logo with the brand-specific tint: Stripe indigo S, Auth0 orange shield/lozenge, Okta blue rings, Firebase yellow flame.
+  - All other provider sections unchanged (still use MM-017/018/019 brand SVGs).
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-020 fixed. **Brand-icon replacement is now complete across all 9 provider sections.** All brand-icon work from MM-017 → MM-020 is done. Remaining mismatches are interaction-level: resize handle, search functionality, stencils import/export wiring, default theme.
+- **Next action**: MM-021 — Components panel resize handle. The reference's panel has a draggable resize affordance on the right edge (`<hr role="separator">` or similar) that adjusts the panel's width.
+- **Commit**: `9778b70`
+
 ---
 
 ## Per-Iteration Evidence
@@ -805,6 +856,7 @@ MM-017/018/019 sliced provider-icon replacement to keep micro-commits bounded. M
 | 017  | MM-017 | (same reference) | `.reverse-match/screenshots/iteration-017-local.png` | — | inline in iteration log |
 | 018  | MM-018 | (same reference) | `.reverse-match/screenshots/iteration-018-local.png` | — | inline in iteration log |
 | 019  | MM-019 | (same reference) | `.reverse-match/screenshots/iteration-019-local.png`, `iteration-019-devops.png` | — | inline in iteration log |
+| 020  | MM-020 | (same reference) | `.reverse-match/screenshots/iteration-020-local.png` | — | inline in iteration log |
 
 ---
 
