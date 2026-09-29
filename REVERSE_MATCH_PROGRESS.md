@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 00:48
+- **Last updated**: 2026-09-30 00:55
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 22
+- **Iteration**: 23
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: several (stencils import/export wiring, default theme might be dark vs light depending on OS preference, panel chrome — reference panel is a floating rounded card with shadow vs local docked flat panel)
-- **Verified fixes**: 22 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter)
+- **Minor mismatches remaining**: several (default theme might be dark vs light depending on OS preference, panel chrome — reference panel is a floating rounded card with shadow vs local docked flat panel)
+- **Verified fixes**: 23 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export)
 - **Regressions introduced**: 0
 
 ---
@@ -30,11 +30,11 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-023 — Stencils import/export buttons in the Components panel are wired to no-ops; reference actually lets the user upload / download a JSON file of saved stencils.
+MM-024 — Default theme is hardcoded to dark; reference detects the OS preference (`prefers-color-scheme: light`) and starts in light mode when the OS is set to light.
 
 ### Why this mismatch was selected
 
-After MM-022, the stencils row's two icon buttons (↓ import + ↑ export) are decorative — they have `title` tooltips but no `onClick` handlers. The italic helper copy below ("Select elements, then 'Save as stencil' to reuse them here.") references a feature that doesn't exist yet.
+Discovered during MM-023 — when navigating to the reference site, the html root element has `class="light"` (visible in MM-023 inspection: `<html lang="en" class="light">`). The local `index.html` hardcodes `class="dark"`. The reference's theme store respects `prefers-color-scheme` on first visit.
 
 ### Reference observation
 
@@ -42,11 +42,11 @@ After MM-022, the stencils row's two icon buttons (↓ import + ↑ export) are 
 
 ### Local observation
 
-Both `<button>` elements in the Stencils row have only `title` attributes and no click handlers. There is no `<input type="file">` for import and no `URL.createObjectURL` for export.
+`<html class="dark">` is hardcoded in `index.html`. The `useTheme` zustand store probably has `theme: 'dark'` as default, and ignores `window.matchMedia('(prefers-color-scheme: light)').matches` on first load.
 
 ### Root-cause hypothesis
 
-MM-002 scaffolded the Stencils row UI to match the reference's chrome, but actual file I/O was always deferred. The reference stores stencils in `localStorage` and exposes them as a JSON file.
+MM-001 + MM-004 set dark as the default during the early dark-only design phase. Reference respects OS preference for first-time visitors.
 
 ### Planned change
 
@@ -294,6 +294,37 @@ MM-002 scaffolded the Stencils row UI to match the reference's chrome, but actua
 - **Evidence**: `.reverse-match/screenshots/iteration-015-local.png`
 - **Files changed**: `src/components/ui/Icon.tsx`, `src/components/panel/ComponentsPanel.tsx`.
 - **Commit**: `c577f9c`
+
+### MM-023 — Stencils import/export buttons are non-functional
+
+- **Category**: Interaction / behavior
+- **Severity**: Medium (feature exists in UI copy but does nothing)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: panel's Stencils row contains two icon buttons:
+  - "Import stencils (.json)" — always enabled; onClick handler present. Clicking triggers a hidden `<input type="file" accept="application/json,.json" class="hidden" onChange={...}>`. The hidden file input has React props `{ ref, type, accept, className, onChange }`.
+  - "Export stencils" — `disabled` when no stencils are stored; class string includes `disabled:opacity-40`. Clicking triggers a download of `stencils.json` via `URL.createObjectURL(blob)` + `<a download>`.
+- **Local before**: both `<button>` elements had only `title` attributes and no click handlers. No hidden file input. No `URL.createObjectURL` for export.
+- **Root cause**: MM-002 scaffolded the Stencils row UI to match the reference's chrome, but actual file I/O was always deferred.
+- **Fix** (in `src/components/panel/ComponentsPanel.tsx`):
+  - Added `import { useEffect, useRef, useState } from 'react'`.
+  - Added stencils state: `const [stencils, setStencils] = useState<unknown[]>([])` and a file input ref: `const fileInputRef = useRef<HTMLInputElement>(null)`.
+  - Added `useEffect` that reads `localStorage["gravelgraph.stencils"]` on mount and hydrates state if the parsed value is an array.
+  - Added `handleImportClick` → `fileInputRef.current?.click()`.
+  - Added `handleImportChange` → reads the selected file as text, parses JSON, validates it's an array, updates state, and persists to localStorage. Resets `e.target.value = ''` so importing the same file twice still fires `change`. Catches parse errors silently.
+  - Added `handleExportClick` → creates a `Blob` of `JSON.stringify(stencils, null, 2)` with `type: 'application/json'`, calls `URL.createObjectURL`, programmatically clicks an `<a download="stencils.json">`, then `URL.revokeObjectURL`. Returns early if no stencils.
+  - Wired the import button: added `type="button"`, `onClick={handleImportClick}`.
+  - Wired the export button: added `type="button"`, `onClick={handleExportClick}`, `disabled={stencils.length === 0}`, plus `disabled:opacity-40 disabled:pointer-events-none` to the className (matching the reference).
+  - Added the hidden `<input ref={fileInputRef} type="file" accept="application/json,.json" onChange={handleImportChange} className="hidden" />` inside the Stencils row.
+- **Verification (1440 × 900, dark theme)**:
+  - DOM inspection of stencils row buttons: import has `onclick=true`, export has `disabled=true` (when localStorage is empty), file input has `accept="application/json,.json"` and `display: none`.
+  - Round-trip test (1): wrote `[{ id: 'demo-1', name: 'My Web App', elements: [] }]` to localStorage, reloaded — export button became `disabled=false` (hydrated from storage).
+  - Round-trip test (2): clicked export — captured Blob: `{ type: 'application/json', size: 76, download: 'stencils.json', text: '[\n  {\n    "id": "demo-1",\n    "name": "My Web App",\n    "elements": []\n  }\n]' }`. File downloads correctly.
+  - Round-trip test (3): cleared localStorage, reloaded, clicked import → file chooser opened → uploaded `/Users/yepsamii/Desktop/Projects/sysdem/.playwright-mcp/stencils.json` (containing 2 stencils). After upload, export became enabled, `localStorage` contained the same 2 stencils. Imported count matches uploaded count.
+  - Error handling: uploaded a malformed JSON (`{`). Import was silently ignored, previous stencils remained in localStorage, export remained enabled, no console errors.
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning from MM-016.
+- **Evidence**: `.reverse-match/screenshots/iteration-023-local.png` (Components panel with Stencils row visible, export enabled state shown).
+- **Files changed**: `src/components/panel/ComponentsPanel.tsx`.
+- **Commit**: `668f0e7`
 
 ### MM-022 — Components panel search input is non-functional
 
@@ -935,6 +966,32 @@ MM-002 scaffolded the Stencils row UI to match the reference's chrome, but actua
 - **Next action**: MM-023 — wire the Stencils row's import/export buttons to actually upload / download a JSON file.
 - **Commit**: `7573f42`
 
+### Iteration 23 — fix MM-023: Stencils import/export wired to JSON file I/O
+
+- **Goal**: Make the Stencils row's ↓ import and ↑ export buttons actually read / write JSON files, matching the reference.
+- **Reference observation (1440 × 900)**: import button always enabled — clicking it opens a native file picker (`<input type="file" accept="application/json,.json">`). Selected file is read as text, parsed, validated as an array, and saved. Export button is `disabled` when no stencils are stored; clicking downloads `stencils.json` via a programmatic `<a download>` link. While verifying, also noticed the reference's `<html>` has `class="light"` — the local hardcodes `class="dark"`. This is queued as MM-024 for the next iteration.
+- **Local before**: both Stencils row `<button>` elements had only `title` attributes and no `onClick` props. No hidden `<input type="file">` in the DOM. Clicking either button did nothing.
+- **Actions** (in `src/components/panel/ComponentsPanel.tsx`):
+  - Added `import { useEffect, useRef, useState } from 'react'`.
+  - Added `const [stencils, setStencils] = useState<unknown[]>([])` and `const fileInputRef = useRef<HTMLInputElement>(null)`.
+  - Added a mount `useEffect` that reads `localStorage["gravelgraph.stencils"]`, validates `Array.isArray`, and hydrates state.
+  - Added `handleImportClick` → `fileInputRef.current?.click()`.
+  - Added `handleImportChange` → reads selected file via `FileReader`, parses JSON, validates it's an array, updates state, persists to localStorage. Resets `e.target.value = ''` so the same file can be imported twice. Silently catches parse errors.
+  - Added `handleExportClick` → builds a `Blob` of `JSON.stringify(stencils, null, 2)` with `type: 'application/json'`, calls `URL.createObjectURL`, programmatically clicks an `<a download="stencils.json">`, then `URL.revokeObjectURL`. Returns early if `stencils.length === 0`.
+  - Wired import button: `type="button"` + `onClick={handleImportClick}`.
+  - Wired export button: `type="button"` + `onClick={handleExportClick}` + `disabled={stencils.length === 0}` + `disabled:opacity-40 disabled:pointer-events-none`.
+  - Added hidden `<input ref={fileInputRef} type="file" accept="application/json,.json" onChange={handleImportChange} className="hidden" />` inside the Stencils row.
+- **Verification (1440 × 900, dark theme)**:
+  - DOM inspection: import has `onclick=true`, export has `disabled=true` (when storage is empty), hidden input has `accept="application/json,.json"` and `display: none`.
+  - Round-trip 1 (manual localStorage write): set storage to `[{ id: 'demo-1', name: 'My Web App', elements: [] }]`, reload → export becomes enabled.
+  - Round-trip 2 (export download): clicked export → captured `Blob({ type: 'application/json', size: 76, download: 'stencils.json' })`, text matches the source array.
+  - Round-trip 3 (file upload): cleared storage, clicked import → file chooser opened → uploaded `stencils.json` containing 2 entries → localStorage updated, export enabled.
+  - Error handling: uploaded malformed `{` → import silently ignored, previous stencils preserved, no console errors.
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning (unrelated).
+- **Result**: MM-023 fixed. Stencils import/export round-trip works end-to-end. While verifying, discovered MM-024: the reference site starts in `light` mode when OS preference is `light`; the local hardcodes `class="dark"`.
+- **Next action**: MM-024 — initial theme should respect `prefers-color-scheme` instead of being hardcoded to `dark`. Read OS preference on first visit, fallback to `dark`.
+- **Commit**: `668f0e7`
+
 ---
 
 ## Per-Iteration Evidence
@@ -965,6 +1022,7 @@ MM-002 scaffolded the Stencils row UI to match the reference's chrome, but actua
 | 020  | MM-020 | (same reference) | `.reverse-match/screenshots/iteration-020-local.png` | — | inline in iteration log |
 | 021  | MM-021 | (same reference) | `.reverse-match/screenshots/iteration-021-local.png` | — | inline in iteration log |
 | 022  | MM-022 | (same reference) | `.reverse-match/screenshots/iteration-022-local.png` | — | inline in iteration log |
+| 023  | MM-023 | (same reference) | `.reverse-match/screenshots/iteration-023-local.png` | — | inline in iteration log |
 
 ---
 
