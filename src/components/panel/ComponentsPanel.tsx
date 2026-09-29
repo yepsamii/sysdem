@@ -13,6 +13,12 @@ interface Group {
   label: string;
   items: ComponentItem[];
   defaultOpen?: boolean;
+  /** 'provider' renders a smaller uppercase pill-style section label with a count badge
+   *  (matches AWS / Google Cloud / etc. in the reference). Default = standard first-party style. */
+  variant?: 'default' | 'provider';
+  /** Optional override for the count badge (e.g. reference shows "805" for AWS but we
+   *  only ship a handful of items — display the published total, not items.length). */
+  displayCount?: number;
 }
 
 function ItemIcon({ name, color }: { name: IconName; color?: string }) {
@@ -112,6 +118,131 @@ const GROUPS: Group[] = [
     items: [
       { name: 'Group', iconName: 'boxes',       iconColor: 'rgb(100, 116, 139)' },
       { name: 'Note',  iconName: 'sticky-note', iconColor: 'rgb(251, 191, 36)' },
+    ],
+  },
+  // Provider sections — each renders as an uppercase pill-style group label with a
+  // count badge. The full item libraries are deferred to MM-016 (requires ~1700
+  // brand-specific SVG paths). For now, each section ships a small representative
+  // sample using generic Lucide placeholders so the rendering path is exercised.
+  // `displayCount` shows the reference's published total so the badge matches.
+  {
+    label: 'AWS',
+    displayCount: 805,
+    variant: 'provider',
+    defaultOpen: false,
+    items: [
+      { name: 'EC2',     iconName: 'server' },
+      { name: 'S3',      iconName: 'hard-drive' },
+      { name: 'Lambda',  iconName: 'square-function' },
+      { name: 'RDS',     iconName: 'database' },
+      { name: 'SQS',     iconName: 'waypoints' },
+    ],
+  },
+  {
+    label: 'Google Cloud',
+    displayCount: 238,
+    variant: 'provider',
+    defaultOpen: false,
+    items: [
+      { name: 'Compute Engine', iconName: 'server' },
+      { name: 'Cloud Storage',  iconName: 'hard-drive' },
+      { name: 'BigQuery',       iconName: 'database' },
+      { name: 'Pub/Sub',        iconName: 'waypoints' },
+    ],
+  },
+  {
+    label: 'Azure',
+    displayCount: 638,
+    variant: 'provider',
+    defaultOpen: false,
+    items: [
+      { name: 'Virtual Machine', iconName: 'server' },
+      { name: 'Blob Storage',    iconName: 'hard-drive' },
+      { name: 'SQL Database',    iconName: 'database' },
+      { name: 'Functions',       iconName: 'square-function' },
+    ],
+  },
+  {
+    label: 'Cloudflare',
+    displayCount: 9,
+    variant: 'provider',
+    defaultOpen: true,
+    items: [
+      { name: 'Workers',  iconName: 'square-function' },
+      { name: 'R2',       iconName: 'hard-drive' },
+      { name: 'D1',       iconName: 'database' },
+      { name: 'KV',       iconName: 'zap' },
+    ],
+  },
+  {
+    label: 'Databases',
+    displayCount: 8,
+    variant: 'provider',
+    defaultOpen: true,
+    items: [
+      { name: 'PostgreSQL', iconName: 'database' },
+      { name: 'MySQL',      iconName: 'database' },
+      { name: 'MongoDB',    iconName: 'database-zap' },
+      { name: 'Redis',      iconName: 'zap' },
+      { name: 'Cassandra',  iconName: 'database' },
+      { name: 'Neo4j',      iconName: 'database' },
+      { name: 'Supabase',   iconName: 'database' },
+      { name: 'DuckDB',     iconName: 'database' },
+    ],
+  },
+  {
+    label: 'Data & Analytics',
+    displayCount: 7,
+    variant: 'provider',
+    defaultOpen: true,
+    items: [
+      { name: 'Snowflake',    iconName: 'database' },
+      { name: 'Databricks',   iconName: 'database' },
+      { name: 'Spark',        iconName: 'zap' },
+      { name: 'Airflow',      iconName: 'route' },
+      { name: 'ClickHouse',   iconName: 'database' },
+      { name: 'Elasticsearch',iconName: 'search' },
+      { name: 'Looker',       iconName: 'monitor-smartphone' },
+    ],
+  },
+  {
+    label: 'Messaging & Streaming',
+    displayCount: 2,
+    variant: 'provider',
+    defaultOpen: true,
+    items: [
+      { name: 'Kafka',     iconName: 'waypoints' },
+      { name: 'RabbitMQ',  iconName: 'waypoints' },
+    ],
+  },
+  {
+    label: 'DevOps & Observability',
+    displayCount: 11,
+    variant: 'provider',
+    defaultOpen: true,
+    items: [
+      { name: 'Docker',     iconName: 'app-window' },
+      { name: 'Kubernetes', iconName: 'boxes' },
+      { name: 'Terraform',  iconName: 'route' },
+      { name: 'NGINX',      iconName: 'server' },
+      { name: 'Prometheus', iconName: 'monitor-smartphone' },
+      { name: 'Grafana',    iconName: 'monitor-smartphone' },
+      { name: 'Datadog',    iconName: 'monitor-smartphone' },
+      { name: 'Sentry',     iconName: 'shield-check' },
+      { name: 'GitHub',     iconName: 'app-window' },
+      { name: 'GitLab',     iconName: 'app-window' },
+    ],
+  },
+  {
+    label: 'SaaS & Identity',
+    displayCount: 4,
+    variant: 'provider',
+    defaultOpen: true,
+    items: [
+      { name: 'Stripe', iconName: 'app-window' },
+      { name: 'Auth0',  iconName: 'shield-check' },
+      { name: 'Okta',   iconName: 'shield-check' },
+      { name: 'Firebase', iconName: 'zap' },
     ],
   },
 ];
@@ -214,20 +345,38 @@ export function ComponentsPanel() {
       <div className="flex-1 overflow-y-auto mt-2 pb-3">
         {GROUPS.map((group) => {
           const open = openMap[group.label];
+          const variant = group.variant ?? 'default';
           return (
-            <section key={group.label} className="px-3 mt-2">
+            <section
+              key={group.label}
+              className={variant === 'provider' ? 'mt-1.5' : 'px-3 mt-2'}
+            >
               <button
                 type="button"
                 aria-expanded={open}
                 onClick={() => toggle(group.label)}
-                className="w-full flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-muted hover:text-fg transition-colors"
+                className={
+                  variant === 'provider'
+                    ? 'flex items-center gap-1 w-full px-1 py-1 rounded text-[11px] font-semibold uppercase tracking-wide text-faint hover:text-fg hover:bg-surface-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent'
+                    : 'w-full flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-muted hover:text-fg transition-colors'
+                }
               >
-                <Chevron open={open} />
-                <span>{group.label}</span>
-                <span className="ml-auto text-faint font-normal">{group.items.length}</span>
+                {variant === 'provider' ? (
+                  <Icon name="chevron-right" size={12} strokeWidth={2} className={`shrink-0 transition-transform ${open ? 'rotate-90' : ''}`} />
+                ) : (
+                  <Chevron open={open} />
+                )}
+                <span className="truncate">{group.label}</span>
+                {variant === 'provider' ? (
+                  <span className="ml-auto shrink-0 rounded-full bg-surface-3 px-1.5 text-[10px] normal-case tracking-normal text-muted">
+                    {group.displayCount ?? group.items.length}
+                  </span>
+                ) : (
+                  <span className="ml-auto text-faint font-normal">{group.items.length}</span>
+                )}
               </button>
               {open && (
-                <div className="flex flex-col gap-1 mt-1.5">
+                <div className={variant === 'provider' ? 'flex flex-col gap-1 mt-1' : 'flex flex-col gap-1 mt-1.5'}>
                   {group.items.map((item) => (
                     <button
                       key={item.name}

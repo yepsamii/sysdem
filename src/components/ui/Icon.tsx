@@ -15,7 +15,9 @@ type IconName =
   | 'app-window' | 'server' | 'server-cog' | 'square-function'
   // Data & storage / Messaging / Security / Structure
   | 'database' | 'database-zap' | 'zap' | 'hard-drive' | 'waypoints'
-  | 'shield-check' | 'globe' | 'boxes' | 'sticky-note';
+  | 'shield-check' | 'globe' | 'boxes' | 'sticky-note'
+  // Navigation
+  | 'chevron-right';
 
 const paths: Record<IconName, string> = {
   menu: 'M3 6h18M3 12h18M3 18h18',
@@ -80,6 +82,8 @@ const paths: Record<IconName, string> = {
   globe: '<circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path>',
   boxes: '<path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"></path><path d="m7 16.5-4.74-2.85"></path><path d="m7 16.5 5-3"></path><path d="M7 16.5v5.17"></path><path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"></path><path d="m17 16.5-5-3"></path><path d="m17 16.5 4.74-2.85"></path><path d="M17 16.5v5.17"></path><path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"></path><path d="M12 8 7.26 5.15"></path><path d="m12 8 4.74-2.85"></path><path d="M12 13.5V8"></path>',
   'sticky-note': '<path d="M21 9a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"></path><path d="M15 3v5a1 1 0 0 0 1 1h5"></path>',
+  // Navigation
+  'chevron-right': 'm9 18 6-6-6-6',
 };
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
