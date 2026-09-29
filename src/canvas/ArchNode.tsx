@@ -10,14 +10,14 @@ const KIND: Record<
   string,
   { color: string; icon: ComponentType<{ size?: number; strokeWidth?: number; className?: string }> | null; lucideName: string | null }
 > = {
-  client:   { color: '#94a3b8', icon: null, lucideName: 'monitor-smartphone' },
-  cdn:      { color: '#22d3ee', icon: null, lucideName: 'cloud' },
-  webapp:   { color: '#22d3ee', icon: null, lucideName: 'app-window' },
-  gateway:  { color: '#22d3ee', icon: null, lucideName: 'route' },
+  client:   { color: '#38bdf8', icon: null, lucideName: 'monitor-smartphone' },
+  cdn:      { color: '#38bdf8', icon: null, lucideName: 'cloud' },
+  webapp:   { color: '#34d399', icon: null, lucideName: 'app-window' },
+  gateway:  { color: '#818cf8', icon: null, lucideName: 'route' },
   api:      { color: '#22d3ee', icon: null, lucideName: 'server-cog' },
   cache:    { color: '#f472b6', icon: null, lucideName: 'zap' },
   database: { color: '#f59e0b', icon: null, lucideName: 'database' },
-  queue:    { color: '#a78bfa', icon: null, lucideName: 'waypoints' },
+  queue:    { color: '#c084fc', icon: null, lucideName: 'waypoints' },
   worker:   { color: '#a78bfa', icon: null, lucideName: 'boxes' },
 };
 
