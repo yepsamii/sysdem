@@ -25,8 +25,9 @@ export const defaultNodes: Node<ArchNodeData>[] = [
   { id: 'n_worker',    type: 'arch', position: { x: 1370, y: 300 }, data: { kind: 'worker',   label: 'Worker',   sublabel: 'Fulfilment' }, width: 180, height: 64 },
 ];
 
-// Default viewport from live capture in §10.1 (~translate(96, 261.8) scale(0.6))
-export const defaultViewport = { x: 96, y: 180, zoom: 0.7 };
+// Default viewport from live capture in §10.1 — updated in MM-026 to match the
+// reference's initial canvas framing (translate(120, 260.286) scale(0.714286)).
+export const defaultViewport = { x: 120, y: 260, zoom: 0.714286 };
 
 export const defaultEdges: Edge[] = [
   {
