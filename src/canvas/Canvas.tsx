@@ -21,7 +21,7 @@ export function Canvas() {
       minZoom={0.2}
       maxZoom={2}
       colorMode="dark"
-      proOptions={{ hideAttribution: false }}
+      proOptions={{ hideAttribution: true }}
       fitView={false}
       panOnScroll
       selectionOnDrag
