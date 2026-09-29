@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 01:40
+- **Last updated**: 2026-09-30 01:50
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 24
+- **Iteration**: 25
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: a few small differences (panel chrome — reference panel is a floating rounded card with shadow vs local docked flat panel; node card chrome subtleties).
-- **Verified fixes**: 24 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode)
+- **Minor mismatches remaining**: a few small differences (default viewport doesn't match reference's translate/zoom, arch-node chrome subtleties, edge particle styling subtleties).
+- **Verified fixes**: 25 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid)
 - **Regressions introduced**: 0
 
 ---
@@ -30,15 +30,15 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-025 — *(to be selected after MM-024 final visual verification)*
+MM-026 — Default canvas viewport doesn't match reference's translate/zoom
 
 ### Why this mismatch was selected
 
-(Filled in before implementation.)
+After MM-025 fixed the panel chrome, the next visible difference is the diagram's initial viewport position. Reference uses `translate(120px, 260.286px) scale(0.714286)` — higher zoom (0.714 vs 0.7), shifted right (+24px) and down (+80px) compared to local's `translate(96px, 180px) scale(0.7)`. Effect: in the reference, the User node sits at x=120 (just past the floating panel's right edge at x=276 in viewport coords — actually right of the panel) and the CDN/WebApp nodes sit comfortably in the visible canvas. In the local the User node is partially clipped under the floating panel.
 
 ### Reference observation
 
-(To be inspected before implementation.)
+(To be documented in MM-026 mismatch entry after implementation.)
 
 ### Local observation
 
@@ -294,6 +294,43 @@ MM-025 — *(to be selected after MM-024 final visual verification)*
 - **Evidence**: `.reverse-match/screenshots/iteration-015-local.png`
 - **Files changed**: `src/components/ui/Icon.tsx`, `src/components/panel/ComponentsPanel.tsx`.
 - **Commit**: `c577f9c`
+
+### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
+
+- **Category**: Visual / layout
+- **Severity**: High (affects every item in the panel — biggest visible mismatch after the theme fix)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: the `<aside aria-label="Components">` is rendered as a **floating rounded card** sitting over the canvas at x=12, y=60, w=264, h=692. Computed styles:
+  - `position: absolute`
+  - `border-radius: 12px`
+  - `box-shadow: rgba(16, 20, 27, 0.06) 0px 1px 2px 0px, rgba(16, 20, 27, 0.08) 0px 8px 24px 0px` (= `--shadow-panel`)
+  - `background: rgb(255, 255, 255)`
+  - Class string on the element: `absolute z-30 bg-surface shadow-panel overflow-hidden border border-border top-3 max-h-[calc(100%-10rem)] rounded-xl left-3` (panel width via inline style set by the resize hook).
+  Inside the panel, items render as a **2-column grid** of small cards (`parentClass: "grid grid-cols-2 gap-1.5"`). Each item button is `group flex items-center gap-1.5 rounded-lg border border-border bg-surface-2 hover:bg-surface-3 hover:border-border-strong ...` (the row style from MM-014), with width ≈120 px. The resize handle from MM-021 is preserved at the right edge of the floating card (`role="separator"`, x=269, w=6).
+- **Local before**: `<aside>` was a **docked flat strip** with `class="hidden lg:flex lg:shrink-0 lg:relative lg:w-[280px] lg:h-full lg:border-r lg:border-border lg:bg-surface lg:flex-col lg:overflow-hidden"` — full-height, no rounding, no shadow, just a 1 px right border. Items rendered in a **single-column flex container** (`<div className="flex flex-col gap-1 mt-1.5">`), each item ~246 px wide spanning the panel.
+- **Root cause**: MM-002 scaffolded the panel as a docked strip during Milestone 0 (the early dark-only design phase). MM-014 changed items from a 2-col grid to a single-column layout based on a misread of the reference at the time — both the panel chrome (floating card) and the item grid (2-col) were wrong but not yet detected because the panel sat inside its own grid column.
+- **Fix**:
+  - `src/App.tsx`:
+    - Removed the `flex` wrapper around `<ComponentsPanel>` so the panel can sit as an absolutely-positioned child of `<main>`.
+    - Moved `<Canvas />` and `<CookieConsent />` to be direct siblings of `<ComponentsPanel />` inside `<main>`.
+  - `src/components/panel/ComponentsPanel.tsx`:
+    - Desktop `<aside>` class switched from docked strip to floating card: `lg:absolute lg:top-3 lg:left-3 lg:w-[264px] lg:max-h-[calc(100%-10rem)] lg:border lg:rounded-xl lg:shadow-panel lg:bg-surface lg:flex-col lg:overflow-hidden`.
+    - Mobile still uses `fixed top-12 left-0 bottom-0 z-30 w-[280px] border-r border-border bg-surface flex flex-col overflow-hidden` (slide-over from MM-009).
+    - Items container switched from `flex flex-col gap-1` to `grid grid-cols-2 gap-1.5` for both `default` and `provider` variants. Item button markup is unchanged — they auto-flow into the grid.
+    - The resize separator (MM-021) still works — it sits at the right edge of the floating card now.
+- **Verification (1440 × 900, light theme)**:
+  - Aside rect: `x=12, y=60, width=264, height=692` — matches reference exactly.
+  - `border-radius: 12px` — matches.
+  - `box-shadow: 0 1px 2px rgba(16,20,27,0.06), 0 8px 24px rgba(16,20,27,0.08)` — matches.
+  - `background: rgb(255, 255, 255)` — matches.
+  - Items parent class: `grid grid-cols-2 gap-1.5 mt-1.5` — matches.
+  - Rectangle item: width 116 px, height 42 px (reference: width 120 px, height 42 px — 4 px narrower due to slightly different panel padding).
+  - Resize handle still works: simulated drag expanded panel from 264 → 344 px (+80 px = drag distance). Mobile (420 × 820): hidden by default (`display: none`); tapping the toggle pill renders the slide-over at 280 px wide, position `fixed`, top=48. Closing via × returns to collapsed state. Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning from MM-016.
+- **Evidence**:
+  - `.reverse-match/screenshots/iteration-025-reference.png`
+  - `.reverse-match/screenshots/iteration-025-local.png`
+- **Files changed**: `src/App.tsx`, `src/components/panel/ComponentsPanel.tsx`.
+- **Commit**: `b7ab434`
 
 ### MM-024 — Default theme is hardcoded to dark; reference respects OS preference
 
@@ -1066,6 +1103,31 @@ MM-025 — *(to be selected after MM-024 final visual verification)*
 - **Next action**: MM-025 — visual sweep now that both sites render in matching light themes. Need to inspect the reference for any remaining minor differences (panel chrome — reference may be a floating rounded card with shadow vs local docked flat panel; node card chrome subtleties; etc.).
 - **Commit**: `fcbd274`
 
+### Iteration 25 — fix MM-025: floating rounded panel card + 2-col item grid
+
+- **Goal**: Replace the docked flat Components-panel strip with the reference's floating rounded card, and switch items from single-column rows to a 2-column grid.
+- **Reference observation (1440 × 900)**: the `<aside aria-label="Components">` is a **floating rounded card** sitting over the canvas at x=12, y=60, w=264, h=692. Computed styles: `position: absolute`, `border-radius: 12px`, `box-shadow: 0 1px 2px rgba(16,20,27,0.06), 0 8px 24px rgba(16,20,27,0.08)` (= `--shadow-panel`), `background: rgb(255, 255, 255)`. Class string: `absolute z-30 bg-surface shadow-panel overflow-hidden border border-border top-3 max-h-[calc(100%-10rem)] rounded-xl left-3`. Parent `<main>` is `flex-1 min-h-0 relative`. Items inside the panel render as a 2-column grid (`grid grid-cols-2 gap-1.5`); each button is 120×42 px. The resize separator (MM-021) is preserved at the right edge of the floating card.
+- **Local before**: `<aside>` was a docked full-height strip with `border-r border-border` and no rounding / shadow. Items rendered in a single-column flex container (`flex flex-col gap-1`), each ~246 px wide. The panel sat inside a `<main class="flex-1 min-h-0 relative bg-canvas flex">` flex container with `<div class="flex-1 min-w-0 relative">` wrapping the canvas — the panel took up its own grid column, pushing the canvas right.
+- **Actions**:
+  - `src/App.tsx`: removed the `flex` wrapper around `<ComponentsPanel>` so the panel can sit as an absolutely-positioned child of `<main>`. Moved `<Canvas />` and `<CookieConsent />` to be direct siblings of `<ComponentsPanel />` inside `<main>`.
+  - `src/components/panel/ComponentsPanel.tsx`:
+    - Desktop `<aside>` class: `lg:absolute lg:top-3 lg:left-3 lg:w-[264px] lg:max-h-[calc(100%-10rem)] lg:border lg:rounded-xl lg:shadow-panel lg:bg-surface lg:flex-col lg:overflow-hidden`. Mobile still uses `fixed top-12 left-0 bottom-0 z-30 w-[280px] border-r border-border bg-surface flex flex-col overflow-hidden` (slide-over from MM-009).
+    - Items container switched from `flex flex-col gap-1` to `grid grid-cols-2 gap-1.5` for both `default` and `provider` variants. Item button markup unchanged.
+    - The MM-021 resize separator remains as the first child of the aside — it now sits on the right edge of the floating card.
+- **Verification (1440 × 900, light theme)**:
+  - Aside rect: `x=12, y=60, width=264, height=692` — matches reference exactly.
+  - `border-radius: 12px` — matches.
+  - `box-shadow: 0 1px 2px rgba(16,20,27,0.06), 0 8px 24px rgba(16,20,27,0.08)` — matches.
+  - `background: rgb(255, 255, 255)` — matches.
+  - Items parent class: `grid grid-cols-2 gap-1.5 mt-1.5` — matches.
+  - Rectangle item: width 116 px, height 42 px (reference: 120×42 — 4 px narrower due to slightly different panel padding; non-impactful).
+  - Resize handle still works: simulated drag expanded panel from 264 → 344 px (+80 px = drag distance). Inline `style="width: 344px"` applied.
+  - Mobile (420 × 820): aside is `display: none` by default; tapping the toggle pill renders the slide-over at 280 px wide, position `fixed`, top=48. Closing via × returns to collapsed state.
+  - Zero console errors. The single remaining warning is the pre-existing React Flow Pro attribution warning (unrelated).
+- **Result**: MM-025 fixed. The panel now matches the reference's floating rounded card + 2-col grid pattern. Side effect: nodes drawn under the panel need to be repositioned (queued as MM-026).
+- **Next action**: MM-026 — default canvas viewport doesn't match reference's translate/zoom. Reference uses `translate(120px, 260.286px) scale(0.714286)`; local uses `translate(96px, 180px) scale(0.7)`. Update `defaultViewport` in `src/canvas/defaultDiagram.ts`.
+- **Commit**: `b7ab434`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1098,6 +1160,7 @@ MM-025 — *(to be selected after MM-024 final visual verification)*
 | 022  | MM-022 | (same reference) | `.reverse-match/screenshots/iteration-022-local.png` | — | inline in iteration log |
 | 023  | MM-023 | (same reference) | `.reverse-match/screenshots/iteration-023-local.png` | — | inline in iteration log |
 | 024  | MM-024 | `.reverse-match/screenshots/iteration-024-reference.png` | `.reverse-match/screenshots/iteration-024-local-before.png`, `iteration-024-local.png` | — | inline in iteration log |
+| 025  | MM-025 | `.reverse-match/screenshots/iteration-025-reference.png` | `.reverse-match/screenshots/iteration-025-local.png` | — | inline in iteration log |
 
 ---
 
