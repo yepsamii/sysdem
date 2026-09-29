@@ -362,8 +362,8 @@ export function ComponentsPanel() {
       aria-label="Components"
       className={
         componentsOpen
-          ? 'relative fixed top-12 left-0 z-30 w-[280px] bottom-0 border-r border-border bg-surface flex flex-col overflow-hidden lg:static lg:shrink-0 lg:z-auto lg:w-[280px] lg:h-full shadow-panel lg:shadow-none'
-          : 'hidden lg:flex lg:shrink-0 lg:relative lg:w-[280px] lg:h-full lg:border-r lg:border-border lg:bg-surface lg:flex-col lg:overflow-hidden'
+          ? 'fixed top-12 left-0 bottom-0 z-30 w-[280px] border-r border-border bg-surface flex flex-col overflow-hidden lg:absolute lg:top-3 lg:left-3 lg:bottom-auto lg:w-[264px] lg:max-h-[calc(100%-10rem)] lg:border lg:rounded-xl lg:shadow-panel lg:overflow-hidden'
+          : 'hidden lg:flex lg:absolute lg:top-3 lg:left-3 lg:w-[264px] lg:max-h-[calc(100%-10rem)] lg:border lg:rounded-xl lg:shadow-panel lg:bg-surface lg:flex-col lg:overflow-hidden'
       }
     >
       {/* Resize handle (desktop only) — drag to adjust panel width. */}
@@ -486,7 +486,7 @@ export function ComponentsPanel() {
                 )}
               </button>
               {open && (
-                <div className={variant === 'provider' ? 'flex flex-col gap-1 mt-1' : 'flex flex-col gap-1 mt-1.5'}>
+                <div className={variant === 'provider' ? 'grid grid-cols-2 gap-1.5 mt-1' : 'grid grid-cols-2 gap-1.5 mt-1.5'}>
                   {group.items.map((item) => (
                     <button
                       key={item.name}
