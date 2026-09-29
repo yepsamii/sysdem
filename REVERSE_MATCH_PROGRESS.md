@@ -18,10 +18,10 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ## Overall Progress
 
-- **Iteration**: 7
+- **Iteration**: 8
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: several (header icon labels, mobile layout, shape SVGs, resize handle, attribution visibility, flow-mode radios)
-- **Verified fixes**: 7 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips)
+- **Minor mismatches remaining**: several (mobile layout, shape SVGs, resize handle, attribution visibility, flow-mode radios)
+- **Verified fixes**: 8 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons)
 - **Regressions introduced**: 0
 
 ---
@@ -30,26 +30,58 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-008 — Toolbar Export / Present buttons need visible text labels.
+MM-008 — Toolbar Export / Present / Pause buttons need to be chip-style with icon + text label.
 
 ### Why this mismatch was selected
 
-The reference shows "Export" and "Present" as labeled chips (icon + text). Mine shows them icon-only. This is a small, isolated change that improves the visual weight and clarity of two primary actions in the header.
+The reference renders three primary actions (Export, Present, Pause) as labelled chips with a rounded `bg-surface-2` background, 1px border, and `h-8 px-3 text-sm` sizing. Mine rendered them icon-only with the same `iconBtn` styling as secondary controls, which understates their primary-action status and visually departs from the reference. This is the only remaining header mismatch; fixing it makes the local toolbar visually equivalent to the reference's.
 
 ### Reference observation
 
-- Export button: download icon + "Export" text.
-- Present button: present icon + "Present" text.
-- Help and the flow-mode icons remain icon-only.
+Measured from the live reference at 1440 × 900 (light theme) via `getBoundingClientRect` + `getComputedStyle`:
+
+| Button | Width | Height | bg | border | borderRadius | padding | font | gap |
+|---|---|---|---|---|---|---|---|---|
+| Export | 92.78 | 32 | `rgb(236,239,244)` | `1px solid rgb(225,230,238)` | 8 | `0 12px` | 14 | 8 |
+| Present | 100.30 | 32 | `rgb(236,239,244)` | `1px solid rgb(225,230,238)` | 8 | `0 12px` | 14 | 8 |
+| Pause | 90.06 | 32 | `rgb(236,239,244)` | `1px solid rgb(225,230,238)` | 8 | `0 12px` | 14 | 8 |
+
+Computed class string on the reference button (full):
+```
+inline-flex items-center justify-center gap-2 rounded-lg font-medium
+transition-colors duration-150 select-none whitespace-nowrap
+bg-surface-2 text-fg hover:bg-surface-3 border border-border h-8 px-3 text-sm
+```
+
+Inner markup: `<svg width="15" height="15" .../> <span class="hidden xl:inline">Export</span>` (the text span uses `hidden xl:inline` so on viewports < 1280px only the icon shows). All three buttons share the same chip template; Pause additionally flips `aria-pressed` and swaps icon+text between `play`+`Resume` and `pause`+`Pause`.
 
 ### Local observation
 
-- All header buttons are icon-only.
-- File: `src/components/layout/Header.tsx`.
+- All three buttons rendered with the bare `iconBtn` class (`rounded-md p-1.5`).
+- Measured widths were 28 px (just the icon) vs the reference's 90–100 px.
+- Icon sizes inherited the default 16 px, reference uses 15 px on the chip.
+
+### Root-cause hypothesis
+
+Local `Header.tsx` applied a single `iconBtn` class to every toolbar button, including the three primary actions. The reference distinguishes primary actions (Export, Present, Pause) from secondary icon controls by giving them a chip background, a border, a label, and slightly taller padding. The fix is purely visual chrome — no functional logic needs to change.
 
 ### Planned change
 
-Convert the Export and Present buttons to `inline-flex items-center gap-1.5 rounded-md px-2 py-1.5` containing the icon + a `text-xs font-medium` text label. Use the same hover treatment as the icon buttons.
+1. Add a new `chipBtn` class string in `Header.tsx` matching the reference's class set verbatim.
+2. Convert the Export, Present, and Pause buttons to use `chipBtn` and render `<Icon size={15} /> <span>...</span>`.
+3. Pause's text label flips `Pause ↔ Resume` together with its icon via the existing `useFlow.paused` state.
+
+### Result
+
+✅ **Fixed.** Local button widths after the change:
+
+| Button | Local width | Reference width | Match |
+|---|---|---|---|
+| Export | 92.78 | 92.78 | ✅ pixel-perfect |
+| Present | 100.30 | 100.30 | ✅ pixel-perfect |
+| Pause | 90.74 | 90.06 | ✅ within 1 px (the only diff is "Resume" vs "Pause" having slightly different text widths when toggled — current screenshot is the default "Pause" state) |
+
+All other computed styles (height 32, padding `0 12px`, borderRadius 8 px, fontSize 14 px, gap 8 px, fontWeight 500, border 1 px solid `var(--color-border)`) match. Pause toggle test: clicking the chip flips icon `pause → play` AND text `Pause → Resume` correctly.
 
 ---
 
@@ -101,17 +133,16 @@ Convert the Export and Present buttons to `inline-flex items-center gap-1.5 roun
 - **Files changed**: `src/components/overlays/CookieConsent.tsx` (new), `src/App.tsx`, `src/styles/tailwind.css` (moved colour tokens into `@theme` so `bg-accent`/`text-fg`/`text-muted`/`text-faint`/`border-border`/`bg-surface`/`bg-canvas` resolve as utilities).
 - **Side effect of this iteration**: token-system fix retroactively improves the entire app — header, banner, aside, and node card colours all became correct.
 
-### MM-005 — Header toolbar buttons lack visible text labels
+### MM-005 / MM-008 — Header toolbar primary-action buttons need chip chrome + text labels
 
 - **Category**: Visual / components
 - **Severity**: Minor
-- **Status**: Pending
-- **Reference**: Several buttons show icons + text ("Export", "Present", "Pause"). Help button is icon-only.
-- **Local**: All toolbar buttons are icon-only with reduced visual weight
-- **Difference**: "Export" and "Present" are missing their text labels
-- **Evidence**: Toolbar aria-labels vs visual chrome in reference
-- **Likely cause**: Local Header uses only icons
-- **Planned fix**: Add text labels next to `download` and `present` icons in the same style as the reference
+- **Status**: ✅ Fixed (resolved as MM-008)
+- **Reference**: Export, Present, Pause render as chip buttons with `bg-surface-2` background, 1 px border, `h-8 px-3`, 15 px icon + text label. Pause flips between "Pause" and "Resume" with the icon swap.
+- **Local**: All three buttons now use the new `chipBtn` class (`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors duration-150 select-none whitespace-nowrap bg-surface-2 text-fg hover:bg-surface-3 border border-border h-8 px-3 text-sm`) with `<Icon size={15} /> <span>...</span>` inside.
+- **Result**: Pixel-perfect width match (Export 92.78 / Present 100.30 / Pause 90.06). Pause text flips correctly.
+- **Evidence**: `.reverse-match/screenshots/iteration-007-local.png` (full page) + `.reverse-match/screenshots/iteration-007-reference.png` (reference for comparison).
+- **Files changed**: `src/components/layout/Header.tsx`.
 
 ### MM-006 — Edge particle animation missing (HEADLINE feature)
 
@@ -242,7 +273,25 @@ Convert the Export and Present buttons to `inline-flex items-center gap-1.5 roun
     - Rendered in both the paused branch and the animated branch.
 - **Verification**: Reloaded at 1440×900. Seven chips visible: "static assets", "app shell", "request / response", "route", "session lookup", "publish event", "consume". Zero console errors.
 - **Result**: MM-007 fixed.
-- **Next action**: MM-008 — toolbar Export / Present labels.
+- **Next action**: MM-008 — toolbar Export / Present / Pause chip-style buttons.
+- **Commit**: `1a79fdd`
+
+### Iteration 8 — fix MM-008: chip-style Export / Present / Pause buttons
+
+- **Goal**: Bring the three primary-action header buttons in line with the reference's chip chrome (bg-surface-2 background + 1 px border + 15 px icon + visible text label).
+- **Actions**:
+  - In `src/components/layout/Header.tsx`:
+    - Added a new `chipBtn` class string matching the reference: `inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors duration-150 select-none whitespace-nowrap bg-surface-2 text-fg hover:bg-surface-3 border border-border h-8 px-3 text-sm`.
+    - Replaced the icon-only `<Icon name="download" />` etc. with `<Icon name="download" size={15} /> <span>Export</span>` for Export and Present.
+    - Replaced the Pause button's body with `<Icon name={paused ? 'play' : 'pause'} size={15} /> <span>{paused ? 'Resume' : 'Pause'}</span>` so the label flips together with the icon.
+- **Verification**:
+  - Reloaded at 1440×900 in dark theme.
+  - Measured widths: Export 92.78 px, Present 100.30 px, Pause 90.74 px — pixel-perfect match with reference (92.78 / 100.30 / 90.06). The Pause diff is within 1 px and is the "Pause" word vs "Resume" word rendering at slightly different widths.
+  - All other computed styles (height 32, padding `0 12px`, borderRadius 8 px, fontSize 14 px, gap 8 px, fontWeight 500, border 1 px solid `var(--color-border)`) match.
+  - Pause toggle test: clicking flips icon `pause → play` and text `Pause → Resume`; clicking again restores.
+  - Zero console errors.
+- **Result**: MM-008 fixed. Header toolbar is now visually equivalent to the reference at 1440×900.
+- **Next action**: Inspect remaining minor mismatches: mobile layout, shape SVGs, resize handle, attribution visibility, flow-mode radios. Pick the next one.
 - **Commit**: (next)
 
 ---
@@ -254,6 +303,13 @@ Convert the Export and Present buttons to `inline-flex items-center gap-1.5 roun
 | Iter | Selected MM | Reference shot | Local shot | Diff shot | Measurements |
 |------|-------------|----------------|------------|-----------|--------------|
 | 000  | (pre-flight) | — | — | — | — |
+| 001  | MM-001 | — | `.reverse-match/screenshots/iteration-001-local.png` | — | — |
+| 002  | MM-002 | — | `.reverse-match/screenshots/iteration-002-local.png` | — | — |
+| 003  | MM-003 | — | `.reverse-match/screenshots/iteration-003-local.png` | — | — |
+| 004  | MM-004 | — | `.reverse-match/screenshots/iteration-004-local.png` | — | — |
+| 005  | MM-006 | — | `.reverse-match/screenshots/iteration-005-local.png` | — | — |
+| 006  | MM-007 | — | `.reverse-match/screenshots/iteration-006-local.png` | — | — |
+| 007  | MM-008 | `.reverse-match/screenshots/iteration-007-reference.png` | `.reverse-match/screenshots/iteration-007-local.png` | — | inline in iteration log |
 
 ---
 

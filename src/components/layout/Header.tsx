@@ -10,6 +10,8 @@ export function Header() {
 
   const iconBtn =
     'inline-flex items-center justify-center rounded-md p-1.5 transition-colors hover:bg-surface-2 text-fg disabled:opacity-40 disabled:pointer-events-none';
+  const chipBtn =
+    'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors duration-150 select-none whitespace-nowrap bg-surface-2 text-fg hover:bg-surface-3 border border-border h-8 px-3 text-sm';
   const sep = 'h-6 w-px bg-border mx-1';
 
   return (
@@ -45,11 +47,13 @@ export function Header() {
         <button type="button" aria-label="Arrow — draw a freestanding arrow" className={iconBtn} aria-pressed="false">
           <Icon name="arrow" />
         </button>
-        <button type="button" aria-label="Export diagram" className={iconBtn}>
-          <Icon name="download" />
+        <button type="button" aria-label="Export diagram" className={chipBtn}>
+          <Icon name="download" size={15} />
+          <span>Export</span>
         </button>
-        <button type="button" aria-label="Present (fullscreen playback)" className={iconBtn}>
-          <Icon name="present" />
+        <button type="button" aria-label="Present (fullscreen playback)" className={chipBtn}>
+          <Icon name="present" size={15} />
+          <span>Present</span>
         </button>
         <button type="button" aria-label="Undo (⌘ / Ctrl + Z)" className={iconBtn} disabled>
           <Icon name="undo" />
@@ -82,11 +86,12 @@ export function Header() {
         <button
           type="button"
           aria-label={paused ? 'Resume data flow' : 'Pause data flow'}
-          className={iconBtn}
+          className={chipBtn}
           aria-pressed={paused}
           onClick={togglePaused}
         >
-          <Icon name={paused ? 'play' : 'pause'} />
+          <Icon name={paused ? 'play' : 'pause'} size={15} />
+          <span>{paused ? 'Resume' : 'Pause'}</span>
         </button>
         <button type="button" aria-label="Help — shortcuts, about & contact" className={iconBtn}>
           <Icon name="help" />
