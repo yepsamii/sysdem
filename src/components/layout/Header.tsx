@@ -1,12 +1,14 @@
 import { Icon } from '../ui/Icon';
 import { useTheme } from '../../store/theme';
 import { useFlow } from '../../store/flow';
+import { useUi } from '../../store/ui';
 
 export function Header() {
   const theme = useTheme((s) => s.theme);
   const toggle = useTheme((s) => s.toggle);
   const paused = useFlow((s) => s.paused);
   const togglePaused = useFlow((s) => s.togglePaused);
+  const toggleComponents = useUi((s) => s.toggleComponents);
 
   const iconBtn =
     'inline-flex items-center justify-center rounded-md p-1.5 transition-colors hover:bg-surface-2 text-fg disabled:opacity-40 disabled:pointer-events-none';
@@ -20,17 +22,26 @@ export function Header() {
       className="h-12 w-full shrink-0 border-b border-border bg-surface flex items-center gap-1 px-2"
     >
       <Icon name="logo" size={18} className="text-accent mx-1" />
-      <span className="text-sm font-semibold tracking-tight mr-2 select-none">
+      <span className="text-sm font-semibold tracking-tight mr-2 select-none hidden sm:inline">
         GravelGraph
       </span>
 
-      <button type="button" aria-label="Menu" className={`lg:hidden ${iconBtn}`}>
+      {/* Mobile: hamburger toggles the Components panel */}
+      <button
+        type="button"
+        aria-label="Open Components"
+        className={`lg:hidden ${iconBtn}`}
+        onClick={toggleComponents}
+      >
         <Icon name="menu" />
       </button>
-      <button type="button" aria-label="File" className={iconBtn}>
+
+      {/* File button — desktop only (mobile hamburger takes its place) */}
+      <button type="button" aria-label="File" className={`hidden lg:inline-flex ${iconBtn}`}>
         <Icon name="file" />
       </button>
 
+      {/* Secondary toolbar group — desktop only */}
       <div className="hidden lg:flex items-center gap-1">
         <button type="button" aria-label="Select — drag a box to select multiple (V)" className={iconBtn} aria-pressed="false">
           <Icon name="cursor" />
@@ -69,9 +80,10 @@ export function Header() {
         </span>
       </div>
 
-      <div className="hidden lg:flex items-center gap-1">
-        <span className={sep} aria-hidden />
-        <button type="button" aria-label="Compare architecture" className={iconBtn}>
+      {/* Primary toolbar group — always visible (chips collapse to icons below xl) */}
+      <div className="flex items-center gap-1">
+        <span className={`${sep} hidden lg:inline-block`} aria-hidden />
+        <button type="button" aria-label="Compare architecture" className={`hidden xl:inline-flex ${iconBtn}`}>
           <Icon name="compare" />
         </button>
         <button type="button" aria-label="Continuous — every edge flows" className={iconBtn} aria-pressed="true">
@@ -86,14 +98,13 @@ export function Header() {
         <button
           type="button"
           aria-label={paused ? 'Resume data flow' : 'Pause data flow'}
-          className={chipBtn}
+          className={iconBtn}
           aria-pressed={paused}
           onClick={togglePaused}
         >
-          <Icon name={paused ? 'play' : 'pause'} size={15} />
-          <span>{paused ? 'Resume' : 'Pause'}</span>
+          <Icon name={paused ? 'play' : 'pause'} />
         </button>
-        <button type="button" aria-label="Help — shortcuts, about & contact" className={iconBtn}>
+        <button type="button" aria-label="Help — shortcuts, about & contact" className={`hidden md:inline-flex ${iconBtn}`}>
           <Icon name="help" />
         </button>
         <button

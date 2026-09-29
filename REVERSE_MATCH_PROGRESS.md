@@ -149,6 +149,31 @@ The wrapper `<div className="hidden lg:flex items-center gap-1">` around the pri
   - `.reverse-match/screenshots/iteration-008-local-open.png` (mobile, open)
   - `.reverse-match/screenshots/iteration-008-desktop.png` (desktop, no regression)
 - **Files changed**: `src/store/ui.ts` (new), `src/components/panel/ComponentsPanel.tsx`, `src/components/panel/ComponentsTogglePill.tsx` (new), `src/App.tsx`.
+- **Commit**: `6c98bff`
+
+### MM-010 — Mobile header empty (only Menu + File icons)
+
+- **Category**: Mobile layout
+- **Severity**: Major (multiple primary actions unreachable on mobile)
+- **Status**: ✅ Fixed
+- **Reference (mobile 420 × 820)**: header keeps Continuous / Causal / Scenario / Pause / theme-toggle visible as chips. Select / Hand / Pencil / Line / Arrow / Export / Present / Undo / Redo / File are hidden.
+- **Local before**: only GravelGraph logo + Menu + File icons visible on mobile (the entire `hidden lg:flex` group including the primary-action chips was hidden).
+- **Fix** (in `src/components/layout/Header.tsx`):
+  - Reorganised the header into two toolbar groups: a **secondary** group (Select / Hand / Pencil / Line / Arrow / Export / Present / Undo / Redo) kept `hidden lg:flex`, and a **primary** group (Compare / Continuous / Causal / Scenario / Pause / Help / theme) wrapped in a plain `flex` so it renders at every viewport.
+  - Mobile hamburger now toggles `useUi.componentsOpen` (so it functions as the Components panel toggle on mobile — same pattern as the reference).
+  - File button moved to `hidden lg:inline-flex` (mobile uses the hamburger instead).
+  - Help button moved to `hidden md:inline-flex` (still reachable on tablets; on phones the theme toggle + primary actions take priority).
+  - Compare icon hidden below `xl` (it sits between the secondary group and the primary group in the reference, but at narrow viewports the separator + it disappear).
+  - "GravelGraph" wordmark hidden below `sm` to give more room to the toolbar.
+- **Verification**:
+  - 420 × 820: header shows logo (no wordmark) | hamburger | Components pill (below banner) | Continuous / Causal / Scenario / Pause / theme on the right. Canvas fills viewport.
+  - 768 × 1024: same as desktop with all primary actions visible.
+  - 1440 × 900: unchanged from before — full secondary toolbar + Export / Present chips + primary chips.
+  - Zero console errors.
+- **Evidence**:
+  - `.reverse-match/screenshots/iteration-009-mobile.png`
+  - `.reverse-match/screenshots/iteration-009-desktop.png`
+- **Files changed**: `src/components/layout/Header.tsx`.
 - **Commit**: (next)
 
 ### MM-006 — Edge particle animation missing (HEADLINE feature)
