@@ -1,10 +1,10 @@
-import { useState, type ReactNode } from 'react';
-import { Icon } from '../ui/Icon';
+import { useState } from 'react';
+import { Icon, type IconName } from '../ui/Icon';
 import { useUi } from '../../store/ui';
 
 interface ComponentItem {
   name: string;
-  icon: ReactNode;
+  iconName: IconName;
 }
 
 interface Group {
@@ -13,10 +13,10 @@ interface Group {
   defaultOpen?: boolean;
 }
 
-function shapeIcon(symbol: string) {
+function ItemIcon({ name }: { name: IconName }) {
   return (
-    <div className="h-9 w-9 rounded-md flex items-center justify-center bg-surface-2 text-fg border border-border">
-      <span aria-hidden className="text-base leading-none">{symbol}</span>
+    <div className="h-9 w-9 rounded-md flex items-center justify-center bg-surface-2 text-fg border border-border shrink-0">
+      <Icon name={name} size={15} strokeWidth={2} />
     </div>
   );
 }
@@ -39,34 +39,34 @@ const GROUPS: Group[] = [
   {
     label: 'Shapes',
     items: [
-      { name: 'Rectangle', icon: shapeIcon('▭') },
-      { name: 'Rounded',   icon: shapeIcon('⬜') },
-      { name: 'Ellipse',   icon: shapeIcon('◯') },
-      { name: 'Diamond',   icon: shapeIcon('◇') },
-      { name: 'Triangle',  icon: shapeIcon('△') },
-      { name: 'Hexagon',   icon: shapeIcon('⬡') },
-      { name: 'Cylinder',  icon: shapeIcon('⌭') },
-      { name: 'Text',      icon: shapeIcon('T') },
+      { name: 'Rectangle', iconName: 'rectangle' },
+      { name: 'Rounded',   iconName: 'rounded-rect' },
+      { name: 'Ellipse',   iconName: 'ellipse' },
+      { name: 'Diamond',   iconName: 'diamond' },
+      { name: 'Triangle',  iconName: 'triangle' },
+      { name: 'Hexagon',   iconName: 'hexagon' },
+      { name: 'Cylinder',  iconName: 'cylinder' },
+      { name: 'Text',      iconName: 'type' },
     ],
     defaultOpen: true,
   },
   {
     label: 'Clients & Network',
     items: [
-      { name: 'Client',      icon: shapeIcon('◐') },
-      { name: 'CDN',         icon: shapeIcon('☁') },
-      { name: 'API Gateway', icon: shapeIcon('⇄') },
-      { name: 'Load Balancer', icon: shapeIcon('⇆') },
+      { name: 'Client',      iconName: 'monitor-smartphone' },
+      { name: 'CDN',         iconName: 'cloud' },
+      { name: 'API Gateway', iconName: 'route' },
+      { name: 'Load Balancer', iconName: 'scale' },
     ],
     defaultOpen: true,
   },
   {
     label: 'Compute',
     items: [
-      { name: 'Server',  icon: shapeIcon('▣') },
-      { name: 'Function',icon: shapeIcon('ƒ') },
-      { name: 'Container', icon: shapeIcon('◫') },
-      { name: 'Worker',  icon: shapeIcon('⚙') },
+      { name: 'Server',  iconName: 'server' },
+      { name: 'API',     iconName: 'server-cog' },
+      { name: 'Service', iconName: 'app-window' },
+      { name: 'Function',iconName: 'square-function' },
     ],
   },
 ];
@@ -189,7 +189,7 @@ export function ComponentsPanel() {
                       type="button"
                       className="flex items-center gap-2 px-2 py-1.5 rounded-md border border-border bg-surface hover:bg-surface-2 transition-colors text-left min-w-0"
                     >
-                      {item.icon}
+                      {item.iconName ? <ItemIcon name={item.iconName} /> : null}
                       <span className="text-xs font-medium truncate" title={item.name}>{item.name}</span>
                     </button>
                   ))}
