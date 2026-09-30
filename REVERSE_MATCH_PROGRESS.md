@@ -9,10 +9,10 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 ## Target
 
 - **Reference**: `https://www.gravelgraph.com/`
-- **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
+- **Local**: `http://127.0.0.1:3000/` *(vite.config.ts port=3000, host=127.0.0.1; use IPv4 explicitly because `localhost` may resolve to IPv6 where another dev server is bound)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 06:00
+- **Last updated**: 2026-09-30 06:30
 
 ---
 
