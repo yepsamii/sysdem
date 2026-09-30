@@ -18,10 +18,10 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ## Overall Progress
 
-- **Iteration**: 35
+- **Iteration**: 37
 - **Major mismatches remaining**: 0
 - **Minor mismatches remaining**: sub-pixel cosmetic differences (label rendering nuances, edge dash pattern, etc.).
-- **Verified fixes**: 35 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling)
+- **Verified fixes**: 37 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths)
 - **Regressions introduced**: 0
 
 ---
@@ -30,7 +30,72 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-035 — Edge label chips use `text-xs` (12 px) and `pointer-events-auto`; reference uses `text-[11px]` and `select-none`.
+MM-037 — Components panel is hidden behind hamburger toggle at 768–1023 px widths; reference shows the panel as a floating card starting at 768 px.
+
+### Why this mismatch was selected
+
+Final verification at tablet (768×1024) and intermediate widths (770–1023) showed that the reference's Components panel is visible as a 264 px floating card at every width ≥768 px, but local hides it behind the toggle pill until width ≥1024 px (the `lg:` Tailwind breakpoint used by `ComponentsPanel.tsx` and `ComponentsTogglePill.tsx`). This is the most visible remaining gap on the reference's mid-range widths.
+
+### Reference observation (768 × 1024)
+
+- Panel aside: `display: flex`, rect `{ x: 12, y: 60, width: 264, height: 816 }` — visible as a floating card.
+- Hamburger Menu button: visible in the header (rect at x=53, w=36).
+- Header toolbar at 768 px shows only: Menu, mode pills (Continuous/Causal/Scenario), Theme. Select/Hand/Draw/Line/Arrow/Export/Present/Undo/Redo/Compare/Help are all hidden. This means the reference uses **two distinct breakpoints**: 768 px for the panel, 1024 px for the full toolbar.
+
+At 767 × 1024 the reference's panel is `null` (removed from DOM via `hidden md:flex`).
+
+### Local observation (768 × 1024 before fix)
+
+- Panel aside: `display: none` (rect 0×0). Class string `hidden lg:flex lg:absolute …` — gated at `lg:` (1024 px).
+- Components toggle pill: rendered because `lg:hidden` matches.
+- Same header buttons as desktop because all `hidden lg:` classes already evaluate to flex at 768 px (this is correct — full toolbar only shows at ≥1024 px).
+
+### Root-cause hypothesis
+
+When MM-002 / MM-009 / MM-010 scaffolded the panel's responsive behavior during Milestone 0, the canonical Tailwind breakpoint `lg:` (1024 px) was chosen. The reference instead uses `md:` (768 px) for the panel. The Header's `lg:` is correct (full toolbar only at ≥1024 px) and should be left alone. Only the **panel-related** classes need swapping.
+
+### Planned change
+
+Two single-line changes:
+
+1. In `src/components/panel/ComponentsPanel.tsx`, swap `lg:` → `md:` in both class strings (lines 365–366).
+2. In `src/components/panel/ComponentsTogglePill.tsx`, swap `lg:hidden` → `md:hidden` (line 9).
+
+The Header's `lg:` breakpoints are intentionally left untouched (the reference confirms `lg:` is correct for the full toolbar visibility).
+
+### Result
+
+After implementation, probed local at 768 × 1024:
+
+```js
+{
+  aside: {
+    display: 'flex',
+    rect: { x: 12, y: 60, width: 264, height: 816 },
+    classes: 'flex flex-col absolute z-30 bg-surface shadow-panel overflow-hidden border border-border top-3 max-h-[calc(100%-10rem)] rounded-xl left-3'
+  }
+}
+```
+
+Also verified local at 420 × 820 (panel still hidden behind toggle — `md:hidden` matches `<768`) and 1440 × 900 (panel still visible — `md:flex` matches ≥768).
+
+Side-by-side at `.reverse-match/screenshots/iteration-037-local-tablet.png` vs `iteration-036-reference-tablet.png`.
+
+Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+
+**Categorization**: Fixed — Components panel now appears at the same widths as the reference (≥768 px) instead of ≥1024 px.
+
+### Remaining difference
+
+Mobile header at 420 × 820: brand text "GravelGraph" missing from local). Reference shows it at 420 — but local's `hidden sm:inline` hides it <640 px. Sub-pixel cosmetic. Also, mobile header order: reference shows hamburger + brand + File + segmented mode + Pause + theme; local matches the order.
+
+### New mismatches discovered
+
+None from this scan.
+
+### Next action
+
+Final verification round 2 — re-check desktop, tablet, mobile screenshots after MM-037 fix to confirm no regressions, then close out.
 
 ### Why this mismatch was selected
 
@@ -577,6 +642,28 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 - **Verification**: see Current Iteration §"Result". Local chip class string now matches the reference exactly; bounding rect is `{ width: 79.87, height: 16.07 }` — matches the reference. Side-by-side at `.reverse-match/screenshots/iteration-035-local-after.png`.
 - **Files changed**: `src/canvas/FlowEdge.tsx`.
 - **Commit**: `fe259fd`
+
+### MM-037 — Components panel uses `lg:` (1024 px) breakpoint; reference uses `md:` (768 px)
+
+- **Category**: Visual / responsive
+- **Severity**: High (panel missing at every tablet width between 768 px and 1023 px — a 256 px-wide range)
+- **Status**: ✅ Fixed
+- **Reference observation**: at every viewport width from 768 px through 1023 px, the reference's `<aside aria-label="Components">` is `display: flex` and renders as a 264 px-wide floating card at `(x=12, y=60, width=264, height=816)` (h=816 at 1024 high viewports; h=692 at 900 high). At 767 px the aside is removed from DOM entirely (display: null). The hamburger Menu button is the toggle at <768 px and is hidden via CSS at ≥768 px.
+- **Local before**: panel used `hidden lg:flex lg:absolute …` and toggle pill used `lg:hidden`, gating both at 1024 px. So at 768–1023 px local showed the toggle pill but no panel — a "stuck" state where the user can see the hamburger but tapping it didn't reveal anything (because the panel was already visible on click, no — actually it set state but the panel was `display: none`).
+- **Root cause**: when MM-002 / MM-009 / MM-010 scaffolded the panel's responsive behavior during Milestone 0, `lg:` (1024 px) was chosen as the breakpoint for everything. The reference instead uses `md:` (768 px) for the panel specifically. Header `lg:` is correct for the full toolbar (full toolbar only appears ≥1024 px) and was intentionally left untouched.
+- **Fix**:
+  - `src/components/panel/ComponentsPanel.tsx`: swapped `lg:` → `md:` in both class strings on the `<aside>` element (lines 365–366). Mobile class string is unchanged.
+  - `src/components/panel/ComponentsTogglePill.tsx`: swapped `lg:hidden` → `md:hidden` on the wrapper `<div>` (line 9).
+  - `src/components/layout/Header.tsx`: untouched — `lg:` breakpoints are intentional for the full toolbar (Select/Hand/Draw/Line/Arrow/Export/Present/Undo/Redo/Compare/Help) which the reference confirms only appears at ≥1024 px.
+- **Verification (768 × 1024)**: local aside `display: flex`, rect `{ x: 12, y: 60, width: 264, height: 816 }` — matches reference exactly. Toggle pill parent `display: none` — matches reference.
+- **Verification (420 × 820)**: local aside `display: none`, toggle pill parent `display: block` — matches reference.
+- **Verification (1440 × 900)**: local aside `display: flex`, rect `{ x: 12, y: 60, width: 264, height: 692 }` — matches reference.
+- **Verification (767 × 1024)**: local aside `display: none` (matches reference). Toggle pill parent `display: block` (matches reference).
+- **Evidence**:
+  - `.reverse-match/screenshots/iteration-037-local-tablet.png` (after fix, panel visible at 768)
+  - `.reverse-match/screenshots/iteration-037-reference-tablet.png` (reference at 768)
+- **Files changed**: `src/components/panel/ComponentsPanel.tsx`, `src/components/panel/ComponentsTogglePill.tsx`.
+- **Commit**: `8a26e0c`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1600,6 +1687,40 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 - **Next action**: MM-036 — final verification across desktop / mobile / tablet viewports, plus hover and pause states, to confirm no regressions.
 - **Commit**: `fe259fd`
 
+### Iteration 36 — MM-036 (final verification round 1)
+
+- **Selected mismatch**: MM-036 — final verification across desktop / mobile / tablet viewports, plus hover and pause states.
+- **Reference probe (1440 × 900)**: viewport `translate(120px, 260.286px) scale(0.714286)`. Header right-cluster buttons include Compare, segmented mode pill, Pause, Help, theme toggle. Mode pills visible at tablet (768–1023) but full toolbar only at ≥1024.
+- **Reference probe (768 × 1024)**: panel visible as floating card at `(x=12, y=60, w=264, h=816)`. Header shows hamburger Menu + segmented mode pill + Pause + theme only.
+- **Reference probe (420 × 820)**: panel hidden, hamburger Menu toggle pill visible at top-left. Diagram visible behind header at top.
+- **Reference probe (767 × 1024)**: panel hidden, toggle pill visible (reference breakpoint is 768 px).
+- **Change made**: none — this was a verification scan.
+- **Verification (local at all four widths)**:
+  - 1440 × 900: viewport `translate(120px, 260px) scale(0.714286)` — matches. Header complete. Side-by-side at `.reverse-match/screenshots/iteration-036-local-desktop.png` vs `iteration-036-reference-desktop.png`.
+  - 768 × 1024: panel `display: none`, toggle pill visible — **MISMATCH** discovered. Reference shows panel visible at 768.
+  - 420 × 820: panel hidden, toggle pill visible — matches reference.
+  - Pause state: clicking pause shows "▶ Play" button and edges render as gray base edges with no particles — matches reference behavior.
+  - Dark theme: clicking theme toggle inverts background to dark navy, all panels/diagram still visible — matches reference behavior.
+  - Side-by-side at `.reverse-match/screenshots/iteration-036-local-{desktop,tablet,mobile,paused,dark}.png` and `iteration-036-reference-{desktop,tablet,mobile,dark}.png`.
+- **Result**: MM-036 surfaced one new mismatch (MM-037) — Components panel breakpoint is `lg:` on local but `md:` on the reference.
+- **New mismatches discovered**: MM-037 — Components panel breakpoint.
+- **Next action**: MM-037 — swap `lg:` → `md:` in `ComponentsPanel.tsx` and `ComponentsTogglePill.tsx` so the panel is visible at tablet widths.
+
+### Iteration 37 — MM-037 (panel breakpoint 768 px)
+
+- **Selected mismatch**: MM-037 — local Components panel uses `lg:` (1024 px) breakpoint; reference uses `md:` (768 px).
+- **Reference probe**: probed reference at every width from 420 through 1440. Panel display flips from `null` to `flex` between 767 px and 768 px. Toggle pill flips from visible to hidden at the same boundary.
+- **Change made**: in `src/components/panel/ComponentsPanel.tsx`, swapped `lg:` → `md:` in both `<aside>` class strings (lines 365–366). In `src/components/panel/ComponentsTogglePill.tsx`, swapped `lg:hidden` → `md:hidden` (line 9). Header `lg:` breakpoints intentionally left untouched — the reference confirms full toolbar (Select/Hand/Draw/Line/Arrow/Export/Present/Undo/Redo/Compare/Help) only appears at ≥1024 px.
+- **Verification (768 × 1024)**: local panel `display: flex`, rect `{ x: 12, y: 60, width: 264, height: 816 }` — matches reference exactly. Toggle pill parent `display: none` — matches reference. Side-by-side at `.reverse-match/screenshots/iteration-037-{local,reference}-tablet.png`.
+- **Verification (420 × 820)**: panel `display: none`, toggle pill visible — matches reference.
+- **Verification (1440 × 900)**: panel `display: flex`, rect `{ x: 12, y: 60, width: 264, height: 692 }` — matches reference.
+- **Verification (767 × 1024)**: panel `display: none` — matches reference.
+- **Console**: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-037 fixed. Components panel is now visible at every width ≥768 px, matching the reference.
+- **New mismatches discovered**: none.
+- **Next action**: MM-038 — re-run final verification across all widths to confirm no regressions.
+- **Commit**: `8a26e0c`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1643,6 +1764,8 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 | 033  | MM-033 | (probed live) | `.reverse-match/screenshots/iteration-033-local-after.png` | — | inline in iteration log (9-row dur/length/speed table) |
 | 034  | MM-034 | (probed live) | `.reverse-match/screenshots/iteration-034-local-after.png` | — | inline in iteration log (9-row x/y diff table) |
 | 035  | MM-035 | (probed live) | `.reverse-match/screenshots/iteration-035-local-after.png` | — | inline in iteration log |
+| 036  | MM-036 | `.reverse-match/screenshots/iteration-036-reference-{desktop,tablet,mobile,dark}.png` | `.reverse-match/screenshots/iteration-036-local-{desktop,tablet,mobile,paused,dark}.png` | — | inline in iteration log (viewport + breakpoint table) |
+| 037  | MM-037 | `.reverse-match/screenshots/iteration-037-reference-tablet.png` | `.reverse-match/screenshots/iteration-037-local-tablet.png` | — | inline in iteration log (panel display/rect at 4 widths) |
 
 ---
 
