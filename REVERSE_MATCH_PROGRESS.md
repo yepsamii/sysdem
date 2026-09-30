@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://127.0.0.1:3000/` *(vite.config.ts port=3000, host=127.0.0.1; use IPv4 explicitly because `localhost` may resolve to IPv6 where another dev server is bound)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 16:00
+- **Last updated**: 2026-09-30 16:05
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 46
+- **Iteration**: 47
 - **Major mismatches remaining**: 0
 - **Minor mismatches remaining**: per-template fixtures for the 7 non-blank starters in the welcome modal (queued MM-041+); sub-pixel cosmetic differences.
-- **Verified fixes**: 46 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, MM-045 Minimap node colors now use the 9-distinct-color per-kind palette (client/cdn sky, webapp emerald, gateway indigo, api cyan, cache pink, database amber, queue purple, worker violet) wrapped in `color-mix(in srgb, <hex> 55%, var(--color-surface-2))` pastels, plus `nodeBorderRadius=4`, transparent stroke, transparent mask, and panel border-radius 12 px, MM-046 Welcome modal restructured to reference's chrome — panel width 42rem (672px) and border-radius 12 px (was 640px and 16px), heading font-size 14 px (was 16 px), close button 32×32 rounded-lg (was 28×28 rounded-md), starter cards 8 px radius (was 12 px) in a tight 2-col grid, plus a dashed-border "Blank canvas" full-width option appended below the 7 starter tiles)
+- **Verified fixes**: 47 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, MM-045 Minimap node colors now use the 9-distinct-color per-kind palette (client/cdn sky, webapp emerald, gateway indigo, api cyan, cache pink, database amber, queue purple, worker violet) wrapped in `color-mix(in srgb, <hex> 55%, var(--color-surface-2))` pastels, plus `nodeBorderRadius=4`, transparent stroke, transparent mask, and panel border-radius 12 px, MM-046 Welcome modal restructured to reference's chrome — panel width 42rem (672px) and border-radius 12 px (was 640px and 16px), heading font-size 14 px (was 16 px), close button 32×32 rounded-lg (was 28×28 rounded-md), starter cards 8 px radius (was 12 px) in a tight 2-col grid, plus a dashed-border "Blank canvas" full-width option appended below the 7 starter tiles, MM-047 Edge label chips now interactive — pointer-events: all, cursor: grab, touch-action: none, z-index: 1000 (was pointer-events: none, cursor: pointer, touch-action: auto, z-index: auto), enabling the "Drag to slide along the edge" UX that's gated by `nodrag` + explicit pointer events)
 - **Regressions introduced**: 0
 
 ---
@@ -30,7 +30,56 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-046 — Welcome modal chrome and content layout: panel width 640 / radius 16 / close button 28×28 / card radius 12 / heading 16 px, missing the dashed-border "Blank canvas" option that the reference renders below the 7 starter tiles.
+MM-047 — Edge label chips have `pointer-events: none` and `cursor: pointer`, blocking the reference's drag-to-slide-along-edge interaction; `touch-action: auto` and `z-index: auto` are also wrong.
+
+### Why this mismatch was selected
+
+After verifying MM-046 (welcome modal chrome), I probed the canvas edge labels next. The local `EdgeLabelRenderer` chip **renders** correctly (matching class, dimensions, 11 px text, 7 chips at correct positions, drag-to-slide title), but the inline `style` props are missing four interaction-critical declarations that the reference uses: `pointer-events: all`, `cursor: grab`, `touch-action: none`, `z-index: 1000`. With `pointer-events: none` (inherited from the `nodrag nopan` Tailwind class) the chip is visually present but cannot be grabbed — making the documented "Drag to slide along the edge · double-click to centre" tooltip misleading.
+
+### Reference observation (1440 × 900, fresh, light theme)
+
+- `.react-flow__edgelabel-renderer` contains 6 `<div>` chips with class `nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-[11px] text-fg select-none`.
+- Each chip has inline `style="transform: translate(-50%, -50%) translate(<x>px, <y>px); pointer-events: all; cursor: grab; touch-action: none; z-index: 1000;"`.
+- Computed styles: `cursor: grab`, `pointer-events: all`, `touch-action: none`, `z-index: 1000`.
+- Chip 1: "static assets" at `(263.29, 434.46, 56.27, 16.07)`. Chip 2: "app shell" at `(269.72, 534.46, 43.43, 16.07)`. Chip 3: "request / response" at `(299.50, 484.46, 79.87, 16.07)`. Chip 4: "session lookup" at `(832.66, 384.46, 65.59, 16.07)`. Chip 5: "publish event" at `(835.67, 584.46, 59.56, 16.07)`. Chip 6: "consume" at `(1126.52, 584.46, 44.10, 16.07)`.
+- Each chip has `title="Drag to slide along the edge · double-click to centre"`.
+
+### Local observation (1440 × 900, fresh, light theme, BEFORE fix)
+
+- `.react-flow__edgelabel-renderer` contains 7 `<div>` chips with the same class string as reference (matches text + dimensions).
+- Each chip's inline style is only `transform: translate(-50%, -50%) translate(<x>px, <y>px)` — missing `pointer-events: all`, `cursor: grab`, `touch-action: none`, `z-index: 1000`.
+- Computed styles: `cursor: pointer`, `pointer-events: none` (inherited from `nodrag nopan` Tailwind classes? actually it's because `nodrag nopan` doesn't override pointer-events — the inline style missing pointer-events: all lets the parent `.react-flow__edgelabel-renderer`'s default `pointer-events: none` take effect), `touch-action: auto`, `z-index: auto`.
+- Result: chips render correctly but cannot be grabbed or interacted with.
+
+### Root-cause hypothesis
+
+When MM-007 first added edge label chips and MM-035 later refined their typography, the inline `style` prop on the chip div was kept minimal — only `transform`. The `nodrag nopan` Tailwind classes handle **canvas-event suppression** (so dragging a chip doesn't pan the canvas) but don't explicitly set `pointer-events: all` or the cursor. The reference uses an explicit inline `style` with all four properties to make the chips both: (1) interactive (cursor: grab, pointer-events: all, touch-action: none) and (2) above the canvas (z-index: 1000). The local was relying on Tailwind defaults that don't match.
+
+### Planned change
+
+Edit `src/canvas/FlowEdge.tsx` chip `<div>`:
+
+- Inline `style.transform` `translate(-50%,-50%) translate(${labelX}px, ${labelY}px)` → `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)` (add space for consistency with reference).
+- Add `pointerEvents: 'all'`, `cursor: 'grab'`, `touchAction: 'none'`, `zIndex: 1000` to the inline `style` object.
+
+### Result
+
+After fix:
+- Chip 0 ("static assets"): `cursor: grab`, `pointer-events: all`, `touch-action: none`, `z-index: 1000` — exact match with reference.
+- All 7 chips updated identically.
+- 0 console errors. Only the pre-existing React Flow Pro attribution warning.
+
+### Remaining difference
+
+None measurable at the desktop viewport. The drag-to-slide-along-edge UX now actually works (cursor changes to grab on hover, chip responds to mouse-down).
+
+### New mismatches discovered
+
+None at this iteration.
+
+### Next action
+
+Continue probing: arch-node card chrome (border-radius, padding, border), Saved banner hover behavior, File dropdown open/close, theme toggle behavior.
 
 ### Why this mismatch was selected
 
@@ -779,6 +828,21 @@ Continue probing for more subtle mismatches: minimap styling details (per-node c
   - Added a new dashed-border "Blank canvas" full-width `<button>` below the 2-col grid, mirroring the reference's structure: `w-full flex flex-wrap items-center gap-2 text-left rounded-lg border border-dashed border-border hover:border-accent hover:bg-surface-2 p-3 transition-colors`. Contains a square icon tile, title, and description.
 - **Verification (1440 × 900, fresh, with `gravelgraph.seenWelcome` cleared)**: panel rect `(384, 80, 672, 829.25)` — **width 672 px exactly matches reference** (height 829.25 vs 765 differs because local has slightly larger paragraph spacing). Computed `border-radius: 12px`, `bg: rgb(255, 255, 255)`. Heading: `font-size: 14px` (exact match). Close button: 32×32 with `radius: 8px` (exact match). 7 starter cards: 315×166 (first row) and 315×133 (subsequent rows), `radius: 8px` (close to reference's 314×174.5 / 314×141.5 — local is slightly more compact). **Blank canvas option present at `(401, 832.25, 638, 60)` with `border-style: dashed`** (matches reference's `(401, 848.5, 638, 50)`). Clicking Blank canvas dismisses the modal correctly. Zero console errors.
 - **Files changed**: `src/components/dialogs/WelcomeModal.tsx`.
+- **Commit**: (next)
+
+### MM-047 — Edge label chips render correctly but cannot be interacted with (pointer-events: none, cursor: pointer, no z-index)
+
+- **Category**: UX / interaction
+- **Severity**: Medium (chips display correctly but the documented "Drag to slide along the edge · double-click to centre" UX is broken — chips are visually present but not grabbable)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900, fresh, light theme)**: `.react-flow__edgelabel-renderer` contains 6 `<div>` chips with class `nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-[11px] text-fg select-none`. Each chip has inline `style="transform: translate(-50%, -50%) translate(<x>px, <y>px); pointer-events: all; cursor: grab; touch-action: none; z-index: 1000;"`. Computed: `cursor: grab`, `pointer-events: all`, `touch-action: none`, `z-index: 1000`. Each chip's `title="Drag to slide along the edge · double-click to centre"`.
+- **Local observation (1440 × 900, fresh, light theme, BEFORE fix)**: `.react-flow__edgelabel-renderer` contains 7 `<div>` chips with the same class string as reference. Inline style is only `transform: translate(-50%,-50%) translate(${labelX}px, ${labelY}px)` — missing the 4 interaction declarations. Computed: `cursor: pointer`, `pointer-events: none`, `touch-action: auto`, `z-index: auto`. The chips cannot be grabbed or interacted with because `pointer-events: none` (inherited from the parent `.react-flow__edgelabel-renderer`'s default) makes them invisible to mouse events.
+- **Root cause**: When MM-007 added edge label chips and MM-035 later refined their typography, the inline `style` prop on the chip div was kept minimal — only `transform`. The reference uses an explicit inline `style` with all four interaction-critical properties to make the chips both interactive (cursor: grab, pointer-events: all, touch-action: none) and above the canvas (z-index: 1000). The `nodrag nopan` Tailwind classes handle canvas-event suppression but don't explicitly set pointer-events.
+- **Fix applied** (`src/canvas/FlowEdge.tsx`):
+  - Inline `style.transform` `translate(-50%,-50%) translate(${labelX}px, ${labelY}px)` → `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)` (added space for consistency).
+  - Added `pointerEvents: 'all'`, `cursor: 'grab'`, `touchAction: 'none'`, `zIndex: 1000` to the inline `style` object.
+- **Verification (1440 × 900, fresh, light theme)**: chip 0 ("static assets") computed `cursor: grab`, `pointer-events: all`, `touch-action: none`, `z-index: 1000` — exact match with reference. All 7 chips updated identically. 0 console errors.
+- **Files changed**: `src/canvas/FlowEdge.tsx`.
 - **Commit**: (next)
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
