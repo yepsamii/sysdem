@@ -1844,6 +1844,7 @@ Loop is in good shape after MM-042. Either continue probing for more subtle mism
 - **Hamburger toggle (mobile / tablet <768 px)**: opens Components panel as a left-edge slide-in. Closes on backdrop click or hamburger again. Matches reference (verified MM-009, MM-037).
 - **Segmented mode pill**: clicking Continuous / Causal / Scenario updates `mode` in flow store and the edge animation style updates accordingly. Matches reference (verified MM-011).
 - **Welcome modal (fresh visit)**: shows "What would you like to make?" with 7 starter cards in a 2-col grid (1-col on mobile <640 px). Closes via × button, card click, ESC, or backdrop click. All four paths persist `gravelgraph.seenWelcome: "1"` so the modal is suppressed on subsequent visits. Matches reference (verified MM-040, MM-041).
+- **Cookie consent (fresh visit)**: horizontal panel anchored bottom-left (`x=12, y≈819 on tablet, y≈695 on desktop`) at `396×201`. Icon left (32×32 accent-tinted Lucide cookie), heading + 2 paragraphs + Privacy link + Accept/Decline buttons right. Accept persists `{v:1,ads:true}`, Decline persists `{v:1,ads:false}`. Matches reference (verified MM-042).
 
 ### Remaining differences
 
