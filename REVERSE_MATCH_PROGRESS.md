@@ -21,7 +21,7 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Iteration**: 45
 - **Major mismatches remaining**: 0
 - **Minor mismatches remaining**: per-template fixtures for the 6 non-System starters in the welcome modal (queued MM-041+); sub-pixel cosmetic differences.
-- **Verified fixes**: 44 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, after local had hidden the 4th button and applied opaque `!bg-surface` + `!shadow-panel` chrome)
+- **Verified fixes**: 45 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, MM-045 Minimap node colors now use the 9-distinct-color per-kind palette (client/cdn sky, webapp emerald, gateway indigo, api cyan, cache pink, database amber, queue purple, worker violet) wrapped in `color-mix(in srgb, <hex> 55%, var(--color-surface-2))` pastels, plus `nodeBorderRadius=4`, transparent stroke, transparent mask, and panel border-radius 12 px)
 - **Regressions introduced**: 0
 
 ---
@@ -727,6 +727,45 @@ Continue probing for more subtle mismatches: minimap styling details (per-node c
 - **Console**: 0 errors. Only the pre-existing React Flow Pro attribution warning.
 - **Files changed**: `src/canvas/Canvas.tsx`.
 - **Commit**: `3b116e7`
+
+### MM-045 — Minimap uses wrong node colors (4 wrong + 5 right); panel chrome also off
+
+- **Category**: Visual / chrome
+- **Severity**: Medium (visible on every page load at bottom-right; 9 distinct colored rectangles should appear, not 4 cyan + 1 pink + 1 amber + 2 violet + 1 slate)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900, fresh, welcome + cookie dismissed)**: `.react-flow__minimap` rect `(1223, 733, 202, 152)`. Computed: `bg: rgb(255,255,255)`, `border: 1px solid rgb(225,230,238)`, `border-radius: 12px`, `box-shadow: none`. 9 minimap-node `<rect>` elements with `rx=4`, `shape-rendering=crispEdges`, `fill: color-mix(in srgb, <hex> 55%, var(--color-surface-2))`, `stroke: transparent`. Per-kind tints (each unique):
+  - client/User → `color(srgb 0.537255 0.829412 0.96549)` (sky `#38bdf8` blend)
+  - cdn/CDN → `color(srgb 0.537255 0.829412 0.96549)` (sky)
+  - webapp/Web App → `color(srgb 0.528627 0.876863 0.760588)` (emerald `#34d399`)
+  - gateway/API Gateway → `color(srgb 0.694706 0.723725 0.96549)` (indigo `#818cf8`)
+  - api/API → `color(srgb 0.489804 0.876863 0.943922)` (cyan `#22d3ee`)
+  - cache/Cache → `color(srgb 0.942745 0.667647 0.823137)` (pink `#f472b6`)
+  - database/Database → `color(srgb 0.944902 0.762549 0.454314)` (amber `#f59e0b`)
+  - queue/Event Queue → `color(srgb 0.830588 0.706471 0.974118)` (purple `#c084fc`)
+  - worker/Worker → `color(srgb 0.776667 0.721569 0.969804)` (violet `#a78bfa`)
+- **Local observation (1440 × 900, fresh, before fix)**: rect identical `(1223, 733, 202, 152)`. Computed: `border-radius: 8px` (not 12 px). 9 node rects with `rx=5` (not 4), `fill: <solid hex>` (not color-mix blend). Per-kind tints (with 4 errors):
+  - client/User → `rgb(148, 163, 184)` slate ❌ (should be sky)
+  - cdn/CDN → `rgb(34, 211, 238)` cyan ❌ (should be sky)
+  - webapp/Web App → `rgb(34, 211, 238)` cyan ❌ (should be emerald)
+  - gateway/API Gateway → `rgb(34, 211, 238)` cyan ❌ (should be indigo)
+  - api/API → `rgb(34, 211, 238)` cyan ✓
+  - cache/Cache → `rgb(244, 114, 182)` pink ✓
+  - database/Database → `rgb(245, 158, 11)` amber ✓
+  - queue/Event Queue → `rgb(167, 139, 250)` violet ❌ (should be purple)
+  - worker/Worker → `rgb(167, 139, 250)` violet ✓
+  - Also `maskColor="rgba(11,14,20,0.7)"` gives the panel a dark overlay (reference uses no mask).
+- **Root cause**: MM-001's original `<MiniMap>` had a simplified nodeColor map that grouped cdn/webapp/gateway/api under one cyan and queue/worker under one violet. MM-029 later re-aligned the **arch-node icon tile** colors to match the reference but didn't update the MiniMap. The panel border-radius and rx default (5) were also never re-measured against the reference.
+- **Fix applied** (`src/canvas/Canvas.tsx`):
+  - `nodeColor` callback now returns the 9 distinct per-kind hex values: client+cdn→sky `#38bdf8`, webapp→emerald `#34d399`, gateway→indigo `#818cf8`, api→cyan `#22d3ee`, cache→pink `#f472b6`, database→amber `#f59e0b`, queue→purple `#c084fc`, worker→violet `#a78bfa`.
+  - Each return value is wrapped in `color-mix(in srgb, <hex> 55%, var(--color-surface-2))` to produce the reference's pastel tint instead of a saturated solid color.
+  - Added `nodeStrokeColor={() => 'transparent'}` so every rect inherits `stroke: transparent` (matches reference).
+  - Added `nodeBorderRadius={4}` so every rect renders with `rx=4` (xyflow default is 5).
+  - Removed dark overlay: `maskColor="rgba(11,14,20,0.7)"` → `maskColor="transparent"`.
+  - Panel `style.borderRadius` `0.5rem` (8 px) → `0.75rem` (12 px).
+- **Verification (1440 × 900, fresh, welcome + cookie dismissed)**: every minimap-node `fill` computed style now matches the reference byte-for-byte (all 9 `color(srgb …)` tuples identical). Panel rect unchanged, border-radius now `12px`. Zero console errors.
+- **Visual diff**: minimap now shows 9 distinct pastel tints in the reference's color hierarchy; previously it showed 4 cyan + 1 pink + 1 amber + 2 violet + 1 slate (visual repetition around the cyan cluster).
+- **Files changed**: `src/canvas/Canvas.tsx`.
+- **Commit**: `abf9f0c`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
