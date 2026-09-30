@@ -14,8 +14,10 @@ export function Header() {
 
   // Icon-only square button — used for the canvas-mode toggles.
   // Reference uses 36×36 squares with 18px icons. Local previously used 28×28 / 16px.
+  // `inline-flex` is intentionally omitted so `hidden lg:inline-flex ${iconBtn}` wrappers
+  // actually hide the button at non-lg widths (see MM-039). Wrappers provide the display.
   const iconBtn =
-    'inline-flex items-center justify-center rounded-lg transition-colors hover:bg-surface-2 text-fg disabled:opacity-40 disabled:pointer-events-none h-9 w-9';
+    'items-center justify-center rounded-lg transition-colors hover:bg-surface-2 text-fg disabled:opacity-40 disabled:pointer-events-none h-9 w-9';
   // Pressed variant for selected mode toggle.
   const iconBtnPressed =
     'inline-flex items-center justify-center rounded-lg transition-colors bg-surface text-fg h-9 w-9 shadow-sm';
@@ -23,8 +25,9 @@ export function Header() {
   const chipBtn =
     'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors duration-150 select-none whitespace-nowrap bg-surface-2 text-fg hover:bg-surface-3 border border-border h-8 px-3 text-sm';
   // File dropdown button — labeled, with a chevron, no border (matches reference).
+  // `inline-flex` omitted — see `iconBtn` note (MM-039). Wrappers provide the display.
   const fileBtn =
-    'inline-flex items-center justify-center gap-1 rounded-lg font-medium transition-colors duration-150 select-none whitespace-nowrap text-fg hover:bg-surface-2 h-8 pl-2.5 pr-1.5 text-sm';
+    'items-center justify-center gap-1 rounded-lg font-medium transition-colors duration-150 select-none whitespace-nowrap text-fg hover:bg-surface-2 h-8 pl-2.5 pr-1.5 text-sm';
   // 1px vertical separator between toolbar groups (matches reference w-px h-5 bg-border mx-0.5).
   const sep = 'w-px h-5 bg-border mx-0.5';
   // Container that groups mode-toggle pills (matches reference's bg-surface-2 bordered rounded-lg p-0.5 gap-0.5).
@@ -59,7 +62,7 @@ export function Header() {
         type="button"
         aria-label="File"
         aria-haspopup="menu"
-        className={`hidden lg:inline-flex ${fileBtn}`}
+        className={`hidden lg:flex ${fileBtn}`}
       >
         <span>File</span>
         <Icon name="chevron-down" size={14} />
@@ -69,19 +72,19 @@ export function Header() {
 
       {/* Secondary toolbar group — canvas mode toggles + Export + Present */}
       <div className="hidden lg:flex items-center gap-1">
-        <button type="button" aria-label="Select — drag a box to select multiple (V)" className={iconBtn} aria-pressed="false">
+        <button type="button" aria-label="Select — drag a box to select multiple (V)" className={`inline-flex ${iconBtn}`} aria-pressed="false">
           <Icon name="cursor" />
         </button>
         <button type="button" aria-label="Hand — drag to pan the canvas (H)" className={iconBtnPressed} aria-pressed="true">
           <Icon name="hand" />
         </button>
-        <button type="button" aria-label="Draw — freehand pen" className={iconBtn} aria-pressed="false">
+        <button type="button" aria-label="Draw — freehand pen" className={`inline-flex ${iconBtn}`} aria-pressed="false">
           <Icon name="pencil" />
         </button>
-        <button type="button" aria-label="Line — draw a freestanding line" className={iconBtn} aria-pressed="false">
+        <button type="button" aria-label="Line — draw a freestanding line" className={`inline-flex ${iconBtn}`} aria-pressed="false">
           <Icon name="line" />
         </button>
-        <button type="button" aria-label="Arrow — draw a freestanding arrow" className={iconBtn} aria-pressed="false">
+        <button type="button" aria-label="Arrow — draw a freestanding arrow" className={`inline-flex ${iconBtn}`} aria-pressed="false">
           <Icon name="arrow" />
         </button>
 
@@ -100,10 +103,10 @@ export function Header() {
       {/* Tertiary toolbar group — undo / redo (matches reference's separate cluster) */}
       <div className="hidden lg:flex items-center gap-1">
         <span className={`${sep} hidden lg:inline-block`} aria-hidden />
-        <button type="button" aria-label="Undo (⌘ / Ctrl + Z)" className={iconBtn} disabled>
+        <button type="button" aria-label="Undo (⌘ / Ctrl + Z)" className={`inline-flex ${iconBtn}`} disabled>
           <Icon name="undo" />
         </button>
-        <button type="button" aria-label="Redo (⌘ / Ctrl + Shift + Z)" className={iconBtn} disabled>
+        <button type="button" aria-label="Redo (⌘ / Ctrl + Shift + Z)" className={`inline-flex ${iconBtn}`} disabled>
           <Icon name="redo" />
         </button>
       </div>
@@ -119,7 +122,7 @@ export function Header() {
       {/* Primary toolbar group — Compare + segmented mode-toggle pill, then Pause, help, theme toggle */}
       <div className="flex items-center gap-1">
         {/* Compare icon sits left of the segmented mode group (matches reference's right cluster at x≈1037) */}
-        <button type="button" aria-label="Compare architecture" className={`hidden lg:inline-flex ${iconBtn}`}>
+        <button type="button" aria-label="Compare architecture" className={`hidden lg:flex ${iconBtn}`}>
           <Icon name="compare" />
         </button>
 
@@ -172,13 +175,13 @@ export function Header() {
           <span className="hidden xl:inline">{paused ? 'Play' : 'Pause'}</span>
         </button>
 
-        <button type="button" aria-label="Help — shortcuts, about & contact" className={`hidden md:inline-flex ${iconBtn}`}>
+        <button type="button" aria-label="Help — shortcuts, about & contact" className={`hidden lg:flex ${iconBtn}`}>
           <Icon name="help" />
         </button>
         <button
           type="button"
           aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-          className={iconBtn}
+          className={`inline-flex ${iconBtn}`}
           onClick={toggle}
         >
           <Icon name={theme === 'dark' ? 'sun' : 'moon'} />
