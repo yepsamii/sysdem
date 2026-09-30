@@ -18,10 +18,10 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ## Overall Progress
 
-- **Iteration**: 42
+- **Iteration**: 43
 - **Major mismatches remaining**: 0
 - **Minor mismatches remaining**: per-template fixtures for the 6 non-System starters in the welcome modal (queued MM-041+); sub-pixel cosmetic differences.
-- **Verified fixes**: 42 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile)
+- **Verified fixes**: 43 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button))
 - **Regressions introduced**: 0
 
 ---
@@ -30,68 +30,64 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-042 — Cookie consent panel uses a vertical layout (icon-on-top, content stacked below) at 340×232 anchored 80px above the viewport bottom. Reference uses a **horizontal layout** (icon left, content right) at 396×206 anchored just above the viewport bottom. Both panels share the same content (Cookies heading, 2 body paragraphs, Privacy link, Accept / Decline buttons) but the local structure is wrong.
+MM-043 — Saved-locally banner renders the dismiss button absolutely positioned (top-right corner) while the body text spans full width as an inline `<span>` with `text-center`. Reference uses a single horizontal flex row with the body text and close button as **siblings** inside a centered `gap-2` container, with `items-start` and `justify-center`. Body is rendered as a `<p>` element, close button is `shrink-0`.
 
 ### Why this mismatch was selected
 
-The cookie consent is the first thing a brand-new visitor sees in the bottom-left corner. The reference's wide, short horizontal layout reads as a "persistent footer notice" while the local's tall, narrow vertical layout reads as a "stacked card". Both are valid UX patterns, but they look distinctly different.
+The saved banner is the second thing a brand-new visitor sees (directly below the header). MM-003 originally added the banner with absolute positioning for the close button because the banner was treated as a centered text with a corner ×. The reference actually treats the close button as an inline sibling of the text inside a flex row, which changes how the text wraps and how the button aligns vertically when the text is long.
 
-This is a structural mismatch (icon placement + flex direction + width + bottom position) — it affects 4 layout properties simultaneously, so it warrants a single iteration rather than 4 micro-fixes.
+This is a structural mismatch (display: flex vs relative + absolute child) — affects layout, vertical alignment, and text wrapping simultaneously.
 
-### Reference observation (1440 × 900, fresh)
+### Reference observation (1440 × 900, fresh, welcome modal + cookie consent dismissed)
 
-- Cookie consent `[role="region"]` bounding box: `(x=12, y=683, w=384, h=206)` on desktop, `(x=12, y=603, w=396, h=206)` on tablet (768), `(x=12, y=603, w=396, h=206)` on mobile (420) — clamp via `max-w-[calc(100vw-1.5rem)]`.
-- Outer container: `display: block` (no flex).
-- Single direct child: `<div class="flex items-start gap-3">` (a horizontal row).
-- Inside that row:
-  - Icon tile: `<span class="grid place-items-center h-8 w-8 shrink-0 rounded-lg bg-accent/15 text-accent">` containing a Lucide `cookie` 16×16 SVG.
-  - Content: `<div class="min-w-0 flex-1">` containing the `h3` heading, 2 paragraphs (with Privacy link), and the Accept / Decline button row.
-- Border-radius: `12px`. Padding: `16px`.
+- Saved banner `[role="region"]` bounding box: `(x=0, y=48, w=1440, h=37)`.
+- Outer container: `display: flex`, `flex-direction: row`, `align-items: flex-start`, `justify-content: center`, `gap: 8px`, `padding: 8px 12px`, `border-bottom: 1px solid var(--color-border)`.
+- Two direct children: a `<p>` (text) and a `<button>` (× close).
+- Close button: `shrink-0`, `display: inline-flex`, `align-items: center`, `justify-content: center`, `padding: 4px`, `color: var(--color-faint)`, hover `bg: var(--color-surface-2)` + `color: var(--color-fg)`, 12×12 × icon.
 
 ### Local observation (1440 × 900, fresh, BEFORE fix)
-- Bounding box: `(x=16, y=589, w=340, h=232)` — 94 px higher than reference, 44 px narrower, 26 px taller.
-- Outer container: `flex flex-col gap-3` (vertical stack).
-- Inner row used `gap-2` and stacked icon + heading inline, then 2 paragraphs, then button row — 4 separate vertical sections.
+
+- Saved banner `[role="region"]` bounding box: `(x=0, y=48, w=1440, h=29)`.
+- Outer container: `position: relative` (no flex), `padding: 6px 12px`.
+- Body: inline `<span>` with `text-center`.
+- Close button: `position: absolute; right: 8px; top: 50%; transform: translateY(-50%)`, `aria-label="Dismiss saved-locally notice"`.
 
 ### Root-cause hypothesis
 
-When MM-004 added the cookie consent, the reference panel wasn't probed for its layout — only its content and overall positioning. The local version defaulted to a `flex flex-col` stack because the visual elements (icon + heading + paragraphs + buttons) naturally suggest a vertical column. The reference actually uses a single horizontal row that contains a nested vertical column.
+When MM-003 added the saved banner, the reference banner's structure wasn't probed — the local defaulted to `text-center` with an absolutely-positioned × because that pattern is common for notification strips. The reference actually wraps both elements in a centered flex row so the text wraps around the close button when narrow, and the button stays anchored to the top of the row (not vertically centered). Subtle visual: at desktop widths with short text, both approaches *look* similar — but the text element type (`<span>` vs `<p>`), the padding (`6px 12px` vs `8px 12px`), and the close button alignment all differ.
 
 ### Planned change
 
-Rewrite `src/components/overlays/CookieConsent.tsx` to match the reference's horizontal layout:
+Rewrite `src/components/layout/SavedBanner.tsx` to match the reference's flex layout:
 
-1. Outer container: `flex flex-col gap-3` → `block`. Move width `w-[340px]` → `w-[396px]`, max-w from `calc(100vw-2rem)` → `calc(100vw-1.5rem)`, bottom from `bottom-20` → `bottom-1`, left from `left-4` → `left-3`.
-2. Inside: one `flex items-start gap-3` row containing the icon tile + a `min-w-0 flex-1` content column.
-3. Icon tile: `h-7 w-7 rounded-md bg-surface-2 text-accent` → `h-8 w-8 rounded-lg bg-accent/15 text-accent`.
-4. Icon SVG: replace inline cookie-bit path with the exact Lucide `cookie` path from the reference.
+1. Outer container: `relative ... text-center` → `flex shrink-0 items-start justify-center gap-2 px-3 py-2`. Padding `6px 12px` → `8px 12px`.
+2. Body: inline `<span>` → `<p>` with `text-xs text-muted leading-relaxed`.
+3. Close button: absolute positioning → `shrink-0 inline-flex items-center justify-center rounded p-1 text-faint hover:text-fg hover:bg-surface-2 transition-colors`.
+4. Close button `aria-label`: `"Dismiss saved-locally notice"` → `"Dismiss"` to match the reference (the role already implies the subject).
 
 ### Result
 
 After fix:
-- Local panel bounding box `(1440 × 900)`: `(x=12, y=695, w=384, h=201)` — width and position match the reference (`y=683` reference vs `y=695` local = 12 px lower; within rounding).
-- Local panel bounding box `(768 × 1024)`: `(x=12, y=819, w=396, h=201)` — exact match with reference `(x=12, y=603, w=396, h=206)` modulo a 12 px y difference from the bottom anchor.
-- Local panel bounding box `(420 × 820)`: `(x=12, y=615, w=384, h=201)` — 12 px wider than reference's 396 → clamped via `max-w-[calc(100vw-1.5rem)]` (mobile y=603 + h=206 → bottom at y=809; viewport 820 → 11 px from bottom).
+- Local panel bounding box `(1440 × 900)`: `(x=0, y=48, w=1440, h=37)` — **exact match** with reference `(x=0, y=48, w=1440, h=37)`.
+- Local padding `8px 12px` matches reference.
+- Local outer computed `display: flex`, `justify-content: center`, `align-items: flex-start`, `gap: 8px` — exact match.
+- Close button now sits at the end of the flex row (right of text), top-aligned, not vertically centered.
 
-Side-by-side at:
-- `.reverse-match/screenshots/iteration-042-reference-cookie-consent.png` (reference, desktop)
-- `.reverse-match/screenshots/iteration-042-local-cookie-consent.png` (local, desktop)
-- `.reverse-match/screenshots/iteration-042-local-cookie-desktop-final.png` (local, desktop, after width 384 → 396 fix)
+Screenshot at `.reverse-match/screenshots/iteration-043-local-saved-banner.png`.
 
-Accept and Decline both work: clicking each persists `gravelgraph.cookieConsent: {"v":1,"ads":true|false}` and removes the panel from the DOM. 0 console errors. Only the pre-existing React Flow Pro attribution warning.
+Dismiss button still works: clicking it persists `gravelgraph.seenSavedBanner: "1"` and removes the banner from the DOM. 0 console errors.
 
 ### Remaining difference
 
-1. **5–12 px vertical offset**: local sits 4 px from the viewport bottom (`bottom-1`), reference sits ~11 px. This is a sub-pixel cosmetic difference that doesn't affect usability.
-2. **5 px height delta**: local is 201 px tall, reference is 206 px. Possibly from line-height or padding rounding.
+None measurable. The local now matches the reference exactly at the desktop viewport.
 
 ### New mismatches discovered
 
-None.
+None at this viewport. Other minor mismatches may surface when probing narrower viewports (where the text wrapping around the inline × button would expose layout differences).
 
 ### Next action
 
-Loop is in good shape after MM-042. Either continue probing for more subtle mismatches, or close out and consider the page sufficiently matched.
+Continue probing for more subtle mismatches: control panel / zoom button styling, minimap styling, edge label positioning, drag-to-resize behavior, theme persistence, header z-index, mobile saved-banner / cookie-consent stacking.
 
 ---
 
@@ -607,6 +603,25 @@ Loop is in good shape after MM-042. Either continue probing for more subtle mism
   - Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
 - **Files changed**: `src/components/overlays/CookieConsent.tsx`.
 - **Commit**: `09d4b4e`
+
+### MM-043 — Saved banner uses absolute close button + `<span>` body; reference uses flex row + `<p>`
+
+- **Category**: Structural / layout
+- **Severity**: Medium (first-visit UX; visible directly below header on every fresh session)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900, fresh, after dismissing welcome + cookie consent)**: saved banner `[role="region"]` bbox `(x=0, y=48, w=1440, h=37)`. Outer container `display: flex`, `flex-direction: row`, `align-items: flex-start`, `justify-content: center`, `gap: 8px`, `padding: 8px 12px`, `border-bottom: 1px solid var(--color-border)`. Two direct children: a `<p>` body and a `<button>` close. Close button: `shrink-0`, `display: inline-flex`, `padding: 4px`, `color: var(--color-faint)`, hover `bg: var(--color-surface-2)` + `color: var(--color-fg)`, 12×12 × icon. `aria-label="Dismiss"`.
+- **Local observation (1440 × 900, fresh, before fix)**: bbox `(x=0, y=48, w=1440, h=29)`. Outer container `position: relative` (no flex), `padding: 6px 12px`. Body: inline `<span>` with `text-center`. Close button: `position: absolute; right: 8px; top: 50%; transform: translateY(-50%)`, `aria-label="Dismiss saved-locally notice"`.
+- **Root cause**: When MM-003 originally shipped the saved banner, the reference's banner structure wasn't probed — only its content and presence were verified. The local defaulted to a `text-center` + absolute-close pattern that's common for notification strips, while the reference actually wraps both elements in a centered flex row.
+- **Fix applied** (`src/components/layout/SavedBanner.tsx`):
+  - Outer container: `relative shrink-0 px-3 py-1.5 bg-surface border-b border-border text-xs text-muted text-center` → `flex shrink-0 items-start justify-center gap-2 px-3 py-2 bg-surface border-b border-border`. Padding `6px 12px` → `8px 12px`.
+  - Body: inline `<span>` → `<p className="text-xs text-muted leading-relaxed">`.
+  - Close button: removed `absolute right-2 top-1/2 -translate-y-1/2 ...` positioning → `shrink-0 inline-flex items-center justify-center rounded p-1 text-faint hover:text-fg hover:bg-surface-2 transition-colors`.
+  - Close button `aria-label`: `"Dismiss saved-locally notice"` → `"Dismiss"` (the role-region already implies the subject).
+- **Verification (1440 × 900, fresh, welcome + cookie dismissed)**: bbox `(x=0, y=48, w=1440, h=37)` — **exact match** with reference. Outer computed `display: flex`, `justify-content: center`, `align-items: flex-start`, `gap: 8px`, `padding: 8px 12px` — exact match. Close button computed `display: inline-flex`, `padding: 4px`, `color: var(--color-faint)`, no `position: absolute`.
+- **Dismiss**: clicking persists `gravelgraph.seenSavedBanner: "1"` and removes the banner from the DOM.
+- **Console**: 0 errors.
+- **Files changed**: `src/components/layout/SavedBanner.tsx`.
+- **Commit**: `deeffb7`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1768,6 +1783,24 @@ Loop is in good shape after MM-042. Either continue probing for more subtle mism
 - **Next action**: continue probing for further mismatches, or close out the loop.
 - **Commit**: `09d4b4e`
 
+### Iteration 43 — MM-043 (saved banner flex layout)
+
+- **Selected mismatch**: MM-043 — Saved-locally banner renders the dismiss button absolutely positioned (top-right corner) while the body text spans full width as an inline `<span>` with `text-center`. Reference uses a single horizontal flex row with the body text and close button as siblings inside a centered `gap-2` container, with `items-start` and `justify-center`.
+- **Reference probe (1440 × 900, fresh, after dismissing welcome + cookie consent)**: bbox `(x=0, y=48, w=1440, h=37)`. Outer container `display: flex`, `flex-direction: row`, `align-items: flex-start`, `justify-content: center`, `gap: 8px`, `padding: 8px 12px`, `border-bottom: 1px solid var(--color-border)`. Two direct children: a `<p>` body and a `<button>` close (`aria-label="Dismiss"`, `shrink-0`, `padding: 4px`, `color: var(--color-faint)`, 12×12 × icon).
+- **Local probe (1440 × 900, fresh, before fix)**: bbox `(x=0, y=48, w=1440, h=29)`. Outer container `position: relative` (no flex), `padding: 6px 12px`. Body: inline `<span>` with `text-center`. Close button: `position: absolute; right: 8px; top: 50%; transform: translateY(-50%)`, `aria-label="Dismiss saved-locally notice"`.
+- **Change made** (`src/components/layout/SavedBanner.tsx`):
+  1. Outer: `relative shrink-0 px-3 py-1.5 bg-surface border-b border-border text-xs text-muted text-center` → `flex shrink-0 items-start justify-center gap-2 px-3 py-2 bg-surface border-b border-border`. Padding `6px 12px` → `8px 12px`.
+  2. Body: inline `<span>` → `<p className="text-xs text-muted leading-relaxed">`.
+  3. Close button: removed absolute positioning → `shrink-0 inline-flex items-center justify-center rounded p-1 text-faint hover:text-fg hover:bg-surface-2 transition-colors`.
+  4. Close button `aria-label`: `"Dismiss saved-locally notice"` → `"Dismiss"`.
+- **Verification (1440 × 900)**: bbox `(x=0, y=48, w=1440, h=37)` — **exact match** with reference. Outer computed `display: flex`, `justify-content: center`, `align-items: flex-start`, `gap: 8px`, `padding: 8px 12px` — exact match. Close button computed `display: inline-flex`, `padding: 4px`, no `position: absolute`.
+- **Dismiss**: clicking persists `gravelgraph.seenSavedBanner: "1"` and removes the banner from the DOM.
+- **Console**: 0 errors.
+- **Result**: ✅ MM-043 fixed. Saved banner now matches the reference's flex row + `<p>` body layout exactly at the desktop viewport.
+- **New mismatches discovered**: none at this viewport.
+- **Next action**: continue probing for further mismatches (control panel, minimap, edge labels, resize handle, theme persistence).
+- **Commit**: `deeffb7`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1818,6 +1851,7 @@ Loop is in good shape after MM-042. Either continue probing for more subtle mism
 | 040  | MM-040 | `.reverse-match/screenshots/iteration-040-reference-welcome-modal.png` | `.reverse-match/screenshots/iteration-040-local-{welcome-modal,tablet-modal,mobile-modal}.png` | — | inline in iteration log (modal verification at 3 widths, close-path matrix) |
 | 041  | (post-MM-040 sweep) | `.reverse-match/screenshots/iteration-041-reference-welcome-desktop.png` | `.reverse-match/screenshots/iteration-041-local-{fresh-load,welcome-tablet,welcome-mobile}.png` | — | inline in iteration log (verification matrix at 3 widths, close-path probe) |
 | 042  | MM-042 | `.reverse-match/screenshots/iteration-042-reference-cookie-consent.png` | `.reverse-match/screenshots/iteration-042-local-cookie-{consent,desktop-final}.png` | — | inline in iteration log (bbox table at 3 viewports, layout diff) |
+| 043  | MM-043 | (probed live) | `.reverse-match/screenshots/iteration-043-local-saved-banner.png` | — | inline in iteration log (bbox + computed-style table) |
 
 ---
 
@@ -1845,6 +1879,7 @@ Loop is in good shape after MM-042. Either continue probing for more subtle mism
 - **Segmented mode pill**: clicking Continuous / Causal / Scenario updates `mode` in flow store and the edge animation style updates accordingly. Matches reference (verified MM-011).
 - **Welcome modal (fresh visit)**: shows "What would you like to make?" with 7 starter cards in a 2-col grid (1-col on mobile <640 px). Closes via × button, card click, ESC, or backdrop click. All four paths persist `gravelgraph.seenWelcome: "1"` so the modal is suppressed on subsequent visits. Matches reference (verified MM-040, MM-041).
 - **Cookie consent (fresh visit)**: horizontal panel anchored bottom-left (`x=12, y≈819 on tablet, y≈695 on desktop`) at `396×201`. Icon left (32×32 accent-tinted Lucide cookie), heading + 2 paragraphs + Privacy link + Accept/Decline buttons right. Accept persists `{v:1,ads:true}`, Decline persists `{v:1,ads:false}`. Matches reference (verified MM-042).
+- **Saved-locally banner (fresh visit, after dismissing welcome)**: full-width flex row directly below header at `y=48, h=37`. Body `<p>` (centered) + `shrink-0` × button (`aria-label="Dismiss"`) as siblings inside a `flex items-start justify-center gap-2 px-3 py-2` container with `border-b border-border`. Clicking × persists `gravelgraph.seenSavedBanner: "1"` and removes the banner from the DOM. Matches reference (verified MM-043).
 
 ### Remaining differences
 
