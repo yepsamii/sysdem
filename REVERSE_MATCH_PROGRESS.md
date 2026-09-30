@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 02:35
+- **Last updated**: 2026-09-30 02:50
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 29
+- **Iteration**: 30
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: a few small differences (header logo SVG width vs reference's wider 33×20 mark, missing right-cluster buttons like Compare + settings cog, edge particle rendering details, exact node positions vs reference, Worker icon swap `boxes → square-function` not yet applied).
-- **Verified fixes**: 29 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference)
+- **Minor mismatches remaining**: a few small differences (header logo SVG width vs reference's wider 33×20 mark, missing right-cluster buttons like Compare + settings cog, edge particle rendering details, exact node positions vs reference).
+- **Verified fixes**: 30 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function)
 - **Regressions introduced**: 0
 
 ---
@@ -30,115 +30,88 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-029 — Arch-node icon tiles render with the wrong per-kind colors. The reference uses a distinct hue per kind (sky/emerald/indigo/cyan/pink/amber/purple/violet), while local collapses 4 of the 9 kinds into a single cyan family (`#22d3ee`).
+MM-030 — Worker arch-node uses `lucide-boxes` (a stack-of-cubes glyph) instead of the reference's `lucide-square-function` (a rounded-rect SVG with an "f" inside).
 
 ### Why this mismatch was selected
 
-After MM-028 fixed the chrome (tinted Lucide tiles), a side-by-side at 1440 × 900 revealed the most visible remaining mismatch: the icon tile colors. Four of the nine node kinds in the local UI (CDN, Web App, API Gateway, API) all use the same `#22d3ee` cyan tint, making them indistinguishable at a glance. The reference uses 4 different hues for those 4 kinds, so users can identify each tier by its accent color. The User node uses slate in local (which doesn't match any real device family) and Event Queue uses violet (a hue the reference reserves for Worker). This is the immediate, visible follow-up to MM-028 — the tile was already tinted, but the wrong color was applied.
+While probing per-kind icon classes in the reference during MM-029, the Worker node's icon class was discovered to be `lucide-square-function` — a rounded-rect SVG that visually represents a "function" or "lambda" rather than a stack of cubes. Local was using `boxes` (chosen during MM-028 to keep visual variety), but the reference is consistent: a Worker is a function / serverless worker, so its icon is `square-function`. The choice was visible on first paint of the diagram, in the bottom-right corner.
 
 ### Reference observation (1440 × 900)
 
-Probed via `document.querySelectorAll('.react-flow__node')` → `svg.parentElement.parentElement` → `getComputedStyle(tile).color` + `.backgroundColor`. Results:
+Probed via `document.querySelectorAll('.react-flow__node')` → filter by iconClass containing `square-function` → read `svg.innerHTML`. The Worker node's SVG is composed of three elements:
 
-| Kind | Lucide icon | Tile color (computed) | Decoded hex | Tailwind |
-|---|---|---|---|---|
-| User | `monitor-smartphone` | `rgb(56, 189, 248)` | `#38bdf8` | sky-400 |
-| CDN | `cloud` | `rgb(56, 189, 248)` | `#38bdf8` | sky-400 |
-| Web App | `app-window` | `rgb(52, 211, 153)` | `#34d399` | emerald-400 |
-| API Gateway | `route` | `rgb(129, 140, 248)` | `#818cf8` | indigo-400 |
-| API | `server-cog` | `rgb(34, 211, 238)` | `#22d3ee` | cyan-400 |
-| Cache | `zap` | `rgb(244, 114, 182)` | `#f472b6` | pink-400 |
-| Database | `database` | `rgb(245, 158, 11)` | `#f59e0b` | amber-500 |
-| Event Queue | `waypoints` | `rgb(192, 132, 252)` | `#c084fc` | purple-400 |
-| Worker | `square-function` | `rgb(167, 139, 250)` | `#a78bfa` | violet-400 |
+```html
+<rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+<path d="M9 17c2 0 2.8-1 2.8-2.8V10c0-2 1-3.3 3.2-3"></path>
+<path d="M9 11.2h5.7"></path>
+```
+
+Note the `width="18"` / `height="18"` / `x="3"` / `y="3"` — the rounded rect uses a 24×24 viewBox with the rect inset by 3 on each side, leaving an 18×18 box.
 
 ### Local observation (1440 × 900 before fix)
 
-Same DOM probe (corrected — tile is `svg.parentElement.parentElement`, not `.parentElement`, because the `Icon` component wraps the SVG in a `<span class="inline-flex">`). Pre-MM-029 the `KIND` map in `src/canvas/ArchNode.tsx` mapped:
+`src/canvas/ArchNode.tsx` had `worker.lucideName = 'boxes'`. Probed Worker SVG:
 
-| Kind | Local hex | Reference hex | Status |
-|---|---|---|---|
-| client | `#94a3b8` slate | `#38bdf8` sky | ❌ |
-| cdn | `#22d3ee` cyan | `#38bdf8` sky | ❌ |
-| webapp | `#22d3ee` cyan | `#34d399` emerald | ❌ |
-| gateway | `#22d3ee` cyan | `#818cf8` indigo | ❌ |
-| api | `#22d3ee` cyan | `#22d3ee` cyan | ✅ |
-| cache | `#f472b6` pink | `#f472b6` pink | ✅ |
-| database | `#f59e0b` amber | `#f59e0b` amber | ✅ |
-| queue | `#a78bfa` violet | `#c084fc` purple | ❌ |
-| worker | `#a78bfa` violet | `#a78bfa` violet | ✅ |
+```html
+<g>
+  <path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"></path>
+  ... (8 more paths forming the stack-of-cubes glyph)
+</g>
+```
 
-Five of nine kinds are wrong. The result: CDN/Web App/API Gateway all render with identical cyan tiles in local, while the reference paints them sky/emerald/indigo respectively.
+The local `boxes` glyph draws three stacked cubes with a 3D look. Visually unrelated to the reference's function-rect glyph.
 
 ### Root-cause hypothesis
 
-When the `KIND` map was rewritten in MM-028, the local dev mistakenly consolidated cdn/webapp/gateway/api under a single cyan family (`#22d3ee`) and the User node under the brand-neutral slate. The reference, however, uses **distinct hues per kind** (sky/emerald/indigo/cyan) so each network tier reads as its own colour, not as a vague "network cyan". This was a deliberate color-categorisation decision in the reference; the local copy just hadn't been updated. The fix is a per-kind hex swap — 5 single-token updates in the `KIND` map.
+During MM-028's KIND map rewrite, `boxes` was chosen for Worker because `square-function` was already registered in `Icon.tsx` for the **Compute** group panel item (it's the natural icon for a generic "Function" cell there). The author assumed Worker ≠ Function and chose a different glyph, but the reference actually reuses `square-function` for both the panel item *and* the on-canvas Worker node — there is no Worker-specific icon. The fix has two parts: (a) point `worker` at `square-function` in the `KIND` map, and (b) update the registry so `square-function`'s `paths` value uses multi-shape markup (the current value was written assuming single-path rendering, so it ended up in a single `<path d="...">` element instead of the reference's three-element `<rect> + <path> + <path>` shape).
 
 ### Planned change
 
-In `src/canvas/ArchNode.tsx`, update the `KIND` map:
+Two single-line changes:
 
-```diff
-- client:   { color: '#94a3b8', lucideName: 'monitor-smartphone' },
-- cdn:      { color: '#22d3ee', lucideName: 'cloud' },
-- webapp:   { color: '#22d3ee', lucideName: 'app-window' },
-- gateway:  { color: '#22d3ee', lucideName: 'route' },
-+ client:   { color: '#38bdf8', lucideName: 'monitor-smartphone' },
-+ cdn:      { color: '#38bdf8', lucideName: 'cloud' },
-+ webapp:   { color: '#34d399', lucideName: 'app-window' },
-+ gateway:  { color: '#818cf8', lucideName: 'route' },
-  api:      { color: '#22d3ee', lucideName: 'server-cog' },
-  cache:    { color: '#f472b6', lucideName: 'zap' },
-  database: { color: '#f59e0b', lucideName: 'database' },
-- queue:    { color: '#a78bfa', lucideName: 'waypoints' },
-+ queue:    { color: '#c084fc', lucideName: 'waypoints' },
-  worker:   { color: '#a78bfa', lucideName: 'boxes' },
-```
+1. In `src/canvas/ArchNode.tsx`, change `worker.lucideName` from `'boxes'` to `'square-function'`.
+2. In `src/components/ui/Icon.tsx`, change `paths['square-function']` from a single-`d`-string to the multi-shape SVG string `<rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><path d="M9 17c2 0 2.8-1 2.8-2.8V10c0-2 1-3.3 3.2-3"></path><path d="M9 11.2h5.7"></path>`. Because the string now contains `<`, the `Icon` renderer's existing `paths[name].includes('<')` branch switches to `<g dangerouslySetInnerHTML={...}>`, producing the same three-element SVG the reference emits.
 
-No structural or class changes — just 5 hex literals. The `color-mix(in srgb, ${color} 20%, transparent)` background rendering from MM-028 already produces the right `color(srgb r g b / 0.2)` tint for any color the kind supplies.
+This change also retroactively affects the Compute group panel item (which uses the same `square-function` icon), so it gets the proper three-element rendering too — but that panel item wasn't visible in the screenshots so the side effect is invisible to the user.
 
 ### Result
 
-After implementation (`1ec7e47`):
+After implementation (`571b61d`):
 
 **Visual verification (1440 × 900, light theme, cleared localStorage)**:
 
-| Kind | Local (after) | Reference | Match |
-|---|---|---|---|
-| User | `rgb(56, 189, 248)` | `rgb(56, 189, 248)` | ✅ |
-| CDN | `rgb(56, 189, 248)` | `rgb(56, 189, 248)` | ✅ |
-| Web App | `rgb(52, 211, 153)` | `rgb(52, 211, 153)` | ✅ |
-| API Gateway | `rgb(129, 140, 248)` | `rgb(129, 140, 248)` | ✅ |
-| API | `rgb(34, 211, 238)` | `rgb(34, 211, 238)` | ✅ |
-| Cache | `rgb(244, 114, 182)` | `rgb(244, 114, 182)` | ✅ |
-| Database | `rgb(245, 158, 11)` | `rgb(245, 158, 11)` | ✅ |
-| Event Queue | `rgb(192, 132, 252)` | `rgb(192, 132, 252)` | ✅ |
-| Worker | `rgb(167, 139, 250)` | `rgb(167, 139, 250)` | ✅ |
+Worker node SVG innerHTML now matches the reference verbatim:
 
-All 9 kinds now match the reference exactly. Tile background tints match as well — e.g. Web App tile is `color(srgb 0.203922 0.827451 0.6 / 0.2)` (emerald at 20%) in both.
+```html
+<g>
+  <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+  <path d="M9 17c2 0 2.8-1 2.8-2.8V10c0-2 1-3.3 3.2-3"></path>
+  <path d="M9 11.2h5.7"></path>
+</g>
+```
 
-Side-by-side screenshots saved at:
-- `.reverse-match/screenshots/iteration-029-reference.png`
-- `.reverse-match/screenshots/iteration-029-local-before.png`
-- `.reverse-match/screenshots/iteration-029-local-after.png`
+Computed `tileColor` for Worker is still `rgb(167, 139, 250)` (unchanged from MM-029); only the glyph inside the tile swapped.
+
+Side-by-side screenshot saved at `.reverse-match/screenshots/iteration-030-local-after.png`. The previous iteration-029's `iteration-029-local-after.png` shows the pre-fix Worker (boxes glyph), serving as the "before" image.
 
 Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
 
-**Categorization**: Fixed — every node kind now uses the same accent color as the reference, with the matching tinted background.
+**Categorization**: Fixed — Worker's icon now matches the reference's `lucide-square-function` glyph.
 
 ### Remaining difference
 
-- Worker icon: local uses `boxes` (was chosen in MM-028 to keep visual variety); reference uses `square-function` (Lucide: `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 9h6v6H9z"/>`). Defer to MM-030 — single-token swap.
 - Right cluster missing two buttons (Compare, settings cog) — carried over from MM-027.
 - Header logo SVG width 18×18 vs reference's 33×20 — carried over from MM-027.
+- Edge particle rendering details (token label position, exact density / speed) — minor.
+- Exact node positions vs reference (CDN/Web App offsets, etc.) — sub-pixel.
 
 ### New mismatches discovered
 
-None visible from the current scan. The remaining side-by-side differences all live in the header.
+None visible from the current scan. The remaining side-by-side differences all live in the header or are sub-pixel canvas-position differences.
 
 ### Next action
 
-MM-030 — pick the next visible mismatch. Likely candidates: Worker icon swap `boxes → square-function`, header right-cluster buttons (Compare + settings cog), header brand-mark SVG width, or pick a finer detail from the edges/panel.
+MM-031 — pick the next visible mismatch. Best candidates: header right-cluster buttons (Compare + settings cog) and header brand-mark SVG width.
 
 ---
 
@@ -442,6 +415,21 @@ MM-030 — pick the next visible mismatch. Likely candidates: Worker icon swap `
 - **Verification**: see Current Iteration §"Result" for the 9-row computed-style table. Every kind now produces the exact same `rgb(...)` value as the reference, both for `tileColor` and `tileBgColor`. Evidence: `.reverse-match/screenshots/iteration-029-reference.png`, `.reverse-match/screenshots/iteration-029-local-before.png`, `.reverse-match/screenshots/iteration-029-local-after.png`.
 - **Files changed**: `src/canvas/ArchNode.tsx`.
 - **Commit**: `1ec7e47`
+
+### MM-030 — Worker arch-node icon is `lucide-boxes` instead of reference's `lucide-square-function`
+
+- **Category**: Visual / chrome
+- **Severity**: Low (only 1 of 9 nodes affected; the other 8 already match)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: the Worker node's SVG innerHTML is `<rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><path d="M9 17c2 0 2.8-1 2.8-2.8V10c0-2 1-3.3 3.2-3"></path><path d="M9 11.2h5.7"></path>` — three elements. Icon class: `lucide lucide-square-function`.
+- **Local before**: `worker.lucideName = 'boxes'` in `src/canvas/ArchNode.tsx`. The `boxes` paths entry in `Icon.tsx` was already multi-shape, so Worker rendered 8 `<path>` elements forming a stack-of-cubes glyph. Visually unrelated to the reference's "function rect" glyph.
+- **Root cause**: during MM-028, `boxes` was chosen for Worker to keep visual variety (the Compute group panel item already uses `square-function`, so the author assumed Worker ≠ Function). But the reference reuses `square-function` for both panel-item "Function" and on-canvas "Worker" — there is no separate Worker glyph.
+- **Fix**: two single-line changes:
+  1. `src/canvas/ArchNode.tsx`: `worker.lucideName: 'boxes' → 'square-function'`.
+  2. `src/components/ui/Icon.tsx`: convert `paths['square-function']` from a single-`d` string to the multi-shape SVG string. The Icon renderer's `paths[name].includes('<')` branch picks the `<g dangerouslySetInnerHTML>` path, producing the same three-element SVG.
+- **Verification**: see Current Iteration §"Result". Local Worker SVG innerHTML now matches the reference verbatim. Side effect: the Compute group panel item also gets the proper three-element rendering (it was previously using a single `<path d="…">` from the simplified registry value); visual change is invisible because the simplified value still drew the same rect + f glyph.
+- **Files changed**: `src/canvas/ArchNode.tsx`, `src/components/ui/Icon.tsx`.
+- **Commit**: `571b61d`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1371,6 +1359,23 @@ MM-030 — pick the next visible mismatch. Likely candidates: Worker icon swap `
 - **Next action**: MM-030 — pick the next visible mismatch. Likely candidates: Worker icon swap `boxes → square-function`, header right-cluster buttons (Compare + settings cog), header brand-mark SVG width, or pick a finer detail from the edges/panel.
 - **Commit**: `1ec7e47`
 
+### Iteration 30 — fix MM-030: align Worker arch-node icon with reference (square-function)
+
+- **Goal**: Swap the Worker's `lucide-boxes` glyph for the reference's `lucide-square-function` glyph.
+- **Reference observation (1440 × 900)**: Worker node SVG innerHTML is `<rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><path d="M9 17c2 0 2.8-1 2.8-2.8V10c0-2 1-3.3 3.2-3"></path><path d="M9 11.2h5.7"></path>` — three elements (rounded-rect + 2 paths).
+- **Local before**: Worker was a stack-of-cubes glyph (8 paths inside a `<g>`).
+- **Actions**:
+  - `src/canvas/ArchNode.tsx`: `worker.lucideName: 'boxes' → 'square-function'`.
+  - `src/components/ui/Icon.tsx`: `paths['square-function']` changed from a single-`d` string to the multi-shape SVG string. The Icon renderer's `paths[name].includes('<')` branch now picks `<g dangerouslySetInnerHTML={...}>`, producing the same three-element SVG the reference emits.
+- **Verification (1440 × 900, light theme, cleared localStorage)**:
+  - Worker SVG innerHTML now: `<g><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><path d="M9 17c2 0 2.8-1 2.8-2.8V10c0-2 1-3.3 3.2-3"></path><path d="M9 11.2h5.7"></path></g>` — matches the reference exactly.
+  - All 8 other node kinds unchanged (icons and tile colors still correct from MM-028 and MM-029).
+  - Side-by-side screenshot saved at `.reverse-match/screenshots/iteration-030-local-after.png` (the iteration-029 screenshot serves as the "before" since it was taken with `boxes`).
+  - Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-030 fixed. All 9 arch nodes now render the same Lucide glyph as the reference. Side observation: the Compute group's panel "Function" item also picked up the new three-element rendering automatically (it shares the `square-function` icon name), so the side effect is invisible because the simplified single-`d` value drew the same rect + f glyph anyway.
+- **Next action**: MM-031 — pick the next visible mismatch. Best candidates: header right-cluster buttons (Compare + settings cog) and header brand-mark SVG width.
+- **Commit**: `571b61d`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1408,6 +1413,7 @@ MM-030 — pick the next visible mismatch. Likely candidates: Worker icon swap `
 | 027  | MM-027 | `.reverse-match/screenshots/iteration-027-reference.png` | `.reverse-match/screenshots/iteration-027-local-after.png` | — | inline in iteration log |
 | 028  | MM-028 | `.reverse-match/screenshots/iteration-028-reference.png` | `.reverse-match/screenshots/iteration-028-local-before.png`, `iteration-028-local-after.png` | — | inline in iteration log |
 | 029  | MM-029 | `.reverse-match/screenshots/iteration-029-reference.png` | `.reverse-match/screenshots/iteration-029-local-before.png`, `iteration-029-local-after.png` | — | inline in iteration log |
+| 030  | MM-030 | — | `.reverse-match/screenshots/iteration-030-local-after.png` (before = iteration-029-local-after) | — | inline in iteration log |
 
 ---
 
