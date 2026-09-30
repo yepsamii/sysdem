@@ -8,6 +8,7 @@ interface Starter {
   icon: 'route' | 'cloud' | 'arrow' | 'database-zap' | 'zap' | 'waypoints' | 'monitor-smartphone';
   iconBg: string;
   iconFg: string;
+  featured?: boolean;
 }
 
 const STARTERS: Starter[] = [
@@ -18,6 +19,7 @@ const STARTERS: Starter[] = [
     icon: 'route',
     iconBg: 'bg-[#dbeafe]',
     iconFg: 'text-[#3b82f6]',
+    featured: true,
   },
   {
     id: 'cloud',
@@ -26,6 +28,7 @@ const STARTERS: Starter[] = [
     icon: 'cloud',
     iconBg: 'bg-[#ffedd5]',
     iconFg: 'text-[#f59e0b]',
+    featured: true,
   },
   {
     id: 'api',
@@ -120,16 +123,16 @@ export function WelcomeModal() {
         if (e.target === e.currentTarget) dismiss();
       }}
     >
-      <div className="relative w-full max-w-[640px] rounded-2xl border border-border bg-surface shadow-panel my-8 flex flex-col">
+      <div className="relative w-full max-w-[42rem] rounded-card border border-border bg-overlay shadow-panel my-8 flex flex-col">
         <div className="flex items-start justify-between gap-4 px-6 pt-5 pb-3">
-          <h2 className="text-base font-semibold tracking-tight pr-8">
+          <h2 className="text-sm font-semibold tracking-tight pr-8">
             What would you like to make?
           </h2>
           <button
             type="button"
             aria-label="Close"
             onClick={dismiss}
-            className="absolute top-4 right-4 inline-flex h-7 w-7 items-center justify-center rounded-md text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors"
+            className="absolute top-4 right-4 inline-flex h-8 w-8 items-center justify-center rounded-lg text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors"
           >
             <Icon name="x" size={16} />
           </button>
@@ -140,13 +143,13 @@ export function WelcomeModal() {
           clear it and start fresh. Nothing is uploaded; your work stays in this
           browser.
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 px-4 pb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 px-4 pb-2">
           {STARTERS.map((s) => (
             <button
               key={s.id}
               type="button"
               onClick={() => pick(s.id)}
-              className="group text-left rounded-xl border border-border bg-surface-2 hover:bg-surface-3 hover:border-border-strong transition-colors p-3 flex flex-col gap-1.5 min-h-[88px]"
+              className="group text-left rounded-lg border border-border bg-surface-2 hover:bg-surface-3 hover:border-accent transition-colors p-3 flex flex-col gap-1.5"
             >
               <span
                 aria-hidden
@@ -162,6 +165,28 @@ export function WelcomeModal() {
               </span>
             </button>
           ))}
+        </div>
+        <div className="px-4 pb-4">
+          <button
+            type="button"
+            onClick={() => pick('blank')}
+            className="w-full flex flex-wrap items-center gap-2 text-left rounded-lg border border-dashed border-border hover:border-accent hover:bg-surface-2 p-3 transition-colors"
+          >
+            <span
+              aria-hidden
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-surface-2 text-fg-muted"
+            >
+              <Icon name="square" size={15} />
+            </span>
+            <span className="flex-1 min-w-0">
+              <span className="block text-sm font-semibold tracking-tight text-fg">
+                Blank canvas
+              </span>
+              <span className="block text-xs text-muted leading-snug">
+                Start from an empty canvas and build your own.
+              </span>
+            </span>
+          </button>
         </div>
       </div>
     </div>

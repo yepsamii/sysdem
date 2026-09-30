@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://127.0.0.1:3000/` *(vite.config.ts port=3000, host=127.0.0.1; use IPv4 explicitly because `localhost` may resolve to IPv6 where another dev server is bound)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 15:45
+- **Last updated**: 2026-09-30 16:00
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 45
+- **Iteration**: 46
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: per-template fixtures for the 6 non-System starters in the welcome modal (queued MM-041+); sub-pixel cosmetic differences.
-- **Verified fixes**: 45 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, MM-045 Minimap node colors now use the 9-distinct-color per-kind palette (client/cdn sky, webapp emerald, gateway indigo, api cyan, cache pink, database amber, queue purple, worker violet) wrapped in `color-mix(in srgb, <hex> 55%, var(--color-surface-2))` pastels, plus `nodeBorderRadius=4`, transparent stroke, transparent mask, and panel border-radius 12 px)
+- **Minor mismatches remaining**: per-template fixtures for the 7 non-blank starters in the welcome modal (queued MM-041+); sub-pixel cosmetic differences.
+- **Verified fixes**: 46 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, MM-045 Minimap node colors now use the 9-distinct-color per-kind palette (client/cdn sky, webapp emerald, gateway indigo, api cyan, cache pink, database amber, queue purple, worker violet) wrapped in `color-mix(in srgb, <hex> 55%, var(--color-surface-2))` pastels, plus `nodeBorderRadius=4`, transparent stroke, transparent mask, and panel border-radius 12 px, MM-046 Welcome modal restructured to reference's chrome — panel width 42rem (672px) and border-radius 12 px (was 640px and 16px), heading font-size 14 px (was 16 px), close button 32×32 rounded-lg (was 28×28 rounded-md), starter cards 8 px radius (was 12 px) in a tight 2-col grid, plus a dashed-border "Blank canvas" full-width option appended below the 7 starter tiles)
 - **Regressions introduced**: 0
 
 ---
@@ -30,71 +30,66 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-045 — Minimap node rendering uses solid wrong colors and `rx=5` (reference uses per-kind color-mix tints and `rx=4`); panel border-radius is `0.5rem` instead of `0.75rem`.
+MM-046 — Welcome modal chrome and content layout: panel width 640 / radius 16 / close button 28×28 / card radius 12 / heading 16 px, missing the dashed-border "Blank canvas" option that the reference renders below the 7 starter tiles.
 
 ### Why this mismatch was selected
 
-After fixing the arch-node icon tile colors in MM-029, the **minimap** still uses the old color map. The local maps cdn/webapp/gateway/api under one cyan, queue/worker both as violet, and client as slate. The reference shows **9 distinct colors** per kind. This is a structural mismatch that affects every minimap node, plus the panel chrome (radius, mask, nodeRadius) — single iteration is appropriate.
+MM-040 added the welcome modal with the right text content and 7 starter tiles, but the **chrome** (panel size, radius, close button), the **starter card radius**, and the **Blank canvas option** below the grid were never re-probed against the reference. The reference's panel renders at `min(94vw, 42rem)` (672 px) with `rounded-card` (12 px), the heading is `text-sm` (14 px), the close button is 32×32 with `rounded-lg`, and the starter cards are `rounded-lg` (8 px). Crucially, the reference appends a dashed-border full-width "Blank canvas" button below the 7 starter cards — this is a structural content gap, not just chrome. Fixing all of these in one iteration is appropriate because they share the same root cause (WelcomeModal.tsx was never re-probed against the reference layout).
 
-### Reference observation (1440 × 900, fresh, welcome + cookie dismissed, light theme)
+### Reference observation (1440 × 900, fresh, after clearing `localStorage` to force welcome modal)
 
-- `.react-flow__minimap` rect `(1223, 733, 202, 152)`. Computed: `bg: rgb(255,255,255)`, `border: 1px solid rgb(225,230,238)`, `border-radius: 12px`, `box-shadow: none`.
-- 9 node rects inside the SVG, each `rx=4`, `width=180`, `height=64`, `shape-rendering=crispEdges`, `fill: color-mix(in srgb, <kind> 55%, var(--color-surface-2))`, `stroke: transparent`.
-- Per-kind tints:
-  - client/User → `#38bdf8` (sky)
-  - cdn/CDN → `#38bdf8` (sky)
-  - webapp/Web App → `#34d399` (emerald)
-  - gateway/API Gateway → `#818cf8` (indigo)
-  - api/API → `#22d3ee` (cyan)
-  - cache/Cache → `#f472b6` (pink)
-  - database/Database → `#f59e0b` (amber)
-  - queue/Event Queue → `#c084fc` (purple)
-  - worker/Worker → `#a78bfa` (violet)
+- Welcome `<dialog>` rect `(384, 67.5, 672, 765)`. Class: `m-auto max-w-none max-h-none overflow-visible bg-transparent p-0`.
+- Inner panel class: `flex flex-col w-[min(92vw,32rem)] max-w-[calc(100dvw-1rem)] max-h-[85dvh] overflow-hidden bg-overlay border border-border rounded-card shadow-panel w-[min(94vw,42rem)]`. Computed: `bg: rgb(255, 255, 255)`, `border: 1px solid rgb(225, 230, 238)`, `border-radius: 12px`.
+- Heading: `<h2>` "What would you like to make?" — `font-size: 14px`, `font-weight: 600`, `line-height: 20px`, color `rgb(15, 20, 28)`.
+- Paragraph: `font-size: 14px`, color `rgb(84, 96, 111)`.
+- Close button: 32×32, top-right of panel at `(1007, 76.5)`, class includes `rounded-lg`.
+- 7 starter cards in a 2-col grid:
+  - Row 1 (large): "System architecture" `(401, 209.5, 314, 174.5)`, "Cloud architecture" `(725, 209.5, 314, 174.5)`.
+  - Rows 2-4 (small): "API request flow", "Order flowchart", "Real-time telemetry (UDP)", "ETL / CSV pipeline", "Event streaming" — each 314×141.5.
+  - Each card class: `rounded-lg border border-border bg-surface-2`. Computed `radius: 8px`, `bg: rgb(236, 239, 244)`.
+- **Blank canvas** option below the grid: `<button>` "Blank canvas — Start from an empty canvas and build your own." at `(401, 848.5, 638, 50)`. Class: `mt-2.5 w-full … rounded-lg border border-dashed border-border`. Border-style `dashed`.
 
 ### Local observation (1440 × 900, fresh, BEFORE fix)
 
-- `.react-flow__minimap` rect `(1223, 733, 202, 152)`. Computed: `bg: rgb(255,255,255)`, `border: 1px solid rgb(225,230,238)`, `border-radius: 8px`.
-- 9 node rects inside the SVG, each `rx=5`, `width=180`, `height=64`, `shape-rendering=crispEdges`, `fill: <solid hex>`, `stroke: transparent`.
-- Per-kind tints (with errors):
-  - client/User → `rgb(148, 163, 184)` slate `#94a3b8` ❌ (should be sky `#38bdf8`)
-  - cdn/CDN → `rgb(34, 211, 238)` cyan `#22d3ee` ❌ (should be sky)
-  - webapp/Web App → `rgb(34, 211, 238)` cyan ❌ (should be emerald `#34d399`)
-  - gateway/API Gateway → `rgb(34, 211, 238)` cyan ❌ (should be indigo `#818cf8`)
-  - api/API → `rgb(34, 211, 238)` cyan ✓
-  - cache/Cache → `rgb(244, 114, 182)` pink `#f472b6` ✓
-  - database/Database → `rgb(245, 158, 11)` amber `#f59e0b` ✓
-  - queue/Event Queue → `rgb(167, 139, 250)` violet `#a78bfa` ❌ (should be purple `#c084fc`)
-  - worker/Worker → `rgb(167, 139, 250)` violet `#a78bfa` ✓
+- Welcome `<div role="dialog">` panel rect `(400, 80, 640, 784.25)`. Computed: `bg: rgb(255, 255, 255)`, `border-radius: 16px` (rounded-2xl).
+- Heading: `<h2>` — `font-size: 16px` (text-base), `font-weight: 600`.
+- Close button: 28×28 at `(1007, 84)`, class includes `h-7 w-7 rounded-md`.
+- 7 starter cards in a 2-col grid:
+  - Each rect `(417, 225.25, 299, 182.5)` for first row, `(417, 415.75, 299, 133)` for subsequent rows.
+  - Each card class includes `rounded-xl` — computed `radius: 12px`.
+- **No "Blank canvas" option present.**
 
 ### Root-cause hypothesis
 
-When MM-001 originally added the `<MiniMap>`, the per-kind color map was a simple consolidated version of the reference's palette. It was never re-probed when MM-029 re-aligned the **arch-node icon tile** colors to match the reference (cyan→sky/cyan/emerald/indigo split, queue→purple split). The MiniMap nodeColor function was left untouched.
-
-Separately, the MiniMap panel border-radius was 0.5rem (8 px) instead of the reference's 0.75rem (12 px), and the maskColor (`rgba(11,14,20,0.7)`) gave the panel a dark overlay tint that the reference does not use — but on light theme the effect is subtle.
+When MM-040 added the welcome modal, the local implementation used a 640 px max-width panel with rounded-2xl (16 px) corners and rounded-xl (12 px) starter cards. These values were chosen to match the rest of the local design system's "floating panel" tokens (Components panel uses rounded-2xl) rather than being re-probed against the reference's specific welcome modal styling. The reference uses tighter, smaller radii (12 px panel, 8 px cards) and a wider panel (672 px), and it includes a structural element — a dashed-border "Blank canvas" option below the starter grid — that the local modal lacks entirely.
 
 ### Planned change
 
-Edit `src/canvas/Canvas.tsx` `<MiniMap>`:
+Edit `src/components/dialogs/WelcomeModal.tsx`:
 
-1. Update `nodeColor` callback to return the 9 correct hex values (split client/cdn to sky, webapp to emerald, gateway to indigo, queue to purple).
-2. Add `nodeStrokeColor={() => 'transparent'}` to match the reference's `stroke: transparent` on every node rect.
-3. Add `nodeBorderRadius={4}` to set `rx=4` (xyflow default is 5).
-4. Change `maskColor` to `'transparent'` so the canvas dots are visible through the panel (no dark overlay).
-5. Change `style.borderRadius` from `'0.5rem'` to `'0.75rem'`.
+1. Panel: `max-w-[640px] rounded-2xl border border-border bg-surface` → `max-w-[42rem] rounded-card border border-border bg-overlay`.
+2. Heading: `text-base` → `text-sm`.
+3. Close button: `h-7 w-7 rounded-md` → `h-8 w-8 rounded-lg`.
+4. Starter card class: `rounded-xl … min-h-[88px]` → `rounded-lg` (remove min-h since cards now auto-size from content).
+5. Append a new "Blank canvas" full-width dashed-border `<button>` below the 2-col grid, mirroring the reference's structure (square icon tile + title + description, `border-dashed`, full panel width).
 
 ### Result
 
 After fix:
-- `.react-flow__minimap` rect `(1223, 733, 202, 152)` — matches reference.
-- Computed `border-radius: 12px` (0.75rem) — matches reference.
-- 9 node rects at `rx=4`, `width=180`, `height=64`, `shape-rendering=crispEdges`, `stroke: rgba(0,0,0,0)` (transparent).
-- Per-kind fills now match the reference's `color-mix(in srgb, <kind> 55%, var(--color-surface-2))` exactly.
-- Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
-- Visible mismatch in the screenshot: the minimap now shows 9 distinct colored rectangles with the per-kind tints rather than 4 cyan + 1 pink + 1 amber + 2 violet + 1 slate.
+- Panel rect `(384, 80, 672, 829.25)` — **width 672 px exactly matches the reference**; height 829.25 vs reference 765 because the 8 cards (7 starter + blank) are slightly taller than the reference's (likely because local uses 14 px paragraph with slightly different line-height than reference's exact rendering).
+- Computed `border-radius: 12px` (rounded-card) — matches reference.
+- Computed `bg: rgb(255, 255, 255)` (bg-overlay in light theme) — matches reference.
+- Heading: `font-size: 14px` — matches reference exactly.
+- Close button: 32×32, `radius: 8px` — matches reference.
+- 7 starter cards: 315×166 (first row) and 315×133 (subsequent rows) with `radius: 8px` — matches reference (reference: 314×174.5 first row, 314×141.5 subsequent; local is slightly more compact, ~3-8 px shorter).
+- **Blank canvas** option present at `(401, 832.25, 638, 60)` with `border-style: dashed` — matches reference (which has it at `(401, 848.5, 638, 50)`; height differs because local includes a longer description in the second line vs reference's tighter layout).
+- Clicking Blank canvas dismisses the modal correctly.
+- 0 console errors. Only the pre-existing React Flow Pro attribution warning.
 
 ### Remaining difference
 
-None measurable at the desktop viewport for the minimap. Possible future mismatch to investigate: minimap node tooltip / drag behavior; minimap size when the user resizes the viewport.
+- Panel height: local 829.25 vs reference 765 (~64 px taller). Likely caused by local using larger paragraph line-height and the slightly larger paragraph gap above the grid. Acceptable for this iteration; could be tightened later if needed.
+- Local panel y=80 vs reference y=67.5: caused by local using `my-8` vs reference's `my-12` (which is `padding: 3rem` on the dialog wrapper). Negligible at the desktop viewport.
 
 ### New mismatches discovered
 
@@ -102,7 +97,7 @@ None at this iteration.
 
 ### Next action
 
-Probe other cosmetic mismatches: continue looking for visible chrome differences — node card paddings, edge label positioning relative to edge midpoints, animation phase distribution, drag handle styles, edge colors on hover.
+Continue probing other subtle mismatches: edge label chip positioning relative to the SVG path midpoint (reference positions them inline with the edge stroke), drag handle styles on arch-nodes, animation phase distribution across the 9 edges, hover state on edge particles.
 
 ### Why this mismatch was selected
 
@@ -766,6 +761,25 @@ Continue probing for more subtle mismatches: minimap styling details (per-node c
 - **Visual diff**: minimap now shows 9 distinct pastel tints in the reference's color hierarchy; previously it showed 4 cyan + 1 pink + 1 amber + 2 violet + 1 slate (visual repetition around the cyan cluster).
 - **Files changed**: `src/canvas/Canvas.tsx`.
 - **Commit**: `abf9f0c`
+
+### MM-046 — Welcome modal uses wrong panel width/radius, oversized heading, tiny close button, oversized card radius, and is missing the "Blank canvas" dashed option
+
+- **Category**: Visual / chrome / content
+- **Severity**: Medium (visible to every first-time visitor; structural content gap — Blank canvas option is missing entirely)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900, fresh, after clearing `localStorage` to force welcome modal)**: Welcome `<dialog>` rect `(384, 67.5, 672, 765)`. Inner panel class: `flex flex-col w-[min(94vw,42rem)] max-w-[calc(100dvw-1rem)] max-h-[85dvh] overflow-hidden bg-overlay border border-border rounded-card shadow-panel`. Computed: `bg: rgb(255,255,255)`, `border: 1px solid rgb(225,230,238)`, `border-radius: 12px`. Heading `<h2>`: `font-size: 14px`, `font-weight: 600`, `line-height: 20px`. Close button: 32×32 at `(1007, 76.5)` with `rounded-lg`. 7 starter cards in 2-col grid: first row 314×174.5 (featured cards), subsequent rows 314×141.5; each card `rounded-lg border border-border bg-surface-2` (8 px radius, `rgb(236, 239, 244)` background). **Below the grid**: full-width dashed-border `<button>` "Blank canvas — Start from an empty canvas and build your own." at `(401, 848.5, 638, 50)`, border-style `dashed`.
+- **Local observation (1440 × 900, fresh, before fix)**: dialog `<div role="dialog">` rect `(400, 80, 640, 784.25)`. Panel class: `relative w-full max-w-[640px] rounded-2xl border border-border bg-surface shadow-panel my-8 flex flex-col`. Computed: `border-radius: 16px` (not 12 px), `bg: rgb(255, 255, 255)`. Heading: `text-base` (16 px, not 14). Close button: 28×28 at `(1007, 84)` with `rounded-md`. Starter cards: 299×182.5 first row, 299×133 subsequent rows; each card `rounded-xl` (12 px, not 8 px). **No "Blank canvas" option present.**
+- **Root cause**: MM-040 added the welcome modal with content and 7 starter tiles but never re-probed the panel chrome against the reference. The local implementation reused the `rounded-2xl` (16 px) token to match the rest of the floating panels, but the reference uses tighter `rounded-card` (12 px) for the welcome modal specifically. Card radius, heading size, close button size, and panel width were all set to local defaults rather than reference values. The "Blank canvas" option is a structural element of the reference's modal that was overlooked entirely when MM-040 was implemented.
+- **Fix applied** (`src/components/dialogs/WelcomeModal.tsx`):
+  - Panel: `max-w-[640px] rounded-2xl border border-border bg-surface` → `max-w-[42rem] rounded-card border border-border bg-overlay` (matches reference's `w-[min(94vw,42rem)] rounded-card`).
+  - Heading: `text-base` → `text-sm` (14 px).
+  - Close button: `h-7 w-7 rounded-md` → `h-8 w-8 rounded-lg` (32×32 with 8 px radius).
+  - Starter cards: `rounded-xl … min-h-[88px]` → `rounded-lg` (8 px, content-driven height).
+  - Added `featured?: boolean` field to the `Starter` interface and flagged `system` and `cloud` as featured (future use for first-row larger sizing).
+  - Added a new dashed-border "Blank canvas" full-width `<button>` below the 2-col grid, mirroring the reference's structure: `w-full flex flex-wrap items-center gap-2 text-left rounded-lg border border-dashed border-border hover:border-accent hover:bg-surface-2 p-3 transition-colors`. Contains a square icon tile, title, and description.
+- **Verification (1440 × 900, fresh, with `gravelgraph.seenWelcome` cleared)**: panel rect `(384, 80, 672, 829.25)` — **width 672 px exactly matches reference** (height 829.25 vs 765 differs because local has slightly larger paragraph spacing). Computed `border-radius: 12px`, `bg: rgb(255, 255, 255)`. Heading: `font-size: 14px` (exact match). Close button: 32×32 with `radius: 8px` (exact match). 7 starter cards: 315×166 (first row) and 315×133 (subsequent rows), `radius: 8px` (close to reference's 314×174.5 / 314×141.5 — local is slightly more compact). **Blank canvas option present at `(401, 832.25, 638, 60)` with `border-style: dashed`** (matches reference's `(401, 848.5, 638, 50)`). Clicking Blank canvas dismisses the modal correctly. Zero console errors.
+- **Files changed**: `src/components/dialogs/WelcomeModal.tsx`.
+- **Commit**: (next)
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
