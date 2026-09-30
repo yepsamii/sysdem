@@ -25,18 +25,18 @@ export function SavedBanner() {
     <div
       role="region"
       aria-label="Saved locally notice"
-      className="relative shrink-0 px-3 py-1.5 bg-surface border-b border-border text-xs text-muted text-center"
+      className="flex shrink-0 items-start justify-center gap-2 px-3 py-2 bg-surface border-b border-border"
     >
-      <span>
+      <p className="text-xs text-muted leading-relaxed">
         Your work is saved <strong className="text-fg">in this browser only</strong>
         {' '}— no account, no server. Use <strong className="text-fg">Save</strong> to keep a .gravel file, or{' '}
         <strong className="text-fg">Copy link</strong> to share it.
-      </span>
+      </p>
       <button
         type="button"
-        aria-label="Dismiss saved-locally notice"
+        aria-label="Dismiss"
         onClick={dismiss}
-        className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded p-1 hover:bg-surface-2 text-faint hover:text-fg transition-colors"
+        className="shrink-0 inline-flex items-center justify-center rounded p-1 text-faint hover:text-fg hover:bg-surface-2 transition-colors"
       >
         <Icon name="x" size={12} />
       </button>
