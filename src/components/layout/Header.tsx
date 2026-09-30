@@ -41,7 +41,7 @@ export function Header() {
   const sep = 'w-px h-5 bg-border mx-0.5';
   // Container that groups mode-toggle pills (matches reference's bg-surface-2 bordered rounded-lg p-0.5 gap-0.5).
   const segmentedGroup =
-    'inline-flex items-center rounded-lg bg-surface-2 border border-border p-0.5 gap-0.5';
+    'inline-flex rounded-lg bg-surface-2 border border-border p-0.5 gap-0.5';
 
   return (
     <header
@@ -141,36 +141,42 @@ export function Header() {
         </button>
 
         {/* Mode toggles grouped in a segmented pill (matches reference's 112×34 bordered group) */}
-        <div className={segmentedGroup} role="group" aria-label="Playback mode">
+        <div className={segmentedGroup} role="radiogroup" aria-label="Playback mode">
           <button
             type="button"
+            role="radio"
+            aria-checked={mode === 'continuous'}
             aria-label="Continuous — every edge flows"
+            title="Continuous — every edge flows"
             className={`inline-flex flex-1 items-center justify-center gap-1.5 h-7 px-2.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
-              mode === 'continuous' ? 'bg-surface text-fg shadow-sm' : 'text-fg-muted hover:text-fg'
+              mode === 'continuous' ? 'bg-accent text-accent-contrast' : 'text-fg-muted hover:text-fg'
             }`}
-            aria-pressed={mode === 'continuous'}
             onClick={() => setMode('continuous')}
           >
             <Icon name="continuous" size={14} />
           </button>
           <button
             type="button"
+            role="radio"
+            aria-checked={mode === 'causal'}
             aria-label="Causal — data ripples through in order"
+            title="Causal — data ripples through in order"
             className={`inline-flex flex-1 items-center justify-center gap-1.5 h-7 px-2.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
-              mode === 'causal' ? 'bg-surface text-fg shadow-sm' : 'text-fg-muted hover:text-fg'
+              mode === 'causal' ? 'bg-accent text-accent-contrast' : 'text-fg-muted hover:text-fg'
             }`}
-            aria-pressed={mode === 'causal'}
             onClick={() => setMode('causal')}
           >
             <Icon name="causal" size={14} />
           </button>
           <button
             type="button"
+            role="radio"
+            aria-checked={mode === 'scenario'}
             aria-label="Scenario — narrated steps"
+            title="Scenario — narrated steps"
             className={`inline-flex flex-1 items-center justify-center gap-1.5 h-7 px-2.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
-              mode === 'scenario' ? 'bg-surface text-fg shadow-sm' : 'text-fg-muted hover:text-fg'
+              mode === 'scenario' ? 'bg-accent text-accent-contrast' : 'text-fg-muted hover:text-fg'
             }`}
-            aria-pressed={mode === 'scenario'}
             onClick={() => setMode('scenario')}
           >
             <Icon name="scenario" size={14} />

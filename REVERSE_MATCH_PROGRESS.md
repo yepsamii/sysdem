@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://127.0.0.1:3000/` *(vite.config.ts port=3000, host=127.0.0.1; use IPv4 explicitly because `localhost` may resolve to IPv6 where another dev server is bound)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 16:10
+- **Last updated**: 2026-09-30 16:15
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 48
+- **Iteration**: 49
 - **Major mismatches remaining**: 0
 - **Minor mismatches remaining**: per-template fixtures for the 7 non-blank starters in the welcome modal (queued MM-041+); sub-pixel cosmetic differences.
-- **Verified fixes**: 48 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, MM-045 Minimap node colors now use the 9-distinct-color per-kind palette (client/cdn sky, webapp emerald, gateway indigo, api cyan, cache pink, database amber, queue purple, worker violet) wrapped in `color-mix(in srgb, <hex> 55%, var(--color-surface-2))` pastels, plus `nodeBorderRadius=4`, transparent stroke, transparent mask, and panel border-radius 12 px, MM-046 Welcome modal restructured to reference's chrome — panel width 42rem (672px) and border-radius 12 px (was 640px and 16px), heading font-size 14 px (was 16 px), close button 32×32 rounded-lg (was 28×28 rounded-md), starter cards 8 px radius (was 12 px) in a tight 2-col grid, plus a dashed-border "Blank canvas" full-width option appended below the 7 starter tiles, MM-047 Edge label chips now interactive — pointer-events: all, cursor: grab, touch-action: none, z-index: 1000 (was pointer-events: none, cursor: pointer, touch-action: auto, z-index: auto), enabling the "Drag to slide along the edge" UX that's gated by `nodrag` + explicit pointer events, MM-048 Header "Saved locally · Ns ago" indicator now live-updates via setInterval(1s) and uses nested wrapper <span> with `title="Autosaved in this browser — use Save to keep a file or Copy link to share"` (was a hardcoded "just now" string and a truncated `aria-label`))
+- **Verified fixes**: 49 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, MM-045 Minimap node colors now use the 9-distinct-color per-kind palette (client/cdn sky, webapp emerald, gateway indigo, api cyan, cache pink, database amber, queue purple, worker violet) wrapped in `color-mix(in srgb, <hex> 55%, var(--color-surface-2))` pastels, plus `nodeBorderRadius=4`, transparent stroke, transparent mask, and panel border-radius 12 px, MM-046 Welcome modal restructured to reference's chrome — panel width 42rem (672px) and border-radius 12 px (was 640px and 16px), heading font-size 14 px (was 16 px), close button 32×32 rounded-lg (was 28×28 rounded-md), starter cards 8 px radius (was 12 px) in a tight 2-col grid, plus a dashed-border "Blank canvas" full-width option appended below the 7 starter tiles, MM-047 Edge label chips now interactive — pointer-events: all, cursor: grab, touch-action: none, z-index: 1000 (was pointer-events: none, cursor: pointer, touch-action: auto, z-index: auto), enabling the "Drag to slide along the edge" UX that's gated by `nodrag` + explicit pointer events, MM-048 Header "Saved locally · Ns ago" indicator now live-updates via setInterval(1s) and uses nested wrapper <span> with `title="Autosaved in this browser — use Save to keep a file or Copy link to share"` (was a hardcoded "just now" string and a truncated `aria-label`), MM-049 Segmented mode-toggle pill now uses proper radio group semantics (parent `role="radiogroup"`, child `role="radio"` with `aria-checked` instead of `aria-pressed`) and the selected button uses `bg-accent text-accent-contrast` (was `bg-surface text-fg shadow-sm` — white-bg selected) to match the reference's accent-tinted selected pill)
 - **Regressions introduced**: 0
 
 ---
@@ -30,7 +30,61 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-048 — Header "Saved locally" indicator shows static "just now" with no live update, and uses a truncated `aria-label` instead of the reference's nested `<span title="Autosaved in this browser — use Save to keep a file or Copy link to share">` wrapper.
+MM-049 — Segmented mode-toggle pill uses `aria-pressed` (toggle button semantics) with a white-bg selected button (`bg-surface text-fg shadow-sm`); reference uses proper radio group (`role="radiogroup"` + `role="radio"` + `aria-checked`) and an accent-tinted selected button (`bg-accent text-accent-contrast`).
+
+### Why this mismatch was selected
+
+While probing the header for further mismatches, I noticed the segmented pill's selected button had a white surface (like the rest of the floating panels) rather than the accent tint. The reference uses a proper radio group with the active button tinted in the accent color (`#0e7490` in light, `#22d3ee` in dark). This is a structural (ARIA semantics) + visual mismatch. Single iteration is appropriate.
+
+### Reference observation (1440 × 900, fresh, light theme)
+
+- Segmented pill: `<div class="inline-flex rounded-lg bg-surface-2 border border-border p-0.5 gap-0.5">` — **no** `items-center` (local has it).
+- Three child `<button>` elements each `role="radio"` with `aria-checked` (true/false) — local uses regular buttons with `aria-pressed`.
+- Selected button class: `... bg-accent text-accent-contrast` (computed `bg: rgb(14, 116, 144)`, `color: rgb(255, 255, 255)` in light theme).
+- Unselected buttons: `... text-muted hover:text-fg` (matches local `text-fg-muted hover:text-fg`).
+- Each button has a `title` attribute matching the `aria-label`.
+
+### Local observation (1440 × 900, fresh, light theme, BEFORE fix)
+
+- Segmented pill: `<div class="inline-flex items-center rounded-lg bg-surface-2 border border-border p-0.5 gap-0.5" role="group" aria-label="Playback mode">`.
+- Three child `<button>` elements with `aria-pressed="true"/"false"`.
+- Selected button class: `... bg-surface text-fg shadow-sm` (white-bg with subtle shadow).
+- Computed `bg: rgb(255, 255, 255)` — wrong (should be accent).
+- No `title` attribute on individual buttons.
+
+### Root-cause hypothesis
+
+MM-011 originally added the flow-mode toggles with toggle-button semantics (`aria-pressed`) and a white-bg selected state because that's the local project's standard for "selected" controls (matching Components panel groups). The reference actually uses radio group semantics (which is semantically correct — only one mode can be active at a time) and accent-tinted selection (matching the theme's accent color). Both were never re-probed when MM-027 introduced the segmented pill grouping.
+
+### Planned change
+
+Edit `src/components/layout/Header.tsx`:
+
+1. Parent: `role="group" aria-label="Playback mode"` → `role="radiogroup" aria-label="Playback mode"`.
+2. Each button: `aria-pressed={mode === ...}` → `role="radio" aria-checked={mode === ...}`.
+3. Each button: add `title` attribute matching the `aria-label` (matches reference).
+4. Selected class: `bg-surface text-fg shadow-sm` → `bg-accent text-accent-contrast` (matches reference's accent-tinted active state).
+5. Remove redundant `items-center` from `segmentedGroup` (matches reference's parent class).
+
+### Result
+
+After fix:
+- Parent `role="radiogroup"`.
+- Continuous button: `role="radio"`, `aria-checked="true"`, computed `bg: rgb(14, 116, 144)`, `color: rgb(255, 255, 255)`, `title="Continuous — every edge flows"` — matches reference exactly.
+- Causal button: `role="radio"`, `aria-checked="false"`, transparent bg.
+- 0 console errors.
+
+### Remaining difference
+
+None measurable. The pill now has proper radio semantics and accent-tinted selection.
+
+### New mismatches discovered
+
+None at this iteration.
+
+### Next action
+
+Continue probing: theme toggle behavior, File dropdown chrome, the Continuous/Causal/Scenario Lucide icons.
 
 ### Why this mismatch was selected
 
@@ -912,6 +966,22 @@ Continue probing for more subtle mismatches: minimap styling details (per-node c
   - Replaced static "just now" with `Saved locally · {savedAgo === 0 ? 'just now' : `${savedAgo}s ago`}` so first frame shows "just now" then ticks up.
   - Removed redundant `aria-label` on the outer span (inner span's `title` carries the same info more semantically).
 - **Verification (1440 × 900, fresh, light theme)**: indicator shows `Saved locally · 5s ago` (live-updating). Inner span has the exact reference tooltip text. DOM structure matches reference: outer `xl:flex` > inner `flex min-w-0` with title > dot + truncated text. 0 console errors.
+- **Files changed**: `src/components/layout/Header.tsx`.
+- **Commit**: (next)
+
+### MM-049 — Segmented mode-toggle pill uses toggle-button semantics (aria-pressed) and white-bg selected state; reference uses radio group (role="radio", aria-checked) with accent-tinted selected state
+
+- **Category**: Visual + ARIA semantics
+- **Severity**: Medium (affects every page load in the header; the selected button is visibly the wrong color, and the ARIA semantics are wrong for a single-select group)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900, fresh, light theme)**: parent `<div class="inline-flex rounded-lg bg-surface-2 border border-border p-0.5 gap-0.5">` (no `items-center`). Three child `<button>` elements with `role="radio"`, `aria-checked="true"/"false"`, and a `title` attribute matching the aria-label. Selected button class: `... bg-accent text-accent-contrast` (computed `bg: rgb(14, 116, 144)`, `color: rgb(255, 255, 255)` in light theme). Unselected buttons: `... text-muted hover:text-fg`.
+- **Local observation (1440 × 900, fresh, light theme, BEFORE fix)**: parent `<div class="inline-flex items-center rounded-lg bg-surface-2 border border-border p-0.5 gap-0.5" role="group" aria-label="Playback mode">`. Three child `<button>` elements with `aria-pressed="true"/"false"` and no `title` attribute. Selected button class: `... bg-surface text-fg shadow-sm` (white-bg). Computed `bg: rgb(255, 255, 255)` — wrong (should be accent).
+- **Root cause**: MM-011 originally added the flow-mode toggles with toggle-button semantics (`aria-pressed`) and a white-bg selected state because that's the local project's standard for "selected" controls. The reference uses radio group semantics (correct for single-select) and accent-tinted selection.
+- **Fix applied** (`src/components/layout/Header.tsx`):
+  - Parent: `role="group"` → `role="radiogroup"`. Removed `items-center` from `segmentedGroup` to match reference.
+  - Each button: added `role="radio"` and `title` attribute; replaced `aria-pressed` with `aria-checked`.
+  - Selected button class: `bg-surface text-fg shadow-sm` → `bg-accent text-accent-contrast`.
+- **Verification (1440 × 900, fresh, light theme)**: continuous button `role="radio"`, `aria-checked="true"`, computed `bg: rgb(14, 116, 144)`, `color: rgb(255, 255, 255)`, `title="Continuous — every edge flows"` — exact match with reference. Causal button `role="radio"`, `aria-checked="false"`. 0 console errors.
 - **Files changed**: `src/components/layout/Header.tsx`.
 - **Commit**: (next)
 
