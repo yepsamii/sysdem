@@ -19,8 +19,10 @@ interface FlowEdgeData extends Record<string, unknown> {
 
 const FALLBACK_COLOR = '#22d3ee';
 
-// Per-edge base duration in seconds (matches live default).
-const BASE_DUR = 20;
+// Reference uses a constant particle velocity of 20 px/s — duration is
+// derived from the edge's polyline length so all particles travel at the
+// same visual speed regardless of how long the edge is.
+const PARTICLE_SPEED_PX_PER_S = 20;
 
 export function FlowEdge(props: EdgeProps) {
   const {
@@ -33,6 +35,7 @@ export function FlowEdge(props: EdgeProps) {
   const color = a.color ?? FALLBACK_COLOR;
   const direction = a.direction ?? 'forward';
   const density = Math.max(1, Math.min(4, a.density ?? 1));
+  // `speed` is a user-facing multiplier: 1 = default, 2 = twice as fast.
   const speed = a.speed ?? 1;
   const token = a.tokenLabel;
   const enabled = a.enabled !== false;
@@ -40,6 +43,14 @@ export function FlowEdge(props: EdgeProps) {
   const [edgePath, labelX, labelY] = getStraightPath({
     sourceX, sourceY, targetX, targetY,
   });
+
+  // Length of the polyline (source→target is a single straight segment
+  // for getStraightPath, but the formula is generic for any future
+  // polyline edges).
+  const edgeLen = Math.hypot(targetX - sourceX, targetY - sourceY);
+  // dur = length / (speed * PARTICLE_SPEED_PX_PER_S). speed multiplier is
+  // already accounted for via "faster" = "smaller duration".
+  const dur = edgeLen / (PARTICLE_SPEED_PX_PER_S * speed);
 
   const labelEl = d.label && (
     <EdgeLabelRenderer>
@@ -67,8 +78,6 @@ export function FlowEdge(props: EdgeProps) {
       </>
     );
   }
-
-  const dur = BASE_DUR / speed;
 
   // Build particle set: density dots in 'forward', plus reverse if direction === 'both'.
   type Particle = { dir: 'forward' | 'reverse'; phase: number };
