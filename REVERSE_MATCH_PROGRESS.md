@@ -30,51 +30,61 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-039 — File / Compare / Help buttons leaking into tablet-width header (768–1023 px); reference hides them. Discovered during MM-038 final verification round 2 (post-MM-037 panel-breakpoint fix).
+MM-040 — Welcome modal "What would you like to make?" with 7 starter templates is missing from the local implementation. Discovered during a fresh-load deep sweep (post-MM-039).
 
 ### Why this mismatch was selected
 
-After MM-037 fixed the panel breakpoint, a wider sweep at tablet revealed a separate header bug: local showed File / Compare / Help buttons at 768 px where the reference hid them. MM-038 also caught the consequence — the `hidden lg:inline-flex ${fileBtn}` class composition failed silently because Tailwind v4's source-order rule makes `inline-flex` win over `hidden`/`flex` on tied specificity.
+After MM-039 closed out the toolbar-button leak at tablet widths, a wider sweep on a fully cleared localStorage session (both sides fresh) revealed a structural feature gap: the reference shows a centered modal dialog with 7 starter-template cards (System architecture / Cloud architecture / API request flow / Order flowchart / Real-time telemetry / ETL/CSV pipeline / Event streaming) the first time a user visits with no prior storage. Local skips this entirely and goes straight to the canvas.
 
-### Reference observation (768 × 1024)
+This is the most visible remaining feature gap on the reference's first-time experience, and it sits at the top of the priority list ("Major structural / layout differences" → "Missing / incorrect assets").
 
-- Visible header buttons: Menu, Continuous / Causal / Scenario, Pause, Theme. File, Select, Hand, Draw, Line, Arrow, Export, Present, Undo, Redo, Compare, Help all hidden.
-- File button: `display: none`, rect 0×0.
+### Reference observation (1440 × 900, fresh)
 
-### Local observation (768 × 1024 before fix)
+- Modal element: `[role="dialog"]`, `aria-label="What would you like to make?"`.
+- Trigger condition: appears once when `localStorage["diagramr.seenWelcome"]` is unset. After clicking any template or the close button, the flag is set to `"1"` and the modal never shows again on subsequent visits.
+- Layout: centered modal at approximately `(x=420, y=98, w=600, h=703)`, backdrop overlay covers the rest of the viewport.
+- Title: "What would you like to make?" with a close (×) button in the top-right.
+- Body text: "Pick a starting point and we'll drop in a live example, so you can see what GravelGraph does straight away. Change anything you like — or clear it and start fresh. Nothing is uploaded; your work stays in this browser."
+- 7 template cards in a 2-column grid (last row spans 1 col):
+  - **System architecture** — "A 3-tier web app as a living diagram: a browser request runs the API spine to Postgres while assets flow through the CDN and orders fan out to a cache and an event-driven worker — real payloads on every edge."
+  - **Cloud architecture** — "AWS serverless in official icons: a request writes to DynamoDB, then fans out through SQS to an async worker Lambda."
+  - **API request flow** — "Step through one request and its reply, one message at a time: client to API to Postgres and back."
+  - **Order flowchart** — "Top-down order decision flow: receive it, check stock, then ship or backorder to finish."
+  - **Real-time telemetry (UDP)** — "IoT sensors fire UDP datagrams that a stream processor turns into live dashboards, rollups and alerts."
+  - **ETL / CSV pipeline** — "CSV lands in S3, an Airflow DAG extracts it, Spark cleans it, Snowflake stores it, and Looker charts daily revenue."
+  - **Event streaming** — "Order events land on a Kafka topic and fan out live to a stream processor, search index, warehouse and cache — with a dead-letter branch."
+- Each card has a colored icon (cyan, amber, blue, green, purple, green, magenta) at the top-left, the template name as a heading, and a 2-line description.
+- Footer: none visible.
 
-- File, Compare, Help buttons: `display: inline-flex` (or `flex`), each with non-zero bbox — should have been `display: none`.
-- Root cause: `fileBtn` and `iconBtn` constants in `Header.tsx` start with `inline-flex`. The wrapper `hidden lg:inline-flex ${fileBtn}` adds a Tailwind `hidden` (specificity 1 utility) and a Tailwind `lg:inline-flex` (specificity 1 utility, responsive). At non-`lg:` widths, `inline-flex` from the constant wins over `hidden` from the wrapper because Tailwind v4 emits the `.inline-flex` rule AFTER `.flex` / `.hidden` in source order, so on tied specificity the later rule wins. Net effect: the inner `inline-flex` is never overridden by the wrapper's `hidden`.
+### Local observation (1440 × 900, fresh)
+
+- No modal present. The page goes straight to the canvas.
+- No `diagramr.seenWelcome` storage flag exists.
+- No `WelcomeModal` / `StarterTemplates` component is rendered.
 
 ### Root-cause hypothesis
 
-MM-027 introduced the `fileBtn` / `iconBtn` constants with `inline-flex` baked in to give the button its display value. When MM-039 added a `hidden lg:inline-flex` wrapper to gate visibility, the constant's `inline-flex` was always present in the class string and overrode the `hidden` because of Tailwind's source-order specificity rule. The fix is to keep the display-mode decision in **one** place — either the wrapper or the constant — not both.
+MM-004 (cookie consent) was the only first-time dialog the local implementation shipped. The reference ships a second first-time experience — a starter-template picker — that has no analog in the local codebase. The default `autosave` fixture is hardcoded to the System architecture diagram, so the local has effectively chosen that template silently.
 
 ### Planned change
 
-Pull `inline-flex` out of `iconBtn` and `fileBtn` constants. Re-add it explicitly to every un-wrapped button (`inline-flex ${iconBtn}`). Wrappers that gate visibility (File, Compare, Help) now use `hidden lg:flex ${fileBtn}` / `${iconBtn}` and the `lg:flex` rule reliably hides the button below the breakpoint. Help's wrapper also gets `md:` → `lg:` since the reference hides Help at tablet too.
+Add a new `WelcomeModal` component that:
 
-`chipBtn` keeps its `inline-flex` because it's only used by Export / Present / Pause, which are always inside `hidden lg:flex` parent divs and never need their own visibility gate.
+1. Mounts in `App.tsx` (or wherever the top-level layout lives) with the same lifecycle pattern as the existing cookie consent.
+2. Reads `localStorage["diagramr.seenWelcome"]`; if unset, renders a centered `<dialog role="dialog" aria-label="What would you like to make?">` with backdrop overlay.
+3. Renders 7 template cards (matching the reference's content). For now, each card can either close the modal (setting `seenWelcome: "1"`) OR — better — load the matching template into the diagram and then close.
+4. Has a close (×) button that sets the flag.
+5. ESC closes the modal.
+
+For the scope of MM-040, the simplest faithful implementation is: 7 cards that **all close the modal and load the System architecture fixture**, matching the reference's "clicking any starter loads it" behavior with the System architecture already as the default. The other 6 templates can be added as static fixtures in a follow-up MM (MM-041 etc.), but the modal shell itself is the major gap.
 
 ### Result
 
-After implementation, probed local at 420 × 820, 768 × 1024, and 1440 × 900:
-
-| Width | Visible header buttons |
-|-------|------------------------|
-| 420 × 820 | Menu, 3 mode pills, Pause, Theme |
-| 768 × 1024 | Menu, 3 mode pills, Pause, Theme (File/Compare/Help now hidden) |
-| 1440 × 900 | Full toolbar intact |
-
-Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
-
-Side-by-side at `.reverse-match/screenshots/iteration-039-local-{mobile,tablet,desktop}.png`.
-
-**Categorization**: Fixed — File / Compare / Help are now hidden at tablet widths and visible at desktop, matching the reference exactly.
+Pending implementation.
 
 ### Remaining difference
 
-None from this scan. Sub-pixel cosmetic gaps remain (edge-label rendering, brand text hidden on mobile `<640 px`, etc.) but these are MM-035 / MM-027 pre-existing minor mismatches that are not blocking.
+None from this scan (after fix).
 
 ### New mismatches discovered
 
@@ -82,7 +92,7 @@ None.
 
 ### Next action
 
-The page is sufficiently close to the reference at desktop, tablet, and mobile widths. No remaining major mismatches in the queue. Closing out the loop.
+Implement MM-040: build `WelcomeModal` with the 7 starter cards (or at minimum the modal shell with placeholder content + System architecture template loading), wire it into the app, verify on fresh load, commit.
 
 ---
 
@@ -538,6 +548,24 @@ The page is sufficiently close to the reference at desktop, tablet, and mobile w
   - Side-by-side at `.reverse-match/screenshots/iteration-039-local-{mobile,tablet,desktop}.png`.
 - **Files changed**: `src/components/layout/Header.tsx`.
 - **Commit**: `30a48df`
+
+### MM-040 — Welcome modal "What would you like to make?" with 7 starter templates is missing
+
+- **Category**: Major structural / feature gap
+- **Severity**: High (entire first-time experience; the reference's headline onboarding feature is missing)
+- **Status**: 🟡 Queued — discovered during post-MM-039 fresh-load deep sweep (Iteration 40)
+- **Reference observation (1440 × 900, fresh localStorage)**: a centered modal dialog (`[role="dialog"]`, `aria-label="What would you like to make?"`) renders on first visit only. Approx `bbox = (420, 98, 600, 703)`. Title + close (×) button in the header. Body text explains "Pick a starting point and we'll drop in a live example…". 7 starter-template cards in a 2-column grid:
+  1. **System architecture** — 3-tier web app, browser → API → Postgres, CDN assets, cache + event worker.
+  2. **Cloud architecture** — AWS serverless (DynamoDB + SQS + worker Lambda).
+  3. **API request flow** — client → API → Postgres round-trip, one message at a time.
+  4. **Order flowchart** — top-down: receive → stock check → ship / backorder.
+  5. **Real-time telemetry (UDP)** — IoT sensors → stream processor → live dashboards.
+  6. **ETL / CSV pipeline** — S3 → Airflow → Spark → Snowflake → Looker.
+  7. **Event streaming** — Kafka topic → stream processor / search / warehouse / cache + DLQ.
+  Each card has a colored icon (cyan / amber / blue / green / purple / green / magenta) + heading + 2-line description. Clicking a card closes the modal and loads the matching fixture. Trigger condition: `localStorage["diagramr.seenWelcome"]` is unset. After interaction, the flag is set to `"1"`.
+- **Local observation (1440 × 900, fresh localStorage)**: no modal. The page renders straight into the canvas with the hardcoded System architecture fixture. No `diagramr.seenWelcome` storage flag is read or written. The user is silently dropped into one template.
+- **Root cause**: Milestone 0 only shipped the cookie-consent dialog (MM-004). The starter-template modal is a distinct first-time experience and was never built.
+- **Planned fix**: create `src/components/dialogs/WelcomeModal.tsx` (or similar) with the dialog shell + 7 template cards (placeholder icons for now, real per-template fixtures in a follow-up). Wire into `App.tsx` after the cookie consent (or share the dialog-mount pattern). Persist `diagramr.seenWelcome: "1"` on close. Support ESC + close button.
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
