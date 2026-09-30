@@ -22,21 +22,24 @@ export function Header() {
   }, []);
 
   // Icon-only square button — used for the canvas-mode toggles.
-  // Reference uses 36×36 squares with 18px icons. Local previously used 28×28 / 16px.
+  // Reference uses 36×36 squares with 18px icons, `text-muted hover:text-fg` (icons
+  // are slightly dimmer than full fg until hover), full focus-visible ring with
+  // accent + offset, and `transition-colors duration-150` (MM-051). Local
+  // previously used full-fg text with no focus ring.
   // `inline-flex` is intentionally omitted so `hidden lg:inline-flex ${iconBtn}` wrappers
   // actually hide the button at non-lg widths (see MM-039). Wrappers provide the display.
   const iconBtn =
-    'items-center justify-center rounded-lg transition-colors hover:bg-surface-2 text-fg disabled:opacity-40 disabled:pointer-events-none h-9 w-9';
+    'shrink-0 items-center justify-center rounded-lg transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-50 disabled:pointer-events-none text-muted hover:text-fg hover:bg-surface-2 h-9 w-9';
   // Pressed variant for selected mode toggle.
   const iconBtnPressed =
     'inline-flex items-center justify-center rounded-lg transition-colors bg-surface text-fg h-9 w-9 shadow-sm';
   // Pill used for Export / Present / Pause — has a label next to the icon.
   const chipBtn =
-    'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors duration-150 select-none whitespace-nowrap bg-surface-2 text-fg hover:bg-surface-3 border border-border h-8 px-3 text-sm';
+    'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-50 disabled:pointer-events-none select-none whitespace-nowrap bg-surface-2 text-fg hover:bg-surface-3 border border-border h-8 px-3 text-sm';
   // File dropdown button — labeled, with a chevron, no border (matches reference).
   // `inline-flex` omitted — see `iconBtn` note (MM-039). Wrappers provide the display.
   const fileBtn =
-    'items-center justify-center gap-1 rounded-lg font-medium transition-colors duration-150 select-none whitespace-nowrap text-fg hover:bg-surface-2 h-8 pl-2.5 pr-1.5 text-sm';
+    'items-center justify-center gap-1 rounded-lg font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:opacity-50 disabled:pointer-events-none select-none whitespace-nowrap text-muted hover:text-fg hover:bg-surface-2 h-8 pl-2.5 pr-1.5 text-sm';
   // 1px vertical separator between toolbar groups (matches reference w-px h-5 bg-border mx-0.5).
   const sep = 'w-px h-5 bg-border mx-0.5';
   // Container that groups mode-toggle pills (matches reference's bg-surface-2 bordered rounded-lg p-0.5 gap-0.5).
