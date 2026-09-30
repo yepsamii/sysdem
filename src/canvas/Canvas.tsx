@@ -39,9 +39,8 @@ export function Canvas() {
         color="color-mix(in srgb, var(--color-border-strong) 60%, transparent)"
       />
       <Controls
-        showInteractive={false}
+        showInteractive
         position="bottom-left"
-        className="!bg-surface !border-border !shadow-panel"
         style={{ borderRadius: '0.5rem', overflow: 'hidden' }}
       />
       <MiniMap
