@@ -49,24 +49,29 @@ export function Canvas() {
         zoomable
         nodeColor={(n) => {
           const kind = (n.data as { kind?: string } | undefined)?.kind;
-          switch (kind) {
-            case 'cdn':
-            case 'webapp':
-            case 'gateway':
-            case 'api':      return '#22d3ee';
-            case 'cache':    return '#f472b6';
-            case 'database': return '#f59e0b';
-            case 'queue':    return '#a78bfa';
-            case 'worker':   return '#a78bfa';
-            case 'client':   return '#94a3b8';
-            default:         return '#22d3ee';
-          }
+          const hex = (() => {
+            switch (kind) {
+              case 'client':
+              case 'cdn':      return '#38bdf8';
+              case 'webapp':   return '#34d399';
+              case 'gateway':  return '#818cf8';
+              case 'api':      return '#22d3ee';
+              case 'cache':    return '#f472b6';
+              case 'database': return '#f59e0b';
+              case 'queue':    return '#c084fc';
+              case 'worker':   return '#a78bfa';
+              default:         return '#22d3ee';
+            }
+          })();
+          return `color-mix(in srgb, ${hex} 55%, var(--color-surface-2))`;
         }}
-        maskColor="rgba(11,14,20,0.7)"
+        nodeStrokeColor={() => 'transparent'}
+        nodeBorderRadius={4}
+        maskColor="transparent"
         style={{
           background: 'var(--color-surface)',
           border: '1px solid var(--color-border)',
-          borderRadius: '0.5rem',
+          borderRadius: '0.75rem',
         }}
       />
     </ReactFlow>

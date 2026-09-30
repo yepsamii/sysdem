@@ -12,13 +12,13 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://127.0.0.1:3000/` *(vite.config.ts port=3000, host=127.0.0.1; use IPv4 explicitly because `localhost` may resolve to IPv6 where another dev server is bound)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 06:30
+- **Last updated**: 2026-09-30 15:45
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 44
+- **Iteration**: 45
 - **Major mismatches remaining**: 0
 - **Minor mismatches remaining**: per-template fixtures for the 6 non-System starters in the welcome modal (queued MM-041+); sub-pixel cosmetic differences.
 - **Verified fixes**: 44 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, after local had hidden the 4th button and applied opaque `!bg-surface` + `!shadow-panel` chrome)
@@ -30,7 +30,79 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-044 — Canvas Controls panel (`.react-flow__controls`) exposes only 3 buttons (zoom-in, zoom-out, fit-view) at 26×78 px in an opaque white card with multi-stop `!shadow-panel` chrome. Reference exposes 4 buttons (zoom-in, zoom-out, fit-view, **interactive** = lock) at 26×104 px with a transparent background and a single subtle 2 px shadow. Bottom anchor is the same in both (y=885 at viewport 900), but local panel starts 26 px lower because it's 26 px shorter (missing the 4th button).
+MM-045 — Minimap node rendering uses solid wrong colors and `rx=5` (reference uses per-kind color-mix tints and `rx=4`); panel border-radius is `0.5rem` instead of `0.75rem`.
+
+### Why this mismatch was selected
+
+After fixing the arch-node icon tile colors in MM-029, the **minimap** still uses the old color map. The local maps cdn/webapp/gateway/api under one cyan, queue/worker both as violet, and client as slate. The reference shows **9 distinct colors** per kind. This is a structural mismatch that affects every minimap node, plus the panel chrome (radius, mask, nodeRadius) — single iteration is appropriate.
+
+### Reference observation (1440 × 900, fresh, welcome + cookie dismissed, light theme)
+
+- `.react-flow__minimap` rect `(1223, 733, 202, 152)`. Computed: `bg: rgb(255,255,255)`, `border: 1px solid rgb(225,230,238)`, `border-radius: 12px`, `box-shadow: none`.
+- 9 node rects inside the SVG, each `rx=4`, `width=180`, `height=64`, `shape-rendering=crispEdges`, `fill: color-mix(in srgb, <kind> 55%, var(--color-surface-2))`, `stroke: transparent`.
+- Per-kind tints:
+  - client/User → `#38bdf8` (sky)
+  - cdn/CDN → `#38bdf8` (sky)
+  - webapp/Web App → `#34d399` (emerald)
+  - gateway/API Gateway → `#818cf8` (indigo)
+  - api/API → `#22d3ee` (cyan)
+  - cache/Cache → `#f472b6` (pink)
+  - database/Database → `#f59e0b` (amber)
+  - queue/Event Queue → `#c084fc` (purple)
+  - worker/Worker → `#a78bfa` (violet)
+
+### Local observation (1440 × 900, fresh, BEFORE fix)
+
+- `.react-flow__minimap` rect `(1223, 733, 202, 152)`. Computed: `bg: rgb(255,255,255)`, `border: 1px solid rgb(225,230,238)`, `border-radius: 8px`.
+- 9 node rects inside the SVG, each `rx=5`, `width=180`, `height=64`, `shape-rendering=crispEdges`, `fill: <solid hex>`, `stroke: transparent`.
+- Per-kind tints (with errors):
+  - client/User → `rgb(148, 163, 184)` slate `#94a3b8` ❌ (should be sky `#38bdf8`)
+  - cdn/CDN → `rgb(34, 211, 238)` cyan `#22d3ee` ❌ (should be sky)
+  - webapp/Web App → `rgb(34, 211, 238)` cyan ❌ (should be emerald `#34d399`)
+  - gateway/API Gateway → `rgb(34, 211, 238)` cyan ❌ (should be indigo `#818cf8`)
+  - api/API → `rgb(34, 211, 238)` cyan ✓
+  - cache/Cache → `rgb(244, 114, 182)` pink `#f472b6` ✓
+  - database/Database → `rgb(245, 158, 11)` amber `#f59e0b` ✓
+  - queue/Event Queue → `rgb(167, 139, 250)` violet `#a78bfa` ❌ (should be purple `#c084fc`)
+  - worker/Worker → `rgb(167, 139, 250)` violet `#a78bfa` ✓
+
+### Root-cause hypothesis
+
+When MM-001 originally added the `<MiniMap>`, the per-kind color map was a simple consolidated version of the reference's palette. It was never re-probed when MM-029 re-aligned the **arch-node icon tile** colors to match the reference (cyan→sky/cyan/emerald/indigo split, queue→purple split). The MiniMap nodeColor function was left untouched.
+
+Separately, the MiniMap panel border-radius was 0.5rem (8 px) instead of the reference's 0.75rem (12 px), and the maskColor (`rgba(11,14,20,0.7)`) gave the panel a dark overlay tint that the reference does not use — but on light theme the effect is subtle.
+
+### Planned change
+
+Edit `src/canvas/Canvas.tsx` `<MiniMap>`:
+
+1. Update `nodeColor` callback to return the 9 correct hex values (split client/cdn to sky, webapp to emerald, gateway to indigo, queue to purple).
+2. Add `nodeStrokeColor={() => 'transparent'}` to match the reference's `stroke: transparent` on every node rect.
+3. Add `nodeBorderRadius={4}` to set `rx=4` (xyflow default is 5).
+4. Change `maskColor` to `'transparent'` so the canvas dots are visible through the panel (no dark overlay).
+5. Change `style.borderRadius` from `'0.5rem'` to `'0.75rem'`.
+
+### Result
+
+After fix:
+- `.react-flow__minimap` rect `(1223, 733, 202, 152)` — matches reference.
+- Computed `border-radius: 12px` (0.75rem) — matches reference.
+- 9 node rects at `rx=4`, `width=180`, `height=64`, `shape-rendering=crispEdges`, `stroke: rgba(0,0,0,0)` (transparent).
+- Per-kind fills now match the reference's `color-mix(in srgb, <kind> 55%, var(--color-surface-2))` exactly.
+- Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- Visible mismatch in the screenshot: the minimap now shows 9 distinct colored rectangles with the per-kind tints rather than 4 cyan + 1 pink + 1 amber + 2 violet + 1 slate.
+
+### Remaining difference
+
+None measurable at the desktop viewport for the minimap. Possible future mismatch to investigate: minimap node tooltip / drag behavior; minimap size when the user resizes the viewport.
+
+### New mismatches discovered
+
+None at this iteration.
+
+### Next action
+
+Probe other cosmetic mismatches: continue looking for visible chrome differences — node card paddings, edge label positioning relative to edge midpoints, animation phase distribution, drag handle styles, edge colors on hover.
 
 ### Why this mismatch was selected
 
