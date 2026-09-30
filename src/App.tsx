@@ -1,4 +1,5 @@
 import { Canvas } from './canvas/Canvas';
+import { WelcomeModal } from './components/dialogs/WelcomeModal';
 import { Header } from './components/layout/Header';
 import { SavedBanner } from './components/layout/SavedBanner';
 import { CookieConsent } from './components/overlays/CookieConsent';
@@ -16,6 +17,7 @@ export default function App() {
         <ComponentsPanel />
         <CookieConsent />
       </main>
+      <WelcomeModal />
     </div>
   );
 }
