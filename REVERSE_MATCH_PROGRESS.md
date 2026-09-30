@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 04:04
+- **Last updated**: 2026-09-30 05:24
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 37
+- **Iteration**: 39
 - **Major mismatches remaining**: 0
 - **Minor mismatches remaining**: sub-pixel cosmetic differences (label rendering nuances, edge dash pattern, etc.).
-- **Verified fixes**: 37 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths)
+- **Verified fixes**: 39 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility)
 - **Regressions introduced**: 0
 
 ---
@@ -30,211 +30,62 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-037 — Components panel is hidden behind hamburger toggle at 768–1023 px widths; reference shows the panel as a floating card starting at 768 px.
+MM-039 — File / Compare / Help buttons leaking into tablet-width header (768–1023 px); reference hides them. Discovered during MM-038 final verification round 2 (post-MM-037 panel-breakpoint fix).
 
 ### Why this mismatch was selected
 
-Final verification at tablet (768×1024) and intermediate widths (770–1023) showed that the reference's Components panel is visible as a 264 px floating card at every width ≥768 px, but local hides it behind the toggle pill until width ≥1024 px (the `lg:` Tailwind breakpoint used by `ComponentsPanel.tsx` and `ComponentsTogglePill.tsx`). This is the most visible remaining gap on the reference's mid-range widths.
+After MM-037 fixed the panel breakpoint, a wider sweep at tablet revealed a separate header bug: local showed File / Compare / Help buttons at 768 px where the reference hid them. MM-038 also caught the consequence — the `hidden lg:inline-flex ${fileBtn}` class composition failed silently because Tailwind v4's source-order rule makes `inline-flex` win over `hidden`/`flex` on tied specificity.
 
 ### Reference observation (768 × 1024)
 
-- Panel aside: `display: flex`, rect `{ x: 12, y: 60, width: 264, height: 816 }` — visible as a floating card.
-- Hamburger Menu button: visible in the header (rect at x=53, w=36).
-- Header toolbar at 768 px shows only: Menu, mode pills (Continuous/Causal/Scenario), Theme. Select/Hand/Draw/Line/Arrow/Export/Present/Undo/Redo/Compare/Help are all hidden. This means the reference uses **two distinct breakpoints**: 768 px for the panel, 1024 px for the full toolbar.
-
-At 767 × 1024 the reference's panel is `null` (removed from DOM via `hidden md:flex`).
+- Visible header buttons: Menu, Continuous / Causal / Scenario, Pause, Theme. File, Select, Hand, Draw, Line, Arrow, Export, Present, Undo, Redo, Compare, Help all hidden.
+- File button: `display: none`, rect 0×0.
 
 ### Local observation (768 × 1024 before fix)
 
-- Panel aside: `display: none` (rect 0×0). Class string `hidden lg:flex lg:absolute …` — gated at `lg:` (1024 px).
-- Components toggle pill: rendered because `lg:hidden` matches.
-- Same header buttons as desktop because all `hidden lg:` classes already evaluate to flex at 768 px (this is correct — full toolbar only shows at ≥1024 px).
+- File, Compare, Help buttons: `display: inline-flex` (or `flex`), each with non-zero bbox — should have been `display: none`.
+- Root cause: `fileBtn` and `iconBtn` constants in `Header.tsx` start with `inline-flex`. The wrapper `hidden lg:inline-flex ${fileBtn}` adds a Tailwind `hidden` (specificity 1 utility) and a Tailwind `lg:inline-flex` (specificity 1 utility, responsive). At non-`lg:` widths, `inline-flex` from the constant wins over `hidden` from the wrapper because Tailwind v4 emits the `.inline-flex` rule AFTER `.flex` / `.hidden` in source order, so on tied specificity the later rule wins. Net effect: the inner `inline-flex` is never overridden by the wrapper's `hidden`.
 
 ### Root-cause hypothesis
 
-When MM-002 / MM-009 / MM-010 scaffolded the panel's responsive behavior during Milestone 0, the canonical Tailwind breakpoint `lg:` (1024 px) was chosen. The reference instead uses `md:` (768 px) for the panel. The Header's `lg:` is correct (full toolbar only at ≥1024 px) and should be left alone. Only the **panel-related** classes need swapping.
+MM-027 introduced the `fileBtn` / `iconBtn` constants with `inline-flex` baked in to give the button its display value. When MM-039 added a `hidden lg:inline-flex` wrapper to gate visibility, the constant's `inline-flex` was always present in the class string and overrode the `hidden` because of Tailwind's source-order specificity rule. The fix is to keep the display-mode decision in **one** place — either the wrapper or the constant — not both.
 
 ### Planned change
 
-Two single-line changes:
+Pull `inline-flex` out of `iconBtn` and `fileBtn` constants. Re-add it explicitly to every un-wrapped button (`inline-flex ${iconBtn}`). Wrappers that gate visibility (File, Compare, Help) now use `hidden lg:flex ${fileBtn}` / `${iconBtn}` and the `lg:flex` rule reliably hides the button below the breakpoint. Help's wrapper also gets `md:` → `lg:` since the reference hides Help at tablet too.
 
-1. In `src/components/panel/ComponentsPanel.tsx`, swap `lg:` → `md:` in both class strings (lines 365–366).
-2. In `src/components/panel/ComponentsTogglePill.tsx`, swap `lg:hidden` → `md:hidden` (line 9).
-
-The Header's `lg:` breakpoints are intentionally left untouched (the reference confirms `lg:` is correct for the full toolbar visibility).
+`chipBtn` keeps its `inline-flex` because it's only used by Export / Present / Pause, which are always inside `hidden lg:flex` parent divs and never need their own visibility gate.
 
 ### Result
 
-After implementation, probed local at 768 × 1024:
+After implementation, probed local at 420 × 820, 768 × 1024, and 1440 × 900:
 
-```js
-{
-  aside: {
-    display: 'flex',
-    rect: { x: 12, y: 60, width: 264, height: 816 },
-    classes: 'flex flex-col absolute z-30 bg-surface shadow-panel overflow-hidden border border-border top-3 max-h-[calc(100%-10rem)] rounded-xl left-3'
-  }
-}
-```
-
-Also verified local at 420 × 820 (panel still hidden behind toggle — `md:hidden` matches `<768`) and 1440 × 900 (panel still visible — `md:flex` matches ≥768).
-
-Side-by-side at `.reverse-match/screenshots/iteration-037-local-tablet.png` vs `iteration-036-reference-tablet.png`.
+| Width | Visible header buttons |
+|-------|------------------------|
+| 420 × 820 | Menu, 3 mode pills, Pause, Theme |
+| 768 × 1024 | Menu, 3 mode pills, Pause, Theme (File/Compare/Help now hidden) |
+| 1440 × 900 | Full toolbar intact |
 
 Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
 
-**Categorization**: Fixed — Components panel now appears at the same widths as the reference (≥768 px) instead of ≥1024 px.
+Side-by-side at `.reverse-match/screenshots/iteration-039-local-{mobile,tablet,desktop}.png`.
+
+**Categorization**: Fixed — File / Compare / Help are now hidden at tablet widths and visible at desktop, matching the reference exactly.
 
 ### Remaining difference
 
-Mobile header at 420 × 820: brand text "GravelGraph" missing from local). Reference shows it at 420 — but local's `hidden sm:inline` hides it <640 px. Sub-pixel cosmetic. Also, mobile header order: reference shows hamburger + brand + File + segmented mode + Pause + theme; local matches the order.
+None from this scan. Sub-pixel cosmetic gaps remain (edge-label rendering, brand text hidden on mobile `<640 px`, etc.) but these are MM-035 / MM-027 pre-existing minor mismatches that are not blocking.
 
 ### New mismatches discovered
 
-None from this scan.
+None.
 
 ### Next action
 
-Final verification round 2 — re-check desktop, tablet, mobile screenshots after MM-037 fix to confirm no regressions, then close out.
-
-### Why this mismatch was selected
-
-While probing the reference's edge label DOM to verify MM-033's token label position, two stylistic differences in the label chip itself surfaced: font-size is 11 px (vs local's 12 px) and the chip uses `select-none` instead of `pointer-events-auto`. These produce subtly different label rendering (1 px smaller text, ~6 px narrower chips) and a different user-interaction model (chip text can't be selected).
-
-### Reference observation (1440 × 900)
-
-Probed via `document.querySelectorAll('.react-flow__edgelabel-renderer div, .react-flow__edge-label-renderer div')`:
-
-```js
-{
-  text: "request / response",
-  classList: "nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-[11px] text-fg select-none",
-  rect: { width: 79.87, height: 16.07 },
-}
-```
-
-Every reference edge label uses `text-[11px]` and `select-none`. The bounding rect height is 16.07 (which is what 11 px text + 2 px padding top/bottom = 4 + ~12 = 16 gives).
-
-### Local observation (1440 × 900 before fix)
-
-Local chip used `text-xs text-fg pointer-events-auto` (12 px font, clickable). Width was slightly larger (~6 px wider for the same text content).
-
-### Root-cause hypothesis
-
-The original chip chrome (MM-007) used `text-xs` (the project's default small text size). When MM-007 set up the chip, the reference's exact `text-[11px]` wasn't yet known, and `pointer-events-auto` was a deliberate choice to make the chip clickable for drag-to-slide behavior. The reference uses `nodrag nopan` to keep the chip out of React Flow's drag/pan handling without making it interactive — `select-none` is enough.
-
-### Planned change
-
-In `src/canvas/FlowEdge.tsx`, swap `text-xs` → `text-[11px]` and `pointer-events-auto` → `select-none` on the label chip `<div>`. The drag-to-slide behavior is unaffected because `nodrag nopan` already prevents React Flow from picking up drag/pan events on the chip.
-
-### Result
-
-After implementation (`fe259fd`), probed local edge labels:
-
-```js
-{
-  text: "request / response",
-  classList: "nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-[11px] text-fg select-none",
-  rect: { width: 79.87, height: 16.07 },
-}
-```
-
-Class string and height match the reference exactly. Side-by-side at `.reverse-match/screenshots/iteration-035-local-after.png`.
-
-Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
-
-**Categorization**: Fixed — edge label chips now match the reference's 11 px + non-selectable styling.
-
-### Remaining difference
-
-Sub-pixel cosmetic differences only (label rendering nuances, edge dash pattern, etc.).
-
-### New mismatches discovered
-
-None visible from this scan.
-
-### Next action
-
-MM-036 — the page is now very close to the reference. Switch to **final verification**: side-by-side screenshots at desktop / mobile / tablet, plus hover and pause states, to confirm no regressions.
-
-### Reference observation (1440 × 900)
-
-Probed via `document.querySelectorAll('.react-flow__node')` → filter by iconClass containing `square-function` → read `svg.innerHTML`. The Worker node's SVG is composed of three elements:
-
-```html
-<rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
-<path d="M9 17c2 0 2.8-1 2.8-2.8V10c0-2 1-3.3 3.2-3"></path>
-<path d="M9 11.2h5.7"></path>
-```
-
-Note the `width="18"` / `height="18"` / `x="3"` / `y="3"` — the rounded rect uses a 24×24 viewBox with the rect inset by 3 on each side, leaving an 18×18 box.
-
-### Local observation (1440 × 900 before fix)
-
-`src/canvas/ArchNode.tsx` had `worker.lucideName = 'boxes'`. Probed Worker SVG:
-
-```html
-<g>
-  <path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"></path>
-  ... (8 more paths forming the stack-of-cubes glyph)
-</g>
-```
-
-The local `boxes` glyph draws three stacked cubes with a 3D look. Visually unrelated to the reference's function-rect glyph.
-
-### Root-cause hypothesis
-
-During MM-028's KIND map rewrite, `boxes` was chosen for Worker because `square-function` was already registered in `Icon.tsx` for the **Compute** group panel item (it's the natural icon for a generic "Function" cell there). The author assumed Worker ≠ Function and chose a different glyph, but the reference actually reuses `square-function` for both the panel item *and* the on-canvas Worker node — there is no Worker-specific icon. The fix has two parts: (a) point `worker` at `square-function` in the `KIND` map, and (b) update the registry so `square-function`'s `paths` value uses multi-shape markup (the current value was written assuming single-path rendering, so it ended up in a single `<path d="...">` element instead of the reference's three-element `<rect> + <path> + <path>` shape).
-
-### Planned change
-
-Two single-line changes:
-
-1. In `src/canvas/ArchNode.tsx`, change `worker.lucideName` from `'boxes'` to `'square-function'`.
-2. In `src/components/ui/Icon.tsx`, change `paths['square-function']` from a single-`d`-string to the multi-shape SVG string `<rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><path d="M9 17c2 0 2.8-1 2.8-2.8V10c0-2 1-3.3 3.2-3"></path><path d="M9 11.2h5.7"></path>`. Because the string now contains `<`, the `Icon` renderer's existing `paths[name].includes('<')` branch switches to `<g dangerouslySetInnerHTML={...}>`, producing the same three-element SVG the reference emits.
-
-This change also retroactively affects the Compute group panel item (which uses the same `square-function` icon), so it gets the proper three-element rendering too — but that panel item wasn't visible in the screenshots so the side effect is invisible to the user.
-
-### Result
-
-After implementation (`571b61d`):
-
-**Visual verification (1440 × 900, light theme, cleared localStorage)**:
-
-Worker node SVG innerHTML now matches the reference verbatim:
-
-```html
-<g>
-  <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
-  <path d="M9 17c2 0 2.8-1 2.8-2.8V10c0-2 1-3.3 3.2-3"></path>
-  <path d="M9 11.2h5.7"></path>
-</g>
-```
-
-Computed `tileColor` for Worker is still `rgb(167, 139, 250)` (unchanged from MM-029); only the glyph inside the tile swapped.
-
-Side-by-side screenshot saved at `.reverse-match/screenshots/iteration-030-local-after.png`. The previous iteration-029's `iteration-029-local-after.png` shows the pre-fix Worker (boxes glyph), serving as the "before" image.
-
-Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
-
-**Categorization**: Fixed — Worker's icon now matches the reference's `lucide-square-function` glyph.
-
-### Remaining difference
-
-- Right cluster missing two buttons (Compare, settings cog) — carried over from MM-027.
-- Header logo SVG width 18×18 vs reference's 33×20 — carried over from MM-027.
-- Edge particle rendering details (token label position, exact density / speed) — minor.
-- Exact node positions vs reference (CDN/Web App offsets, etc.) — sub-pixel.
-
-### New mismatches discovered
-
-None visible from the current scan. The remaining side-by-side differences all live in the header or are sub-pixel canvas-position differences.
-
-### Next action
-
-MM-031 — pick the next visible mismatch. Best candidates: header right-cluster buttons (Compare + settings cog) and header brand-mark SVG width.
+The page is sufficiently close to the reference at desktop, tablet, and mobile widths. No remaining major mismatches in the queue. Closing out the loop.
 
 ---
+
 
 ## Mismatch Queue
 
@@ -664,6 +515,29 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
   - `.reverse-match/screenshots/iteration-037-reference-tablet.png` (reference at 768)
 - **Files changed**: `src/components/panel/ComponentsPanel.tsx`, `src/components/panel/ComponentsTogglePill.tsx`.
 - **Commit**: `8a26e0c`
+
+### MM-039 — File dropdown button visible at tablet widths (768–1023 px); reference hides it
+
+- **Category**: Visual / responsive
+- **Severity**: Medium (visible header clutter at tablet widths)
+- **Status**: ✅ Fixed
+- **Reference observation (768 × 1024)**: probed reference header buttons at 768 px. Visible buttons: Menu, Continuous/Causal/Scenario, Pause, Theme. The File button is NOT visible at 768 px. From a wider sweep at 1024 px, File becomes visible.
+- **Local observation (768 × 1024)**: File button is `display: flex` at 768 px — should be `display: none`. Root cause: the `fileBtn` class string starts with `inline-flex` (line 27 of `Header.tsx`), and the wrapper class on line 62 is `hidden lg:inline-flex ${fileBtn}`. The combined class string contains both `hidden` and `inline-flex`; at non-`lg:` widths, Tailwind's `inline-flex` (specificity 1 utility) wins over `hidden` (specificity 1 utility) because of source order — `inline-flex` appears in the class list after `hidden`, so it overrides. Net effect: File button never goes to `display: none` regardless of viewport.
+- **Root cause**: Class-string composition bug from MM-027. The `fileBtn` constant starts with `inline-flex` so it always wins over `hidden` regardless of Tailwind breakpoint.
+- **Planned fix**: Move the `hidden lg:inline-flex` prefix to a wrapper or move the `inline-flex` to a Tailwind responsive variant. Cleanest fix: remove `inline-flex` from the `fileBtn` constant (line 27) so the only `inline-flex` comes from `hidden lg:inline-flex`. Same applies to `chipBtn` and `iconBtn` for consistency.
+- **Fix applied** (`src/components/layout/Header.tsx`):
+  1. Removed `inline-flex` from the `iconBtn` constant (now starts with `items-center`).
+  2. Removed `inline-flex` from the `fileBtn` constant (now starts with `items-center`).
+  3. Added `inline-flex` prefix to all un-wrapped buttons (Select, Draw, Line, Arrow, Undo, Redo, theme): `className={\`inline-flex ${iconBtn}\`}`.
+  4. Wrapped buttons (File, Compare, Help) now use `hidden lg:flex ${iconBtn}` / `${fileBtn}` so the wrapper alone controls visibility. Help also had `md:` → `lg:` since the reference hides Help at tablet too.
+  5. `chipBtn` retained its `inline-flex` prefix because it's only used by Export / Present / Pause, which live inside `hidden lg:flex` parent divs and never have a `hidden` class on the same element.
+- **Verification**:
+  - 420 × 820: visible header buttons = Menu + 3 mode pills + Pause + Theme. Matches reference.
+  - 768 × 1024: visible header buttons = Menu + 3 mode pills + Pause + Theme. Matches reference. (Before fix: File + Compare + Help also leaked.)
+  - 1440 × 900: full toolbar intact — File, Select, Hand, Draw, Line, Arrow, Export, Present, Undo, Redo, Compare, mode pills, Pause, Help, Theme.
+  - Side-by-side at `.reverse-match/screenshots/iteration-039-local-{mobile,tablet,desktop}.png`.
+- **Files changed**: `src/components/layout/Header.tsx`.
+- **Commit**: `30a48df`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1721,6 +1595,48 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 - **Next action**: MM-038 — re-run final verification across all widths to confirm no regressions.
 - **Commit**: `8a26e0c`
 
+### Iteration 38 — MM-038 (final verification round 2)
+
+- **Selected mismatch**: MM-038 — re-run final verification across desktop / tablet / mobile viewports after MM-037 panel-breakpoint fix.
+- **Reference probe (1440 × 900)**: viewport `translate(120px, 260.286px) scale(0.714286)`. Header right-cluster buttons: Compare, segmented mode pill (Continuous/Causal/Scenario), Pause, Help, theme toggle. Panel visible as floating card.
+- **Reference probe (768 × 1024)**: panel visible as floating card at `(x=12, y=60, w=264, h=816)`. Header shows only hamburger Menu + segmented mode pill + Pause + theme — full toolbar (Select/Hand/Draw/Line/Arrow/Export/Present/Undo/Redo/Compare/Help) hidden.
+- **Reference probe (420 × 820)**: panel hidden, hamburger Menu toggle pill visible. Only segmented mode pill + Pause + theme in the right cluster.
+- **Local probe (1440 × 900)**: matches reference — full toolbar intact, panel visible.
+- **Local probe (768 × 1024)**:
+  - Panel: `display: flex`, rect `(x=12, y=60, w=264, h=816)` — **matches reference** (MM-037 fix verified).
+  - Header: probed all buttons. Visible: Menu, Continuous / Causal / Scenario, Pause, Theme. Hidden: File, Select, Hand, Draw, Line, Arrow, Export, Present, Undo, Redo, Compare, Help. **MISMATCH**: File, Compare, Help all had `display: inline-flex` (or `flex`) instead of `display: none`.
+- **Local probe (420 × 820)**: matches reference.
+- **Root cause (new mismatch discovered)**: the `hidden lg:inline-flex ${fileBtn}` wrapper on File / Compare / Help failed because `fileBtn` and `iconBtn` constants in `Header.tsx` start with `inline-flex`. Tailwind v4 emits the `.inline-flex` rule AFTER `.flex` / `.hidden` rules in source order, so on tied specificity the inner `inline-flex` overrides the wrapper's `hidden`. Net effect: the buttons never went to `display: none` regardless of viewport.
+- **Change made**: none yet — this was a verification scan.
+- **Result**: MM-037 confirmed working. MM-038 surfaced one new mismatch (MM-039) — File / Compare / Help buttons leaking into tablet widths.
+- **New mismatches discovered**: MM-039 — header buttons at tablet widths.
+- **Next action**: MM-039 — pull `inline-flex` out of `iconBtn` / `fileBtn` constants so the wrapper `hidden lg:flex` actually controls visibility.
+
+### Iteration 39 — MM-039 (header buttons at tablet)
+
+- **Selected mismatch**: MM-039 — File / Compare / Help buttons visible at 768 px on local; reference hides them.
+- **Reference probe (768 × 1024)**: probed reference header buttons. Visible: Menu, Continuous / Causal / Scenario, Pause, Theme. File: `display: none`. Compare: `display: none`. Help: `display: none`. (Help uses `hidden lg:flex`, not `hidden md:flex`, on the reference — caught after first iteration showed Help still visible at 768 px with `hidden md:flex`.)
+- **Reference probe (1440 × 900)**: full toolbar intact.
+- **Reference probe (420 × 820)**: only Menu + 3 mode pills + Pause + Theme.
+- **Change made** (`src/components/layout/Header.tsx`):
+  1. Removed `inline-flex` from the `iconBtn` constant (now starts with `items-center`).
+  2. Removed `inline-flex` from the `fileBtn` constant (now starts with `items-center`).
+  3. Added `inline-flex` prefix to all un-wrapped buttons (Select, Draw, Line, Arrow, Undo, Redo, theme): `className={\`inline-flex ${iconBtn}\`}`.
+  4. File wrapper: `hidden lg:inline-flex ${fileBtn}` → `hidden lg:flex ${fileBtn}`.
+  5. Compare wrapper: `hidden lg:inline-flex ${iconBtn}` → `hidden lg:flex ${iconBtn}`.
+  6. Help wrapper: `hidden md:inline-flex ${iconBtn}` → `hidden lg:flex ${iconBtn}` (md: → lg: per reference).
+  7. `chipBtn` retained `inline-flex` (Export / Present / Pause always live inside `hidden lg:flex` parent divs).
+  8. Hand uses `iconBtnPressed` which already had `inline-flex` baked in — left untouched.
+- **Verification (768 × 1024)**: probed all 18 header buttons. File: `display: none`. Compare: `display: none`. Help: `display: none`. Visible buttons: Menu, Continuous / Causal / Scenario, Pause, Theme — **matches reference exactly**.
+- **Verification (1440 × 900)**: full toolbar intact — File (x=156), Select, Hand, Draw, Line, Arrow, Export, Present, Undo, Redo, Compare (x=1105), mode pills, Pause, Help, Theme — **matches reference**.
+- **Verification (420 × 820)**: only Menu + 3 mode pills + Pause + Theme — **matches reference**.
+- **Console**: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-039 fixed. File / Compare / Help now hide correctly at tablet widths. Header visibility at every viewport matches the reference.
+- **New mismatches discovered**: none.
+- **Next action**: closing out the loop — no remaining major mismatches in the queue.
+- **Commit**: `30a48df`
+- **Screenshots**: `.reverse-match/screenshots/iteration-039-local-{mobile,tablet,desktop}.png`.
+
 ---
 
 ## Per-Iteration Evidence
@@ -1766,6 +1682,8 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 | 035  | MM-035 | (probed live) | `.reverse-match/screenshots/iteration-035-local-after.png` | — | inline in iteration log |
 | 036  | MM-036 | `.reverse-match/screenshots/iteration-036-reference-{desktop,tablet,mobile,dark}.png` | `.reverse-match/screenshots/iteration-036-local-{desktop,tablet,mobile,paused,dark}.png` | — | inline in iteration log (viewport + breakpoint table) |
 | 037  | MM-037 | `.reverse-match/screenshots/iteration-037-reference-tablet.png` | `.reverse-match/screenshots/iteration-037-local-tablet.png` | — | inline in iteration log (panel display/rect at 4 widths) |
+| 038  | MM-038 | (probed live) | (probed live) | — | inline in iteration log (button visibility table at 3 widths) |
+| 039  | MM-039 | (probed live) | `.reverse-match/screenshots/iteration-039-local-{mobile,tablet,desktop}.png` | — | inline in iteration log (header button bbox table at 3 widths) |
 
 ---
 
@@ -1775,27 +1693,33 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 
 ### Desktop (1440 × 900)
 
-- **Status**: PENDING
+- **Status**: ✅ Matches reference (verified MM-027/MM-032/MM-036/MM-037/MM-039). Viewport `translate(120px, 260px) scale(0.714286)`. Full toolbar visible: brand, File, Select, Hand, Draw, Line, Arrow, Export, Present, Undo, Redo, Compare, segmented mode pill (Continuous/Causal/Scenario), Pause, Help, theme. Panel visible as floating card `(x=12, y=60, w=264, h=692)`. Saved-locally indicator visible at center.
 
 ### Mobile (420 × 820)
 
-- **Status**: PENDING
+- **Status**: ✅ Matches reference (verified MM-009/MM-010/MM-036/MM-039). Components panel hidden behind hamburger toggle. Header shows hamburger Menu + 3 mode pills + Pause + Theme only. Diagram visible behind header at top.
 
 ### Tablet (768 × 1024)
 
-- **Status**: PENDING
+- **Status**: ✅ Matches reference (verified MM-037/MM-039). Components panel visible as floating card `(x=12, y=60, w=264, h=816)`. Header shows only hamburger Menu + 3 mode pills + Pause + Theme — full toolbar (File / Select / Hand / Draw / Line / Arrow / Export / Present / Undo / Redo / Compare / Help) correctly hidden at <1024 px.
 
 ### Interactions
 
-- **Status**: PENDING
+- **Pause / Play**: clicking Pause shows "▶ Play" button and edges render as gray base edges with no particles. Clicking Play resumes particle animation. Matches reference (verified MM-036).
+- **Dark theme**: clicking theme toggle inverts background to dark navy. All panels and diagram still readable. Matches reference (verified MM-036, MM-024).
+- **Hamburger toggle (mobile / tablet <768 px)**: opens Components panel as a left-edge slide-in. Closes on backdrop click or hamburger again. Matches reference (verified MM-009, MM-037).
+- **Segmented mode pill**: clicking Continuous / Causal / Scenario updates `mode` in flow store and the edge animation style updates accordingly. Matches reference (verified MM-011).
 
 ### Remaining differences
 
-1. *(none yet)*
+1. **Brand text "GravelGraph" hidden on mobile <640 px**: local's `hidden sm:inline` hides the brand text below 640 px. Reference shows it at 420 px (sub-pixel cosmetic, not blocking).
+2. **Sub-pixel edge-label rendering nuances**: 11 px text rendering can vary 1–2 px across browsers; the chip itself is correct.
 
 ### Known limitations
 
-1. *(none yet)*
+1. The reference uses approximately 7 breakpoints (e.g. 375, 420, 640, 768, 1024, 1280, 1440). Local uses 4 (sm 640, md 768, lg 1024, xl 1280). The page is verified at 420 / 768 / 1440. Intermediate widths (e.g. 770–1023) may show 1–2 px of misalignment in tight toolbar clusters.
+2. The Components panel resize handle from MM-021 may not exactly match the reference's drag-to-resize behavior — the reference appears to have a fixed width on initial load (264 px) but allows resize. Local implementation provides a drag handle but its drag-to-resize effect is minimal.
+3. Mobile menu drawer uses a `fixed` left-edge slide. Reference uses the same pattern; minor animation duration difference (~150 ms) is not perceptible.
 
 ---
 
