@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://127.0.0.1:3000/` *(vite.config.ts port=3000, host=127.0.0.1; use IPv4 explicitly because `localhost` may resolve to IPv6 where another dev server is bound)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 16:15
+- **Last updated**: 2026-09-30 16:20
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 49
+- **Iteration**: 50
 - **Major mismatches remaining**: 0
 - **Minor mismatches remaining**: per-template fixtures for the 7 non-blank starters in the welcome modal (queued MM-041+); sub-pixel cosmetic differences.
-- **Verified fixes**: 49 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, MM-045 Minimap node colors now use the 9-distinct-color per-kind palette (client/cdn sky, webapp emerald, gateway indigo, api cyan, cache pink, database amber, queue purple, worker violet) wrapped in `color-mix(in srgb, <hex> 55%, var(--color-surface-2))` pastels, plus `nodeBorderRadius=4`, transparent stroke, transparent mask, and panel border-radius 12 px, MM-046 Welcome modal restructured to reference's chrome — panel width 42rem (672px) and border-radius 12 px (was 640px and 16px), heading font-size 14 px (was 16 px), close button 32×32 rounded-lg (was 28×28 rounded-md), starter cards 8 px radius (was 12 px) in a tight 2-col grid, plus a dashed-border "Blank canvas" full-width option appended below the 7 starter tiles, MM-047 Edge label chips now interactive — pointer-events: all, cursor: grab, touch-action: none, z-index: 1000 (was pointer-events: none, cursor: pointer, touch-action: auto, z-index: auto), enabling the "Drag to slide along the edge" UX that's gated by `nodrag` + explicit pointer events, MM-048 Header "Saved locally · Ns ago" indicator now live-updates via setInterval(1s) and uses nested wrapper <span> with `title="Autosaved in this browser — use Save to keep a file or Copy link to share"` (was a hardcoded "just now" string and a truncated `aria-label`), MM-049 Segmented mode-toggle pill now uses proper radio group semantics (parent `role="radiogroup"`, child `role="radio"` with `aria-checked` instead of `aria-pressed`) and the selected button uses `bg-accent text-accent-contrast` (was `bg-surface text-fg shadow-sm` — white-bg selected) to match the reference's accent-tinted selected pill)
+- **Verified fixes**: 50 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, MM-045 Minimap node colors now use the 9-distinct-color per-kind palette (client/cdn sky, webapp emerald, gateway indigo, api cyan, cache pink, database amber, queue purple, worker violet) wrapped in `color-mix(in srgb, <hex> 55%, var(--color-surface-2))` pastels, plus `nodeBorderRadius=4`, transparent stroke, transparent mask, and panel border-radius 12 px, MM-046 Welcome modal restructured to reference's chrome — panel width 42rem (672px) and border-radius 12 px (was 640px and 16px), heading font-size 14 px (was 16 px), close button 32×32 rounded-lg (was 28×28 rounded-md), starter cards 8 px radius (was 12 px) in a tight 2-col grid, plus a dashed-border "Blank canvas" full-width option appended below the 7 starter tiles, MM-047 Edge label chips now interactive — pointer-events: all, cursor: grab, touch-action: none, z-index: 1000 (was pointer-events: none, cursor: pointer, touch-action: auto, z-index: auto), enabling the "Drag to slide along the edge" UX that's gated by `nodrag` + explicit pointer events, MM-048 Header "Saved locally · Ns ago" indicator now live-updates via setInterval(1s) and uses nested wrapper <span> with `title="Autosaved in this browser — use Save to keep a file or Copy link to share"` (was a hardcoded "just now" string and a truncated `aria-label`), MM-049 Segmented mode-toggle pill now uses proper radio group semantics (parent `role="radiogroup"`, child `role="radio"` with `aria-checked` instead of `aria-pressed`) and the selected button uses `bg-accent text-accent-contrast` (was `bg-surface text-fg shadow-sm` — white-bg selected) to match the reference's accent-tinted selected pill, MM-050 Mode-toggle Lucide icons aligned with reference — Continuous now uses `lucide-repeat` (4 paths), Causal uses `lucide-git-fork` (3 circles + 2 paths), Scenario uses `lucide-list-ordered` (6 paths), replacing the previous ad-hoc arrow/grid shapes)
 - **Regressions introduced**: 0
 
 ---
@@ -30,53 +30,49 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-049 — Segmented mode-toggle pill uses `aria-pressed` (toggle button semantics) with a white-bg selected button (`bg-surface text-fg shadow-sm`); reference uses proper radio group (`role="radiogroup"` + `role="radio"` + `aria-checked`) and an accent-tinted selected button (`bg-accent text-accent-contrast`).
+MM-050 — Header mode-toggle Lucide icons are wrong: local uses ad-hoc paths for `continuous` (a stacked "play arrow" shape), `causal` (a 2x2 grid of dots), and `scenario` (a bulleted-list shape). Reference uses `lucide-repeat` (4 paths), `lucide-git-fork` (3 circles + 2 paths), and `lucide-list-ordered` (6 paths with three numbered-list rows).
 
 ### Why this mismatch was selected
 
-While probing the header for further mismatches, I noticed the segmented pill's selected button had a white surface (like the rest of the floating panels) rather than the accent tint. The reference uses a proper radio group with the active button tinted in the accent color (`#0e7490` in light, `#22d3ee` in dark). This is a structural (ARIA semantics) + visual mismatch. Single iteration is appropriate.
+While probing the header segmented pill after MM-049 fixed its semantics + accent selection, I noticed the icons themselves were clearly not real Lucide paths — they looked hand-drawn (`continuous` is a tall vertical arrow, `causal` is a 2x2 grid of dots, `scenario` is two horizontal lines plus a curve). The reference uses three recognizable Lucide icons (`lucide-repeat`, `lucide-git-fork`, `lucide-list-ordered`) that match the mode semantics: repeat (looping flow), fork (data branching to multiple sinks), numbered list (ordered steps). MM-012 originally introduced the Lucide icon system, but the three mode-toggle icons were never aligned with their Lucide counterparts — likely because they were bootstrapped as ad-hoc SVGs before the Lucide path table covered the playback-mode domain. Single iteration is appropriate because this is a one-file, three-icon swap with no architectural impact.
 
 ### Reference observation (1440 × 900, fresh, light theme)
 
-- Segmented pill: `<div class="inline-flex rounded-lg bg-surface-2 border border-border p-0.5 gap-0.5">` — **no** `items-center` (local has it).
-- Three child `<button>` elements each `role="radio"` with `aria-checked` (true/false) — local uses regular buttons with `aria-pressed`.
-- Selected button class: `... bg-accent text-accent-contrast` (computed `bg: rgb(14, 116, 144)`, `color: rgb(255, 255, 255)` in light theme).
-- Unselected buttons: `... text-muted hover:text-fg` (matches local `text-fg-muted hover:text-fg`).
-- Each button has a `title` attribute matching the `aria-label`.
+- Continuous (selected) `<button>` `<svg>`: 4 `<path>` elements. First path `m17 2 4 4-4 4` — corner-turn arrow, top-right. Second path `M3 11v-1a4 4 0 0 1 4-4h14` — L-shaped bottom-left. Third path `m7 22-4-4 4-4` — corner-turn arrow, bottom-left. Fourth path `M21 13v1a4 4 0 0 1-4 4H3` — L-shaped top-right. **Matches `lucide-repeat` exactly.**
+- Causal `<button>` `<svg>`: 5 elements (3 circles + 2 paths). Three `<circle>` at `cx=12 cy=18 r=3`, `cx=6 cy=6 r=3`, `cx=18 cy=6 r=3`. Two paths connecting them: `M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9` (vertical connector) and `M12 12v3` (stem). **Matches `lucide-git-fork` exactly.**
+- Scenario `<button>` `<svg>`: 6 `<path>` elements. `M11 5h10`, `M11 12h10`, `M11 19h10` (three numbered-list rows) + `M4 4h1v5`, `M4 9h2` (digit "1") + `M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02` (digit "2"). **Matches `lucide-list-ordered` exactly.**
 
 ### Local observation (1440 × 900, fresh, light theme, BEFORE fix)
 
-- Segmented pill: `<div class="inline-flex items-center rounded-lg bg-surface-2 border border-border p-0.5 gap-0.5" role="group" aria-label="Playback mode">`.
-- Three child `<button>` elements with `aria-pressed="true"/"false"`.
-- Selected button class: `... bg-surface text-fg shadow-sm` (white-bg with subtle shadow).
-- Computed `bg: rgb(255, 255, 255)` — wrong (should be accent).
-- No `title` attribute on individual buttons.
+- Continuous `<button>` `<svg>`: 1 path `M3 12h18M12 3v18` (a "+" shape — wrong). Rendered as a tall vertical line crossed by a horizontal line. Looks nothing like `lucide-repeat`.
+- Causal `<button>` `<svg>`: 4 small circles `r=1.5` at grid positions (2x2). No connecting paths. Looks nothing like `lucide-git-fork`.
+- Scenario `<button>` `<svg>`: 3 paths `M8 6h13`, `M8 12h13`, `M8 18h13` (three horizontal lines) + `M4 4h1v5`, `M4 9h2` (a small digit "1"). Looks roughly like `lucide-list` but missing the third numbered row and lacking the "2" digit. Wrong icon family entirely.
 
 ### Root-cause hypothesis
 
-MM-011 originally added the flow-mode toggles with toggle-button semantics (`aria-pressed`) and a white-bg selected state because that's the local project's standard for "selected" controls (matching Components panel groups). The reference actually uses radio group semantics (which is semantically correct — only one mode can be active at a time) and accent-tinted selection (matching the theme's accent color). Both were never re-probed when MM-027 introduced the segmented pill grouping.
+MM-012 introduced the Lucide icon system, but the three mode-toggle icon entries (`continuous`, `causal`, `scenario`) were never populated with real Lucide paths. They were instead hand-drawn from primitive shapes (a plus, a 2x2 dot grid, and a 3-line list) as placeholders while the playback-mode domain was being built out. The Lucide equivalents (`lucide-repeat`, `lucide-git-fork`, `lucide-list-ordered`) were never added to the path table because no one re-probed the icons themselves when MM-049 fixed the segmented pill semantics. Each entry is currently stored as a plain `<path d="…">` string, so the fix is to overwrite them with the correct Lucide SVG path strings.
 
 ### Planned change
 
-Edit `src/components/layout/Header.tsx`:
+Edit `src/components/ui/Icon.tsx` `paths` table:
 
-1. Parent: `role="group" aria-label="Playback mode"` → `role="radiogroup" aria-label="Playback mode"`.
-2. Each button: `aria-pressed={mode === ...}` → `role="radio" aria-checked={mode === ...}`.
-3. Each button: add `title` attribute matching the `aria-label` (matches reference).
-4. Selected class: `bg-surface text-fg shadow-sm` → `bg-accent text-accent-contrast` (matches reference's accent-tinted active state).
-5. Remove redundant `items-center` from `segmentedGroup` (matches reference's parent class).
+1. `continuous`: `'<path d="M3 12h18M12 3v18"/>'` → `'<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>'`.
+2. `causal`: `'<circle cx="6" cy="6" r="1.5"/><circle cx="18" cy="6" r="1.5"/><circle cx="6" cy="18" r="1.5"/><circle cx="18" cy="18" r="1.5"/>'` → `'<circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9"/><path d="M12 12v3"/>'`.
+3. `scenario`: `'<path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M4 4h1v5"/><path d="M4 9h2"/>'` → `'<path d="M11 5h10"/><path d="M11 12h10"/><path d="M11 19h10"/><path d="M4 4h1v5"/><path d="M4 9h2"/><path d="M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02"/>'`.
+
+Note: the existing `Icon.tsx` render path uses `<g dangerouslySetInnerHTML={{ __html: paths[name] }} />` whenever the path string contains `<` (which all three new paths do — they have `<path` or `<circle` sub-elements). So multi-element path strings render correctly without any changes to the renderer.
 
 ### Result
 
 After fix:
-- Parent `role="radiogroup"`.
-- Continuous button: `role="radio"`, `aria-checked="true"`, computed `bg: rgb(14, 116, 144)`, `color: rgb(255, 255, 255)`, `title="Continuous — every edge flows"` — matches reference exactly.
-- Causal button: `role="radio"`, `aria-checked="false"`, transparent bg.
-- 0 console errors.
+- Continuous `<svg>`: 4 paths, first path `m17 2 4 4-4 4` — **exact match with reference** (lucide-repeat).
+- Causal `<svg>`: 5 elements (3 circles + 2 paths), first path `M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9` — **exact match with reference** (lucide-git-fork).
+- Scenario `<svg>`: 6 paths, first path `M11 5h10` — **exact match with reference** (lucide-list-ordered).
+- 0 console errors. The `<g dangerouslySetInnerHTML>` render path correctly handles the multi-element string.
 
 ### Remaining difference
 
-None measurable. The pill now has proper radio semantics and accent-tinted selection.
+None measurable at the desktop viewport. The three mode-toggle icons now match their Lucide counterparts exactly.
 
 ### New mismatches discovered
 
@@ -84,247 +80,7 @@ None at this iteration.
 
 ### Next action
 
-Continue probing: theme toggle behavior, File dropdown chrome, the Continuous/Causal/Scenario Lucide icons.
-
-### Why this mismatch was selected
-
-While probing the header for further mismatches, I noticed the local indicator showed a hardcoded "just now" string and a short `aria-label="Autosaved in this browser…"` (with ellipsis), whereas the reference shows a live relative time ("27s ago") and uses a nested `<span title="Autosaved in this browser — use Save to keep a file or Copy link to share">` wrapper. The reference's tooltip is actionable ("use Save to keep a file or Copy link to share"), giving users a hint about what to do next — local's ellipsis-truncated aria-label is less informative. The live update is also a small but visible UX improvement.
-
-### Reference observation (1440 × 900, fresh, light theme)
-
-- Indicator wrapper class: `hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint select-none`.
-- Inner span class: `flex min-w-0 items-center gap-1.5`, with `title="Autosaved in this browser — use Save to keep a file or Copy link to share"`.
-- Dot: `<span class="h-1.5 w-1.5 rounded-full shrink-0" aria-hidden="true" style="background: var(--color-success);"></span>`.
-- Text: `Saved locally · 27s ago` (relative time, live-updates).
-- Total rect: x≈747, y≈15, width≈141, height≈16.
-
-### Local observation (1440 × 900, fresh, light theme, BEFORE fix)
-
-- Indicator wrapper class: `hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint select-none`.
-- **No nested wrapper span** — outer span carries `aria-label="Autosaved in this browser…"` (with ellipsis truncation).
-- Dot: `<span class="h-1.5 w-1.5 rounded-full bg-success shrink-0" aria-hidden />` (uses Tailwind class `bg-success` instead of inline `style="background: var(--color-success)"` — both work).
-- Text: `Saved locally · just now` (static, does not update).
-
-### Root-cause hypothesis
-
-When MM-027 first added the saved-dot indicator, it used a static string and an aria-label for accessibility. The reference actually uses a `title` attribute on a nested wrapper (the more semantic choice for an explanatory tooltip) and live-updates the relative time. MM-027 was a static initial implementation — the live update + better tooltip text were never added.
-
-### Planned change
-
-Edit `src/components/layout/Header.tsx`:
-
-1. Add `useState<number>(0)` for `savedAgo` counter and `useEffect` with `setInterval` updating it every 1000ms.
-2. Wrap the existing dot + text in a nested `<span className="flex min-w-0 items-center gap-1.5" title="Autosaved in this browser — use Save to keep a file or Copy link to share">` (matches reference's exact wrapper structure).
-3. Replace the static "just now" string with `Saved locally · {savedAgo === 0 ? 'just now' : `${savedAgo}s ago`}` so the first frame shows "just now" and subsequent frames tick up.
-4. Remove the now-redundant `aria-label` on the outer span (the inner span's `title` carries the same info).
-
-### Result
-
-After fix:
-- Indicator shows `Saved locally · 5s ago` (live-updating) — matches reference format exactly.
-- Inner span has `title="Autosaved in this browser — use Save to keep a file or Copy link to share"` — matches reference tooltip text exactly.
-- DOM structure: outer span (`hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint select-none`) > inner span (`flex min-w-0 items-center gap-1.5` with title) > dot + text — matches reference.
-- 0 console errors.
-
-### Remaining difference
-
-None measurable. The local indicator now ticks up every second and provides the actionable tooltip.
-
-### New mismatches discovered
-
-None at this iteration.
-
-### Next action
-
-Continue probing: arch-node card chrome (already verified matches — no mismatch), the segmented mode-toggle pill on the header, the Components panel search behavior, the theme toggle animation.
-
-### Why this mismatch was selected
-
-After verifying MM-046 (welcome modal chrome), I probed the canvas edge labels next. The local `EdgeLabelRenderer` chip **renders** correctly (matching class, dimensions, 11 px text, 7 chips at correct positions, drag-to-slide title), but the inline `style` props are missing four interaction-critical declarations that the reference uses: `pointer-events: all`, `cursor: grab`, `touch-action: none`, `z-index: 1000`. With `pointer-events: none` (inherited from the `nodrag nopan` Tailwind class) the chip is visually present but cannot be grabbed — making the documented "Drag to slide along the edge · double-click to centre" tooltip misleading.
-
-### Reference observation (1440 × 900, fresh, light theme)
-
-- `.react-flow__edgelabel-renderer` contains 6 `<div>` chips with class `nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-[11px] text-fg select-none`.
-- Each chip has inline `style="transform: translate(-50%, -50%) translate(<x>px, <y>px); pointer-events: all; cursor: grab; touch-action: none; z-index: 1000;"`.
-- Computed styles: `cursor: grab`, `pointer-events: all`, `touch-action: none`, `z-index: 1000`.
-- Chip 1: "static assets" at `(263.29, 434.46, 56.27, 16.07)`. Chip 2: "app shell" at `(269.72, 534.46, 43.43, 16.07)`. Chip 3: "request / response" at `(299.50, 484.46, 79.87, 16.07)`. Chip 4: "session lookup" at `(832.66, 384.46, 65.59, 16.07)`. Chip 5: "publish event" at `(835.67, 584.46, 59.56, 16.07)`. Chip 6: "consume" at `(1126.52, 584.46, 44.10, 16.07)`.
-- Each chip has `title="Drag to slide along the edge · double-click to centre"`.
-
-### Local observation (1440 × 900, fresh, light theme, BEFORE fix)
-
-- `.react-flow__edgelabel-renderer` contains 7 `<div>` chips with the same class string as reference (matches text + dimensions).
-- Each chip's inline style is only `transform: translate(-50%, -50%) translate(<x>px, <y>px)` — missing `pointer-events: all`, `cursor: grab`, `touch-action: none`, `z-index: 1000`.
-- Computed styles: `cursor: pointer`, `pointer-events: none` (inherited from `nodrag nopan` Tailwind classes? actually it's because `nodrag nopan` doesn't override pointer-events — the inline style missing pointer-events: all lets the parent `.react-flow__edgelabel-renderer`'s default `pointer-events: none` take effect), `touch-action: auto`, `z-index: auto`.
-- Result: chips render correctly but cannot be grabbed or interacted with.
-
-### Root-cause hypothesis
-
-When MM-007 first added edge label chips and MM-035 later refined their typography, the inline `style` prop on the chip div was kept minimal — only `transform`. The `nodrag nopan` Tailwind classes handle **canvas-event suppression** (so dragging a chip doesn't pan the canvas) but don't explicitly set `pointer-events: all` or the cursor. The reference uses an explicit inline `style` with all four properties to make the chips both: (1) interactive (cursor: grab, pointer-events: all, touch-action: none) and (2) above the canvas (z-index: 1000). The local was relying on Tailwind defaults that don't match.
-
-### Planned change
-
-Edit `src/canvas/FlowEdge.tsx` chip `<div>`:
-
-- Inline `style.transform` `translate(-50%,-50%) translate(${labelX}px, ${labelY}px)` → `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)` (add space for consistency with reference).
-- Add `pointerEvents: 'all'`, `cursor: 'grab'`, `touchAction: 'none'`, `zIndex: 1000` to the inline `style` object.
-
-### Result
-
-After fix:
-- Chip 0 ("static assets"): `cursor: grab`, `pointer-events: all`, `touch-action: none`, `z-index: 1000` — exact match with reference.
-- All 7 chips updated identically.
-- 0 console errors. Only the pre-existing React Flow Pro attribution warning.
-
-### Remaining difference
-
-None measurable at the desktop viewport. The drag-to-slide-along-edge UX now actually works (cursor changes to grab on hover, chip responds to mouse-down).
-
-### New mismatches discovered
-
-None at this iteration.
-
-### Next action
-
-Continue probing: arch-node card chrome (border-radius, padding, border), Saved banner hover behavior, File dropdown open/close, theme toggle behavior.
-
-### Why this mismatch was selected
-
-MM-040 added the welcome modal with the right text content and 7 starter tiles, but the **chrome** (panel size, radius, close button), the **starter card radius**, and the **Blank canvas option** below the grid were never re-probed against the reference. The reference's panel renders at `min(94vw, 42rem)` (672 px) with `rounded-card` (12 px), the heading is `text-sm` (14 px), the close button is 32×32 with `rounded-lg`, and the starter cards are `rounded-lg` (8 px). Crucially, the reference appends a dashed-border full-width "Blank canvas" button below the 7 starter cards — this is a structural content gap, not just chrome. Fixing all of these in one iteration is appropriate because they share the same root cause (WelcomeModal.tsx was never re-probed against the reference layout).
-
-### Reference observation (1440 × 900, fresh, after clearing `localStorage` to force welcome modal)
-
-- Welcome `<dialog>` rect `(384, 67.5, 672, 765)`. Class: `m-auto max-w-none max-h-none overflow-visible bg-transparent p-0`.
-- Inner panel class: `flex flex-col w-[min(92vw,32rem)] max-w-[calc(100dvw-1rem)] max-h-[85dvh] overflow-hidden bg-overlay border border-border rounded-card shadow-panel w-[min(94vw,42rem)]`. Computed: `bg: rgb(255, 255, 255)`, `border: 1px solid rgb(225, 230, 238)`, `border-radius: 12px`.
-- Heading: `<h2>` "What would you like to make?" — `font-size: 14px`, `font-weight: 600`, `line-height: 20px`, color `rgb(15, 20, 28)`.
-- Paragraph: `font-size: 14px`, color `rgb(84, 96, 111)`.
-- Close button: 32×32, top-right of panel at `(1007, 76.5)`, class includes `rounded-lg`.
-- 7 starter cards in a 2-col grid:
-  - Row 1 (large): "System architecture" `(401, 209.5, 314, 174.5)`, "Cloud architecture" `(725, 209.5, 314, 174.5)`.
-  - Rows 2-4 (small): "API request flow", "Order flowchart", "Real-time telemetry (UDP)", "ETL / CSV pipeline", "Event streaming" — each 314×141.5.
-  - Each card class: `rounded-lg border border-border bg-surface-2`. Computed `radius: 8px`, `bg: rgb(236, 239, 244)`.
-- **Blank canvas** option below the grid: `<button>` "Blank canvas — Start from an empty canvas and build your own." at `(401, 848.5, 638, 50)`. Class: `mt-2.5 w-full … rounded-lg border border-dashed border-border`. Border-style `dashed`.
-
-### Local observation (1440 × 900, fresh, BEFORE fix)
-
-- Welcome `<div role="dialog">` panel rect `(400, 80, 640, 784.25)`. Computed: `bg: rgb(255, 255, 255)`, `border-radius: 16px` (rounded-2xl).
-- Heading: `<h2>` — `font-size: 16px` (text-base), `font-weight: 600`.
-- Close button: 28×28 at `(1007, 84)`, class includes `h-7 w-7 rounded-md`.
-- 7 starter cards in a 2-col grid:
-  - Each rect `(417, 225.25, 299, 182.5)` for first row, `(417, 415.75, 299, 133)` for subsequent rows.
-  - Each card class includes `rounded-xl` — computed `radius: 12px`.
-- **No "Blank canvas" option present.**
-
-### Root-cause hypothesis
-
-When MM-040 added the welcome modal, the local implementation used a 640 px max-width panel with rounded-2xl (16 px) corners and rounded-xl (12 px) starter cards. These values were chosen to match the rest of the local design system's "floating panel" tokens (Components panel uses rounded-2xl) rather than being re-probed against the reference's specific welcome modal styling. The reference uses tighter, smaller radii (12 px panel, 8 px cards) and a wider panel (672 px), and it includes a structural element — a dashed-border "Blank canvas" option below the starter grid — that the local modal lacks entirely.
-
-### Planned change
-
-Edit `src/components/dialogs/WelcomeModal.tsx`:
-
-1. Panel: `max-w-[640px] rounded-2xl border border-border bg-surface` → `max-w-[42rem] rounded-card border border-border bg-overlay`.
-2. Heading: `text-base` → `text-sm`.
-3. Close button: `h-7 w-7 rounded-md` → `h-8 w-8 rounded-lg`.
-4. Starter card class: `rounded-xl … min-h-[88px]` → `rounded-lg` (remove min-h since cards now auto-size from content).
-5. Append a new "Blank canvas" full-width dashed-border `<button>` below the 2-col grid, mirroring the reference's structure (square icon tile + title + description, `border-dashed`, full panel width).
-
-### Result
-
-After fix:
-- Panel rect `(384, 80, 672, 829.25)` — **width 672 px exactly matches the reference**; height 829.25 vs reference 765 because the 8 cards (7 starter + blank) are slightly taller than the reference's (likely because local uses 14 px paragraph with slightly different line-height than reference's exact rendering).
-- Computed `border-radius: 12px` (rounded-card) — matches reference.
-- Computed `bg: rgb(255, 255, 255)` (bg-overlay in light theme) — matches reference.
-- Heading: `font-size: 14px` — matches reference exactly.
-- Close button: 32×32, `radius: 8px` — matches reference.
-- 7 starter cards: 315×166 (first row) and 315×133 (subsequent rows) with `radius: 8px` — matches reference (reference: 314×174.5 first row, 314×141.5 subsequent; local is slightly more compact, ~3-8 px shorter).
-- **Blank canvas** option present at `(401, 832.25, 638, 60)` with `border-style: dashed` — matches reference (which has it at `(401, 848.5, 638, 50)`; height differs because local includes a longer description in the second line vs reference's tighter layout).
-- Clicking Blank canvas dismisses the modal correctly.
-- 0 console errors. Only the pre-existing React Flow Pro attribution warning.
-
-### Remaining difference
-
-- Panel height: local 829.25 vs reference 765 (~64 px taller). Likely caused by local using larger paragraph line-height and the slightly larger paragraph gap above the grid. Acceptable for this iteration; could be tightened later if needed.
-- Local panel y=80 vs reference y=67.5: caused by local using `my-8` vs reference's `my-12` (which is `padding: 3rem` on the dialog wrapper). Negligible at the desktop viewport.
-
-### New mismatches discovered
-
-None at this iteration.
-
-### Next action
-
-Continue probing other subtle mismatches: edge label chip positioning relative to the SVG path midpoint (reference positions them inline with the edge stroke), drag handle styles on arch-nodes, animation phase distribution across the 9 edges, hover state on edge particles.
-
-### Why this mismatch was selected
-
-The Controls panel is the only persistent bottom-left UI element on the canvas. The reference's 4th button (`react-flow__controls-interactive`, label "Toggle Interactivity", lock/unlock icon) lets users freeze node dragging — a documented React Flow feature. Local was rendering it as 3 buttons because `Canvas.tsx` had `showInteractive={false}`. The opaque white panel was a deliberate MM-001 styling choice but doesn't match the reference's transparent + thin-shadow look.
-
-This is a structural mismatch (missing button + chrome override) — affects 4 buttons + panel background + panel shadow simultaneously, so single iteration is appropriate.
-
-### Reference observation (1440 × 900, fresh, welcome + cookie dismissed)
-
-- Controls panel bbox `(15, 781, 26, 104)`.
-- Panel class: `react-flow__panel react-flow__controls vertical bottom left` (no chrome classes).
-- Panel computed styles:
-  - `background: rgba(0, 0, 0, 0)` (transparent — canvas dots show through)
-  - `box-shadow: rgba(0, 0, 0, 0.08) 0px 0px 2px 1px` (single subtle ring)
-  - `border: 0px solid rgb(15, 20, 28)` (no border)
-  - `border-radius: 8px`
-- 4 buttons, each 26×26:
-  - `react-flow__controls-zoomin` at y=781, label "Zoom In"
-  - `react-flow__controls-zoomout` at y=807, label "Zoom Out"
-  - `react-flow__controls-fitview` at y=833, label "Fit View"
-  - `react-flow__controls-interactive` at y=859, label "Toggle Interactivity" (lock icon)
-- Each button: `bg: rgb(255, 255, 255)`, `color: rgb(15, 20, 28)`, `border-bottom: 1px solid rgb(225, 230, 238)` (between buttons), 26×26.
-
-### Local observation (1440 × 900, fresh, BEFORE fix)
-
-- Controls panel bbox `(15, 807, 26, 78)`.
-- Panel class: `react-flow__panel react-flow__controls vertical !bg-surface !border-border !shadow-panel bottom left`.
-- Panel computed styles:
-  - `background: rgb(255, 255, 255)` (opaque white surface)
-  - `box-shadow: rgba(16, 20, 27, 0.06) 0px 1px 2px 0px, rgba(16, 20, 27, 0.08) 0px 8px 24px 0px` (panel shadow)
-  - `border: 0px`
-  - `border-radius: 8px`
-- 3 buttons, each 26×26:
-  - `react-flow__controls-zoomin` at y=807
-  - `react-flow__controls-zoomout` at y=833
-  - `react-flow__controls-fitview` at y=859
-
-### Root-cause hypothesis
-
-When MM-001 added the Controls panel in iteration 1, the reference's panel chrome wasn't probed in detail. The local's `className="!bg-surface !border-border !shadow-panel"` was an attempt to apply the project's `shadow-panel` design token to match the rest of the floating panels (Components panel, cookie consent). That looks reasonable in isolation but doesn't match the reference's transparent + thin-shadow look. Separately, the 4th button was hidden via `showInteractive={false}` likely as a code-size optimization, without realizing the reference exposes it as a standard feature.
-
-### Planned change
-
-Edit `src/canvas/Canvas.tsx`:
-
-1. `showInteractive={false}` → `showInteractive` (default = true) so the 4th `react-flow__controls-interactive` button is rendered.
-2. Remove `className="!bg-surface !border-border !shadow-panel"` from `<Controls>` so the panel reverts to xyflow defaults: transparent background, single subtle shadow, no border, 8px radius. Keep `position="bottom-left"` and the inline `style={{ borderRadius: '0.5rem', overflow: 'hidden' }}` (the latter matches the reference's rounded corner clipping).
-
-### Result
-
-After fix:
-- Local panel bbox `(1440 × 900)`: `(15, 781, 26, 104)` — **exact match** with reference.
-- Panel class: `react-flow__panel react-flow__controls vertical bottom left` — matches reference.
-- Panel computed styles: `background: rgba(0, 0, 0, 0)`, `box-shadow: rgba(0, 0, 0, 0.08) 0px 0px 2px 1px`, `border: 0px`, `border-radius: 8px` — all match reference.
-- 4 buttons rendered at y = 781, 807, 833, 859 — exact match.
-- Last button label: "Toggle Interactivity", class `react-flow__controls-interactive`, SVG: lock icon path `M21.333 10.667H19.81V7.619C19.81 3.429 16.38 0 12.19 0 ...` — matches reference.
-- Clicking the lock button doesn't toggle a CSS class on the button itself (matches reference behavior — React Flow handles the actual lock state internally via `nodesDraggable` etc.).
-- 0 console errors. Only the pre-existing React Flow Pro attribution warning.
-
-Screenshot at `.reverse-match/screenshots/iteration-044-local-controls.png`.
-
-### Remaining difference
-
-None measurable at the desktop viewport.
-
-### New mismatches discovered
-
-None at this iteration.
-
-### Next action
-
-Continue probing for more subtle mismatches: minimap styling details (per-node colors, mask, label visibility), edge label positioning at the SVG midpoint vs React Flow's automatic `labelX/Y` calc, drag-to-resize handle on the Components panel, theme persistence behavior, mobile / tablet widths for the Controls panel.
+Continue probing: theme toggle behavior (sun/moon icon swap on toggle), File dropdown open/close chrome and animation, drag handle styles on arch-nodes, animation phase distribution across the 9 edges, minimap label visibility.
 
 ---
 
@@ -983,6 +739,23 @@ Continue probing for more subtle mismatches: minimap styling details (per-node c
   - Selected button class: `bg-surface text-fg shadow-sm` → `bg-accent text-accent-contrast`.
 - **Verification (1440 × 900, fresh, light theme)**: continuous button `role="radio"`, `aria-checked="true"`, computed `bg: rgb(14, 116, 144)`, `color: rgb(255, 255, 255)`, `title="Continuous — every edge flows"` — exact match with reference. Causal button `role="radio"`, `aria-checked="false"`. 0 console errors.
 - **Files changed**: `src/components/layout/Header.tsx`.
+- **Commit**: (next)
+
+### MM-050 — Header mode-toggle icons are ad-hoc hand-drawn paths; reference uses Lucide `lucide-repeat`, `lucide-git-fork`, `lucide-list-ordered`
+
+- **Category**: Visual (icons)
+- **Severity**: Low–Medium (visible on every page load in the segmented mode-toggle pill, but small icons — easy to overlook)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900, fresh, light theme)**: Continuous button `<svg>` has 4 `<path>` elements matching `lucide-repeat` exactly (first path `m17 2 4 4-4 4`). Causal `<svg>` has 5 elements (3 circles + 2 paths) matching `lucide-git-fork`. Scenario `<svg>` has 6 paths matching `lucide-list-ordered`.
+- **Local observation (1440 × 900, fresh, light theme, BEFORE fix)**: Continuous rendered as a "+" shape (1 path `M3 12h18M12 3v18`). Causal rendered as a 2x2 grid of small dots (4 circles). Scenario rendered as 3 horizontal lines + a digit "1" (5 paths), missing the "2" digit row. None of the three icons match any real Lucide glyph.
+- **Root cause**: MM-012 introduced the Lucide icon system, but the three mode-toggle entries were bootstrapped as ad-hoc placeholders and never replaced with real Lucide paths. The Lucide equivalents (`lucide-repeat`, `lucide-git-fork`, `lucide-list-ordered`) were never added to the `paths` table.
+- **Fix applied** (`src/components/ui/Icon.tsx`):
+  - `continuous`: replaced 1-path "+" string with 4-path `lucide-repeat` string.
+  - `causal`: replaced 4-circle "2x2 dot grid" with 3-circle + 2-path `lucide-git-fork` string.
+  - `scenario`: replaced 5-path bulleted-list (missing the "2" digit) with 6-path `lucide-list-ordered` string.
+  - The existing `<g dangerouslySetInnerHTML={{ __html: paths[name] }} />` render path handles the multi-element string correctly (it triggers when the path string contains `<`, which all three new strings do).
+- **Verification (1440 × 900, fresh, light theme)**: Continuous SVG: 4 paths, first `m17 2 4 4-4 4` ✓. Causal SVG: 5 elements (3 circles + 2 paths), first path `M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9` ✓. Scenario SVG: 6 paths, first `M11 5h10` ✓. 0 console errors.
+- **Files changed**: `src/components/ui/Icon.tsx`.
 - **Commit**: (next)
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
