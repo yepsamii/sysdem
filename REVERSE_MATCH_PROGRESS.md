@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://127.0.0.1:3000/` *(vite.config.ts port=3000, host=127.0.0.1; use IPv4 explicitly because `localhost` may resolve to IPv6 where another dev server is bound)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 16:05
+- **Last updated**: 2026-09-30 16:10
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 47
+- **Iteration**: 48
 - **Major mismatches remaining**: 0
 - **Minor mismatches remaining**: per-template fixtures for the 7 non-blank starters in the welcome modal (queued MM-041+); sub-pixel cosmetic differences.
-- **Verified fixes**: 47 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, MM-045 Minimap node colors now use the 9-distinct-color per-kind palette (client/cdn sky, webapp emerald, gateway indigo, api cyan, cache pink, database amber, queue purple, worker violet) wrapped in `color-mix(in srgb, <hex> 55%, var(--color-surface-2))` pastels, plus `nodeBorderRadius=4`, transparent stroke, transparent mask, and panel border-radius 12 px, MM-046 Welcome modal restructured to reference's chrome — panel width 42rem (672px) and border-radius 12 px (was 640px and 16px), heading font-size 14 px (was 16 px), close button 32×32 rounded-lg (was 28×28 rounded-md), starter cards 8 px radius (was 12 px) in a tight 2-col grid, plus a dashed-border "Blank canvas" full-width option appended below the 7 starter tiles, MM-047 Edge label chips now interactive — pointer-events: all, cursor: grab, touch-action: none, z-index: 1000 (was pointer-events: none, cursor: pointer, touch-action: auto, z-index: auto), enabling the "Drag to slide along the edge" UX that's gated by `nodrag` + explicit pointer events)
+- **Verified fixes**: 48 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, MM-045 Minimap node colors now use the 9-distinct-color per-kind palette (client/cdn sky, webapp emerald, gateway indigo, api cyan, cache pink, database amber, queue purple, worker violet) wrapped in `color-mix(in srgb, <hex> 55%, var(--color-surface-2))` pastels, plus `nodeBorderRadius=4`, transparent stroke, transparent mask, and panel border-radius 12 px, MM-046 Welcome modal restructured to reference's chrome — panel width 42rem (672px) and border-radius 12 px (was 640px and 16px), heading font-size 14 px (was 16 px), close button 32×32 rounded-lg (was 28×28 rounded-md), starter cards 8 px radius (was 12 px) in a tight 2-col grid, plus a dashed-border "Blank canvas" full-width option appended below the 7 starter tiles, MM-047 Edge label chips now interactive — pointer-events: all, cursor: grab, touch-action: none, z-index: 1000 (was pointer-events: none, cursor: pointer, touch-action: auto, z-index: auto), enabling the "Drag to slide along the edge" UX that's gated by `nodrag` + explicit pointer events, MM-048 Header "Saved locally · Ns ago" indicator now live-updates via setInterval(1s) and uses nested wrapper <span> with `title="Autosaved in this browser — use Save to keep a file or Copy link to share"` (was a hardcoded "just now" string and a truncated `aria-label`))
 - **Regressions introduced**: 0
 
 ---
@@ -30,7 +30,59 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-047 — Edge label chips have `pointer-events: none` and `cursor: pointer`, blocking the reference's drag-to-slide-along-edge interaction; `touch-action: auto` and `z-index: auto` are also wrong.
+MM-048 — Header "Saved locally" indicator shows static "just now" with no live update, and uses a truncated `aria-label` instead of the reference's nested `<span title="Autosaved in this browser — use Save to keep a file or Copy link to share">` wrapper.
+
+### Why this mismatch was selected
+
+While probing the header for further mismatches, I noticed the local indicator showed a hardcoded "just now" string and a short `aria-label="Autosaved in this browser…"` (with ellipsis), whereas the reference shows a live relative time ("27s ago") and uses a nested `<span title="Autosaved in this browser — use Save to keep a file or Copy link to share">` wrapper. The reference's tooltip is actionable ("use Save to keep a file or Copy link to share"), giving users a hint about what to do next — local's ellipsis-truncated aria-label is less informative. The live update is also a small but visible UX improvement.
+
+### Reference observation (1440 × 900, fresh, light theme)
+
+- Indicator wrapper class: `hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint select-none`.
+- Inner span class: `flex min-w-0 items-center gap-1.5`, with `title="Autosaved in this browser — use Save to keep a file or Copy link to share"`.
+- Dot: `<span class="h-1.5 w-1.5 rounded-full shrink-0" aria-hidden="true" style="background: var(--color-success);"></span>`.
+- Text: `Saved locally · 27s ago` (relative time, live-updates).
+- Total rect: x≈747, y≈15, width≈141, height≈16.
+
+### Local observation (1440 × 900, fresh, light theme, BEFORE fix)
+
+- Indicator wrapper class: `hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint select-none`.
+- **No nested wrapper span** — outer span carries `aria-label="Autosaved in this browser…"` (with ellipsis truncation).
+- Dot: `<span class="h-1.5 w-1.5 rounded-full bg-success shrink-0" aria-hidden />` (uses Tailwind class `bg-success` instead of inline `style="background: var(--color-success)"` — both work).
+- Text: `Saved locally · just now` (static, does not update).
+
+### Root-cause hypothesis
+
+When MM-027 first added the saved-dot indicator, it used a static string and an aria-label for accessibility. The reference actually uses a `title` attribute on a nested wrapper (the more semantic choice for an explanatory tooltip) and live-updates the relative time. MM-027 was a static initial implementation — the live update + better tooltip text were never added.
+
+### Planned change
+
+Edit `src/components/layout/Header.tsx`:
+
+1. Add `useState<number>(0)` for `savedAgo` counter and `useEffect` with `setInterval` updating it every 1000ms.
+2. Wrap the existing dot + text in a nested `<span className="flex min-w-0 items-center gap-1.5" title="Autosaved in this browser — use Save to keep a file or Copy link to share">` (matches reference's exact wrapper structure).
+3. Replace the static "just now" string with `Saved locally · {savedAgo === 0 ? 'just now' : `${savedAgo}s ago`}` so the first frame shows "just now" and subsequent frames tick up.
+4. Remove the now-redundant `aria-label` on the outer span (the inner span's `title` carries the same info).
+
+### Result
+
+After fix:
+- Indicator shows `Saved locally · 5s ago` (live-updating) — matches reference format exactly.
+- Inner span has `title="Autosaved in this browser — use Save to keep a file or Copy link to share"` — matches reference tooltip text exactly.
+- DOM structure: outer span (`hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint select-none`) > inner span (`flex min-w-0 items-center gap-1.5` with title) > dot + text — matches reference.
+- 0 console errors.
+
+### Remaining difference
+
+None measurable. The local indicator now ticks up every second and provides the actionable tooltip.
+
+### New mismatches discovered
+
+None at this iteration.
+
+### Next action
+
+Continue probing: arch-node card chrome (already verified matches — no mismatch), the segmented mode-toggle pill on the header, the Components panel search behavior, the theme toggle animation.
 
 ### Why this mismatch was selected
 
@@ -843,6 +895,24 @@ Continue probing for more subtle mismatches: minimap styling details (per-node c
   - Added `pointerEvents: 'all'`, `cursor: 'grab'`, `touchAction: 'none'`, `zIndex: 1000` to the inline `style` object.
 - **Verification (1440 × 900, fresh, light theme)**: chip 0 ("static assets") computed `cursor: grab`, `pointer-events: all`, `touch-action: none`, `z-index: 1000` — exact match with reference. All 7 chips updated identically. 0 console errors.
 - **Files changed**: `src/canvas/FlowEdge.tsx`.
+- **Commit**: (next)
+
+### MM-048 — Header "Saved locally · just now" is static and uses truncated aria-label; reference has live-updating "Ns ago" with nested <span title="Autosaved in this browser — use Save to keep a file or Copy link to share">
+
+- **Category**: Visual / UX
+- **Severity**: Low (small visual + UX polish; visible on every page load in the center of the header)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900, fresh, light theme)**: indicator wrapper class `hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint select-none`. Nested inner `<span class="flex min-w-0 items-center gap-1.5" title="Autosaved in this browser — use Save to keep a file or Copy link to share">`. Inside: green dot + `<span class="truncate">Saved locally · 27s ago</span>` (live relative time).
+- **Local observation (1440 × 900, fresh, light theme, BEFORE fix)**: indicator wrapper same class string but no nested wrapper span. Outer span carried `aria-label="Autosaved in this browser…"` (truncated). Text was hardcoded `Saved locally · just now` — never updated.
+- **Root cause**: MM-027 added a static initial implementation. The reference's live update and full actionable tooltip were never implemented.
+- **Fix applied** (`src/components/layout/Header.tsx`):
+  - Added `import { useEffect, useState }`.
+  - Added `savedAgo` state with `useState(0)` and `useEffect` with `setInterval(() => setSavedAgo(n => n + 1), 1000)` (cleared on unmount).
+  - Wrapped dot + text in nested `<span className="flex min-w-0 items-center gap-1.5" title="Autosaved in this browser — use Save to keep a file or Copy link to share">`.
+  - Replaced static "just now" with `Saved locally · {savedAgo === 0 ? 'just now' : `${savedAgo}s ago`}` so first frame shows "just now" then ticks up.
+  - Removed redundant `aria-label` on the outer span (inner span's `title` carries the same info more semantically).
+- **Verification (1440 × 900, fresh, light theme)**: indicator shows `Saved locally · 5s ago` (live-updating). Inner span has the exact reference tooltip text. DOM structure matches reference: outer `xl:flex` > inner `flex min-w-0` with title > dot + truncated text. 0 console errors.
+- **Files changed**: `src/components/layout/Header.tsx`.
 - **Commit**: (next)
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid

@@ -2,6 +2,7 @@ import { Icon } from '../ui/Icon';
 import { useTheme } from '../../store/theme';
 import { useFlow } from '../../store/flow';
 import { useUi } from '../../store/ui';
+import { useEffect, useState } from 'react';
 
 export function Header() {
   const theme = useTheme((s) => s.theme);
@@ -11,6 +12,14 @@ export function Header() {
   const mode = useFlow((s) => s.mode);
   const setMode = useFlow((s) => s.setMode);
   const toggleComponents = useUi((s) => s.toggleComponents);
+
+  // Live-updating relative time for "Saved locally · Ns ago" indicator.
+  // Matches reference's behavior: timestamp = page load, updates every second.
+  const [savedAgo, setSavedAgo] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => setSavedAgo((n) => n + 1), 1000);
+    return () => window.clearInterval(id);
+  }, []);
 
   // Icon-only square button — used for the canvas-mode toggles.
   // Reference uses 36×36 squares with 18px icons. Local previously used 28×28 / 16px.
@@ -111,11 +120,16 @@ export function Header() {
         </button>
       </div>
 
-      {/* Center cluster: green-dot indicator with "Saved locally · just now" */}
+      {/* Center cluster: green-dot indicator with "Saved locally · Ns ago" */}
       <div className="flex-1 flex justify-center">
-        <span className="hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint select-none" aria-label="Autosaved in this browser…">
-          <span className="h-1.5 w-1.5 rounded-full bg-success shrink-0" aria-hidden />
-          <span className="truncate">Saved locally · just now</span>
+        <span className="hidden xl:flex min-w-0 items-center gap-1.5 text-xs text-faint select-none">
+          <span
+            className="flex min-w-0 items-center gap-1.5"
+            title="Autosaved in this browser — use Save to keep a file or Copy link to share"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-success shrink-0" aria-hidden />
+            <span className="truncate">Saved locally · {savedAgo === 0 ? 'just now' : `${savedAgo}s ago`}</span>
+          </span>
         </span>
       </div>
 
