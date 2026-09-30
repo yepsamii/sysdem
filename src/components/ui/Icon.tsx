@@ -55,7 +55,7 @@ const paths: Record<IconName, string> = {
   help: 'M9 9a3 3 0 1 1 5 2c-1 1-2 1.5-2 3 M12 17h.01 M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0',
   sun: 'M12 4V2 M12 22v-2 M4 12H2 M22 12h-2 M5.6 5.6 4.2 4.2 M19.8 19.8l-1.4-1.4 M5.6 18.4 4.2 19.8 M19.8 4.2l-1.4 1.4 M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10',
   moon: 'M21 13a9 9 0 1 1-10-10 7 7 0 0 0 10 10',
-  logo: 'M5 18l3-12 3 8 3-7 4 11',
+  logo: 'M79.4 33 A34 34 0 1 0 79.4 67 L79.4 50 L58 50',
   settings: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1',
   search: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16 M21 21l-4.3-4.3',
   plus: 'M12 5v14 M5 12h14',
@@ -141,19 +141,23 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   name: IconName;
   size?: number;
   strokeWidth?: number;
+  viewBox?: string;
 }
 
 export const Icon = forwardRef<HTMLButtonElement, Props>(function Icon(
-  { name, size = 16, strokeWidth = 1.75, className = '', ...rest },
+  { name, size = 16, strokeWidth = 1.75, viewBox = '0 0 24 24', className = '', ...rest },
   ref
 ) {
   const isButton = rest.type !== undefined || rest.onClick !== undefined;
   const isBrand = name.startsWith('brand-');
+  // The logo is rendered non-square (33x20 instead of 18x18) to match the
+  // reference's wider brand mark.
+  const isLogo = name === 'logo';
   const inner = (
     <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
+      width={isLogo ? 33 : size}
+      height={isLogo ? 20 : size}
+      viewBox={isLogo ? "10 10 130 80" : viewBox}
       fill={isBrand ? 'currentColor' : 'none'}
       stroke={isBrand ? 'none' : 'currentColor'}
       strokeWidth={strokeWidth}
