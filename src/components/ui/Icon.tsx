@@ -46,7 +46,7 @@ const paths: Record<IconName, string> = {
   present: 'M3 4h18v12H3z M8 20h8 M12 16v4',
   undo: 'M9 14l-5-5 5-5 M4 9h10a6 6 0 0 1 0 12h-4',
   redo: 'M15 14l5-5-5-5 M20 9H10a6 6 0 0 0 0 12h4',
-  compare: 'M3 6h7v14H3z M14 4h7v16h-7 M10 12h4',
+  compare: '<circle cx="5" cy="6" r="3"></circle><path d="M12 6h5a2 2 0 0 1 2 2v7"></path><path d="m15 9-3-3 3-3"></path><circle cx="19" cy="18" r="3"></circle><path d="M12 18H7a2 2 0 0 1-2-2V9"></path><path d="m9 15 3 3-3 3"></path>',
   continuous: 'M3 12h6 M9 12a3 3 0 1 0 6 0 a3 3 0 1 0 -6 0 M15 12h6',
   causal: 'M3 12h6 M9 12h6 M15 12h6 M3 12l3-2v4z M21 12l-3-2v4z M9 12l3-2v4z M15 12l3-2v4z',
   scenario: 'M4 6h4v4H4z M10 6h10v4H10z M4 14h4v4H4z M10 14h10v4H10z',

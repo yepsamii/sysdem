@@ -116,9 +116,12 @@ export function Header() {
         </span>
       </div>
 
-      {/* Primary toolbar group — segmented mode-toggle pill, then Pause, help, theme toggle */}
+      {/* Primary toolbar group — Compare + segmented mode-toggle pill, then Pause, help, theme toggle */}
       <div className="flex items-center gap-1">
-        <span className={`${sep} hidden lg:inline-block`} aria-hidden />
+        {/* Compare icon sits left of the segmented mode group (matches reference's right cluster at x≈1037) */}
+        <button type="button" aria-label="Compare architecture" className={`hidden lg:inline-flex ${iconBtn}`}>
+          <Icon name="compare" />
+        </button>
 
         {/* Mode toggles grouped in a segmented pill (matches reference's 112×34 bordered group) */}
         <div className={segmentedGroup} role="group" aria-label="Playback mode">
