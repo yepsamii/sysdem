@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 02:50
+- **Last updated**: 2026-09-30 03:36
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 30
+- **Iteration**: 31
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: a few small differences (header logo SVG width vs reference's wider 33×20 mark, missing right-cluster buttons like Compare + settings cog, edge particle rendering details, exact node positions vs reference).
-- **Verified fixes**: 30 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function)
+- **Minor mismatches remaining**: missing right-cluster Compare button between redo and segmented mode group, edge particle rendering details (token label position, exact density / speed), exact node positions vs reference.
+- **Verified fixes**: 31 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark)
 - **Regressions introduced**: 0
 
 ---
@@ -30,11 +30,92 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-030 — Worker arch-node uses `lucide-boxes` (a stack-of-cubes glyph) instead of the reference's `lucide-square-function` (a rounded-rect SVG with an "f" inside).
+MM-031 — Header brand-mark SVG is rendered as a 16×16 mountain-peak glyph instead of the reference's wider 33×20 G-letter mark.
 
 ### Why this mismatch was selected
 
-While probing per-kind icon classes in the reference during MM-029, the Worker node's icon class was discovered to be `lucide-square-function` — a rounded-rect SVG that visually represents a "function" or "lambda" rather than a stack of cubes. Local was using `boxes` (chosen during MM-028 to keep visual variety), but the reference is consistent: a Worker is a function / serverless worker, so its icon is `square-function`. The choice was visible on first paint of the diagram, in the bottom-right corner.
+When MM-027 rebuilt the header toolbar, the brand mark retained the original mountain-peak path (`M5 18l3-12 3 8 3-7 4 11`) at the default 18×18 size. While inspecting the reference during MM-030, the logo SVG was probed and found to be a stylized G (an arc + tail) drawn in a wider 33×20 viewBox — a non-square brand mark that visibly differs from local's mountain icon. The mismatch is in the most prominent position of the header (first thing the eye lands on), and the fix is purely additive (no behavior change).
+
+### Reference observation (1440 × 900)
+
+Probed via `document.querySelector('header svg')`:
+
+```js
+{
+  width: "33",
+  height: "20",
+  viewBox: "10 10 130 80",
+  pathD: "M79.4 33 A34 34 0 1 0 79.4 67 L79.4 50 L58 50",
+  rect: { x: 12, y: 13.5, w: 33, h: 20 },
+}
+```
+
+The SVG draws a near-3/4 circle (centered at the right edge of the viewBox) with a horizontal tail extending left, forming a stylized "G" character. The brand mark sits 12 px from the left edge of the header with a 13.5 px top offset, occupying 33×20 of layout space.
+
+### Local observation (1440 × 900 before fix)
+
+Probed the local `<Icon name="logo" />`:
+
+```js
+{
+  width: "18",
+  height: "18",
+  viewBox: "0 0 24 24",
+  pathD: "M5 18l3-12 3 8 3-7 4 11",
+  rect: { x: ?, y: ?, w: 18, h: 18 },
+}
+```
+
+The local logo is a square 18×18 mountain-peak path — visibly different shape, smaller dimensions, and centered tighter in the toolbar.
+
+### Root-cause hypothesis
+
+The local `paths['logo']` was set to a generic Lucide mountain-peak path during initial scaffolding, and `<Icon>` always rendered the SVG at the caller's `size` prop in a square 24-unit viewBox. Two things conspire: (a) the path is the wrong glyph, and (b) the brand mark needs non-square dimensions (33×20) and a wider viewBox (`10 10 130 80`) so the G-letter sits at the same proportions as the reference.
+
+### Planned change
+
+Two-part change to `src/components/ui/Icon.tsx`:
+
+1. Swap `paths['logo']` from `'M5 18l3-12 3 8 3-7 4 11'` to `'M79.4 33 A34 34 0 1 0 79.4 67 L79.4 50 L58 50'`.
+2. Add a new `isLogo` branch in the SVG element so `name === 'logo'` renders at `width={33}` / `height={20}` / `viewBox="10 10 130 80"` while every other icon still uses the caller's `size` and the default `0 0 24 24` viewBox. Also expose a `viewBox?: string` prop so future callers can override per-icon if needed.
+
+The Header call site (`<Icon name="logo" size={18} className="text-accent mx-1" />`) does not need to change — `size={18}` is overridden by the `isLogo` branch.
+
+### Result
+
+After implementation (`b3cd0fb`):
+
+Probed local `<Icon name="logo" />` in `localhost:5173`:
+
+```js
+{
+  width: "33",
+  height: "20",
+  viewBox: "10 10 130 80",
+  pathD: "M79.4 33 A34 34 0 1 0 79.4 67 L79.4 50 L58 50",
+  rect: { x: 12, y: 13.5, w: 33, h: 20 },
+}
+```
+
+Every attribute matches the reference exactly. Side-by-side screenshot at `.reverse-match/screenshots/iteration-031-reference.png` (reference) and `.reverse-match/screenshots/iteration-031-local-after.png` (local after fix).
+
+Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+
+**Categorization**: Fixed — header brand-mark now matches the reference's G-letter SVG at the same dimensions, viewBox, and position.
+
+### Remaining difference
+
+- Missing "Compare architecture" icon button between Redo and the segmented mode group in the right cluster — visible as a single icon at x=1037, y=5.5 (36×36, aria-label "Compare architecture") in the reference. Carried over from MM-027.
+- Edge particle rendering details (token label position, exact density / speed) — minor.
+- Exact node positions vs reference (CDN/Web App offsets, etc.) — sub-pixel.
+
+### New mismatches discovered
+
+The reference's right-cluster layout has **only one** icon button (Compare) between Redo and the segmented mode group, not two. The earlier suspicion of "Compare + settings cog" (mentioned in MM-030's next action) was over-counted — the actual gap is just the single Compare button. So MM-032 is now scoped narrowly to "add the Compare icon button".
+
+### Next action
+
+MM-032 — add the missing "Compare architecture" icon button to the header right cluster (between Redo and the segmented mode group), using the existing `compare` Lucide icon that's already registered in `Icon.tsx` and `lucideName: 'compare'`.
 
 ### Reference observation (1440 × 900)
 
@@ -430,6 +511,23 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 - **Verification**: see Current Iteration §"Result". Local Worker SVG innerHTML now matches the reference verbatim. Side effect: the Compute group panel item also gets the proper three-element rendering (it was previously using a single `<path d="…">` from the simplified registry value); visual change is invisible because the simplified value still drew the same rect + f glyph.
 - **Files changed**: `src/canvas/ArchNode.tsx`, `src/components/ui/Icon.tsx`.
 - **Commit**: `571b61d`
+
+### MM-031 — Header brand-mark SVG is 18×18 mountain-peak; reference uses 33×20 G-letter mark
+
+- **Category**: Visual / chrome
+- **Severity**: Low (single icon in the most prominent position of the header; visible immediately on every page load)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: the first `<svg>` inside `<header>` has `width="33" height="20" viewBox="10 10 130 80"` and `<path d="M79.4 33 A34 34 0 1 0 79.4 67 L79.4 50 L58 50">` — a non-square SVG that draws a 3/4 arc + horizontal tail forming a stylized "G". Bounding rect is `x=12, y=13.5, w=33, h=20`.
+- **Local before**: `paths['logo'] = 'M5 18l3-12 3 8 3-7 4 11'` rendered at the caller's `size` (18) in the default `0 0 24 24` viewBox. Result: a 18×18 square mountain-peak icon — visibly different shape and smaller dimensions.
+- **Root cause**: the local logo path was set to a generic Lucide mountain glyph during initial scaffolding, and the `<Icon>` component had no mechanism for non-square icons (always rendered at `size` × `size` in a `0 0 24 24` viewBox). Two changes were needed: the path itself, and an `isLogo` branch in the SVG element to override `size` and `viewBox` for this specific name.
+- **Fix** (in `src/components/ui/Icon.tsx`):
+  1. Replaced `paths['logo']` with the reference's G-letter arc + tail.
+  2. Added an `isLogo = name === 'logo'` branch in the SVG element so the logo renders at `width={33} height={20} viewBox="10 10 130 80"`, while every other icon continues to use the caller's `size` and the default `0 0 24 24` viewBox.
+  3. Exposed a `viewBox?: string` prop so future callers can override per-icon if needed.
+  Header call site (`<Icon name="logo" size={18} className="text-accent mx-1" />`) needs no change — `size={18}` is overridden by the `isLogo` branch.
+- **Verification**: see Current Iteration §"Result". Every probed attribute (`width`, `height`, `viewBox`, `path d`, `bounding rect.x/y/w/h`) now matches the reference exactly. Side-by-side screenshots at `.reverse-match/screenshots/iteration-031-reference.png` and `.reverse-match/screenshots/iteration-031-local-after.png`.
+- **Files changed**: `src/components/ui/Icon.tsx`.
+- **Commit**: `b3cd0fb`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1376,6 +1474,20 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 - **Next action**: MM-031 — pick the next visible mismatch. Best candidates: header right-cluster buttons (Compare + settings cog) and header brand-mark SVG width.
 - **Commit**: `571b61d`
 
+### Iteration 31 — MM-031 (header brand-mark SVG width)
+
+- **Selected mismatch**: MM-031 — header brand-mark SVG is rendered as a 16×16 mountain-peak glyph instead of the reference's wider 33×20 G-letter mark.
+- **Reference probe**: `width="33" height="20" viewBox="10 10 130 80"`, path `M79.4 33 A34 34 0 1 0 79.4 67 L79.4 50 L58 50`. Bounding rect x=12, y=13.5, w=33, h=20.
+- **Change made**: in `src/components/ui/Icon.tsx`, replaced `paths['logo']` with the reference's G-letter arc + tail, added a new `isLogo = name === 'logo'` branch in the SVG element so the logo renders at `width={33} height={20} viewBox="10 10 130 80"`, and exposed a `viewBox?: string` prop for future per-icon overrides.
+- **Verification (1440 × 900, light theme)**:
+  - Local `<Icon name="logo" />` SVG now reports `width="33" height="20" viewBox="10 10 130 80"`, `pathD = "M79.4 33 A34 34 0 1 0 79.4 67 L79.4 50 L58 50"`. Bounding rect x=12, y=13.5, w=33, h=20 — matches the reference verbatim.
+  - Side-by-side: `.reverse-match/screenshots/iteration-031-reference.png` (reference) vs `.reverse-match/screenshots/iteration-031-local-after.png` (local after fix). The brand-mark position, dimensions, and glyph shape are indistinguishable.
+  - Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-031 fixed. The brand-mark SVG now matches the reference exactly. Other icons (including the Compute group panel "Function" item, which also uses `square-function` after MM-030) are unaffected by the `isLogo` branch since the check is strictly `name === 'logo'`.
+- **New mismatches discovered**: the reference's right-cluster has only one icon button (Compare) between Redo and the segmented mode group, not two. So MM-032 narrows in scope: add just the Compare button.
+- **Next action**: MM-032 — add the missing "Compare architecture" icon button between Redo and the segmented mode group. The `compare` icon is already registered in `Icon.tsx` with `lucideName: 'compare'`.
+- **Commit**: `b3cd0fb`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1414,6 +1526,7 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 | 028  | MM-028 | `.reverse-match/screenshots/iteration-028-reference.png` | `.reverse-match/screenshots/iteration-028-local-before.png`, `iteration-028-local-after.png` | — | inline in iteration log |
 | 029  | MM-029 | `.reverse-match/screenshots/iteration-029-reference.png` | `.reverse-match/screenshots/iteration-029-local-before.png`, `iteration-029-local-after.png` | — | inline in iteration log |
 | 030  | MM-030 | — | `.reverse-match/screenshots/iteration-030-local-after.png` (before = iteration-029-local-after) | — | inline in iteration log |
+| 031  | MM-031 | `.reverse-match/screenshots/iteration-031-reference.png` | `.reverse-match/screenshots/iteration-031-local-after.png` | — | inline in iteration log |
 
 ---
 
