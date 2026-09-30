@@ -18,10 +18,10 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ## Overall Progress
 
-- **Iteration**: 43
+- **Iteration**: 44
 - **Major mismatches remaining**: 0
 - **Minor mismatches remaining**: per-template fixtures for the 6 non-System starters in the welcome modal (queued MM-041+); sub-pixel cosmetic differences.
-- **Verified fixes**: 43 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button))
+- **Verified fixes**: 44 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile, MM-043 Saved banner restructured to reference's horizontal flex layout (text + dismiss button as siblings inside centered gap-2 row, <p> body, shrink-0 close button), MM-044 Canvas Controls panel restored to reference's 4-button layout (zoom-in, zoom-out, fit-view, interactive) with transparent background and subtle 2px shadow, after local had hidden the 4th button and applied opaque `!bg-surface` + `!shadow-panel` chrome)
 - **Regressions introduced**: 0
 
 ---
@@ -30,64 +30,79 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-043 — Saved-locally banner renders the dismiss button absolutely positioned (top-right corner) while the body text spans full width as an inline `<span>` with `text-center`. Reference uses a single horizontal flex row with the body text and close button as **siblings** inside a centered `gap-2` container, with `items-start` and `justify-center`. Body is rendered as a `<p>` element, close button is `shrink-0`.
+MM-044 — Canvas Controls panel (`.react-flow__controls`) exposes only 3 buttons (zoom-in, zoom-out, fit-view) at 26×78 px in an opaque white card with multi-stop `!shadow-panel` chrome. Reference exposes 4 buttons (zoom-in, zoom-out, fit-view, **interactive** = lock) at 26×104 px with a transparent background and a single subtle 2 px shadow. Bottom anchor is the same in both (y=885 at viewport 900), but local panel starts 26 px lower because it's 26 px shorter (missing the 4th button).
 
 ### Why this mismatch was selected
 
-The saved banner is the second thing a brand-new visitor sees (directly below the header). MM-003 originally added the banner with absolute positioning for the close button because the banner was treated as a centered text with a corner ×. The reference actually treats the close button as an inline sibling of the text inside a flex row, which changes how the text wraps and how the button aligns vertically when the text is long.
+The Controls panel is the only persistent bottom-left UI element on the canvas. The reference's 4th button (`react-flow__controls-interactive`, label "Toggle Interactivity", lock/unlock icon) lets users freeze node dragging — a documented React Flow feature. Local was rendering it as 3 buttons because `Canvas.tsx` had `showInteractive={false}`. The opaque white panel was a deliberate MM-001 styling choice but doesn't match the reference's transparent + thin-shadow look.
 
-This is a structural mismatch (display: flex vs relative + absolute child) — affects layout, vertical alignment, and text wrapping simultaneously.
+This is a structural mismatch (missing button + chrome override) — affects 4 buttons + panel background + panel shadow simultaneously, so single iteration is appropriate.
 
-### Reference observation (1440 × 900, fresh, welcome modal + cookie consent dismissed)
+### Reference observation (1440 × 900, fresh, welcome + cookie dismissed)
 
-- Saved banner `[role="region"]` bounding box: `(x=0, y=48, w=1440, h=37)`.
-- Outer container: `display: flex`, `flex-direction: row`, `align-items: flex-start`, `justify-content: center`, `gap: 8px`, `padding: 8px 12px`, `border-bottom: 1px solid var(--color-border)`.
-- Two direct children: a `<p>` (text) and a `<button>` (× close).
-- Close button: `shrink-0`, `display: inline-flex`, `align-items: center`, `justify-content: center`, `padding: 4px`, `color: var(--color-faint)`, hover `bg: var(--color-surface-2)` + `color: var(--color-fg)`, 12×12 × icon.
+- Controls panel bbox `(15, 781, 26, 104)`.
+- Panel class: `react-flow__panel react-flow__controls vertical bottom left` (no chrome classes).
+- Panel computed styles:
+  - `background: rgba(0, 0, 0, 0)` (transparent — canvas dots show through)
+  - `box-shadow: rgba(0, 0, 0, 0.08) 0px 0px 2px 1px` (single subtle ring)
+  - `border: 0px solid rgb(15, 20, 28)` (no border)
+  - `border-radius: 8px`
+- 4 buttons, each 26×26:
+  - `react-flow__controls-zoomin` at y=781, label "Zoom In"
+  - `react-flow__controls-zoomout` at y=807, label "Zoom Out"
+  - `react-flow__controls-fitview` at y=833, label "Fit View"
+  - `react-flow__controls-interactive` at y=859, label "Toggle Interactivity" (lock icon)
+- Each button: `bg: rgb(255, 255, 255)`, `color: rgb(15, 20, 28)`, `border-bottom: 1px solid rgb(225, 230, 238)` (between buttons), 26×26.
 
 ### Local observation (1440 × 900, fresh, BEFORE fix)
 
-- Saved banner `[role="region"]` bounding box: `(x=0, y=48, w=1440, h=29)`.
-- Outer container: `position: relative` (no flex), `padding: 6px 12px`.
-- Body: inline `<span>` with `text-center`.
-- Close button: `position: absolute; right: 8px; top: 50%; transform: translateY(-50%)`, `aria-label="Dismiss saved-locally notice"`.
+- Controls panel bbox `(15, 807, 26, 78)`.
+- Panel class: `react-flow__panel react-flow__controls vertical !bg-surface !border-border !shadow-panel bottom left`.
+- Panel computed styles:
+  - `background: rgb(255, 255, 255)` (opaque white surface)
+  - `box-shadow: rgba(16, 20, 27, 0.06) 0px 1px 2px 0px, rgba(16, 20, 27, 0.08) 0px 8px 24px 0px` (panel shadow)
+  - `border: 0px`
+  - `border-radius: 8px`
+- 3 buttons, each 26×26:
+  - `react-flow__controls-zoomin` at y=807
+  - `react-flow__controls-zoomout` at y=833
+  - `react-flow__controls-fitview` at y=859
 
 ### Root-cause hypothesis
 
-When MM-003 added the saved banner, the reference banner's structure wasn't probed — the local defaulted to `text-center` with an absolutely-positioned × because that pattern is common for notification strips. The reference actually wraps both elements in a centered flex row so the text wraps around the close button when narrow, and the button stays anchored to the top of the row (not vertically centered). Subtle visual: at desktop widths with short text, both approaches *look* similar — but the text element type (`<span>` vs `<p>`), the padding (`6px 12px` vs `8px 12px`), and the close button alignment all differ.
+When MM-001 added the Controls panel in iteration 1, the reference's panel chrome wasn't probed in detail. The local's `className="!bg-surface !border-border !shadow-panel"` was an attempt to apply the project's `shadow-panel` design token to match the rest of the floating panels (Components panel, cookie consent). That looks reasonable in isolation but doesn't match the reference's transparent + thin-shadow look. Separately, the 4th button was hidden via `showInteractive={false}` likely as a code-size optimization, without realizing the reference exposes it as a standard feature.
 
 ### Planned change
 
-Rewrite `src/components/layout/SavedBanner.tsx` to match the reference's flex layout:
+Edit `src/canvas/Canvas.tsx`:
 
-1. Outer container: `relative ... text-center` → `flex shrink-0 items-start justify-center gap-2 px-3 py-2`. Padding `6px 12px` → `8px 12px`.
-2. Body: inline `<span>` → `<p>` with `text-xs text-muted leading-relaxed`.
-3. Close button: absolute positioning → `shrink-0 inline-flex items-center justify-center rounded p-1 text-faint hover:text-fg hover:bg-surface-2 transition-colors`.
-4. Close button `aria-label`: `"Dismiss saved-locally notice"` → `"Dismiss"` to match the reference (the role already implies the subject).
+1. `showInteractive={false}` → `showInteractive` (default = true) so the 4th `react-flow__controls-interactive` button is rendered.
+2. Remove `className="!bg-surface !border-border !shadow-panel"` from `<Controls>` so the panel reverts to xyflow defaults: transparent background, single subtle shadow, no border, 8px radius. Keep `position="bottom-left"` and the inline `style={{ borderRadius: '0.5rem', overflow: 'hidden' }}` (the latter matches the reference's rounded corner clipping).
 
 ### Result
 
 After fix:
-- Local panel bounding box `(1440 × 900)`: `(x=0, y=48, w=1440, h=37)` — **exact match** with reference `(x=0, y=48, w=1440, h=37)`.
-- Local padding `8px 12px` matches reference.
-- Local outer computed `display: flex`, `justify-content: center`, `align-items: flex-start`, `gap: 8px` — exact match.
-- Close button now sits at the end of the flex row (right of text), top-aligned, not vertically centered.
+- Local panel bbox `(1440 × 900)`: `(15, 781, 26, 104)` — **exact match** with reference.
+- Panel class: `react-flow__panel react-flow__controls vertical bottom left` — matches reference.
+- Panel computed styles: `background: rgba(0, 0, 0, 0)`, `box-shadow: rgba(0, 0, 0, 0.08) 0px 0px 2px 1px`, `border: 0px`, `border-radius: 8px` — all match reference.
+- 4 buttons rendered at y = 781, 807, 833, 859 — exact match.
+- Last button label: "Toggle Interactivity", class `react-flow__controls-interactive`, SVG: lock icon path `M21.333 10.667H19.81V7.619C19.81 3.429 16.38 0 12.19 0 ...` — matches reference.
+- Clicking the lock button doesn't toggle a CSS class on the button itself (matches reference behavior — React Flow handles the actual lock state internally via `nodesDraggable` etc.).
+- 0 console errors. Only the pre-existing React Flow Pro attribution warning.
 
-Screenshot at `.reverse-match/screenshots/iteration-043-local-saved-banner.png`.
-
-Dismiss button still works: clicking it persists `gravelgraph.seenSavedBanner: "1"` and removes the banner from the DOM. 0 console errors.
+Screenshot at `.reverse-match/screenshots/iteration-044-local-controls.png`.
 
 ### Remaining difference
 
-None measurable. The local now matches the reference exactly at the desktop viewport.
+None measurable at the desktop viewport.
 
 ### New mismatches discovered
 
-None at this viewport. Other minor mismatches may surface when probing narrower viewports (where the text wrapping around the inline × button would expose layout differences).
+None at this iteration.
 
 ### Next action
 
-Continue probing for more subtle mismatches: control panel / zoom button styling, minimap styling, edge label positioning, drag-to-resize behavior, theme persistence, header z-index, mobile saved-banner / cookie-consent stacking.
+Continue probing for more subtle mismatches: minimap styling details (per-node colors, mask, label visibility), edge label positioning at the SVG midpoint vs React Flow's automatic `labelX/Y` calc, drag-to-resize handle on the Components panel, theme persistence behavior, mobile / tablet widths for the Controls panel.
 
 ---
 
@@ -622,6 +637,24 @@ Continue probing for more subtle mismatches: control panel / zoom button styling
 - **Console**: 0 errors.
 - **Files changed**: `src/components/layout/SavedBanner.tsx`.
 - **Commit**: `deeffb7`
+
+### MM-044 — Canvas Controls panel has only 3 buttons and opaque chrome; reference uses 4 buttons + transparent
+
+- **Category**: Structural / chrome
+- **Severity**: Medium (visible on every page load at bottom-left; the missing 4th button is a documented React Flow feature — node interactivity lock)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900, fresh, welcome + cookie dismissed)**: `.react-flow__controls` panel bbox `(15, 781, 26, 104)`. Panel class `react-flow__panel react-flow__controls vertical bottom left`. Computed: `background: rgba(0,0,0,0)` (transparent), `box-shadow: rgba(0,0,0,0.08) 0px 0px 2px 1px` (single subtle 2px ring), `border: 0px`, `border-radius: 8px`. 4 buttons each 26×26 at y = 781, 807, 833, 859 — zoom-in, zoom-out, fit-view, interactive (lock).
+- **Local observation (1440 × 900, fresh, before fix)**: bbox `(15, 807, 26, 78)`. Panel class includes `!bg-surface !border-border !shadow-panel`. Computed: `background: rgb(255, 255, 255)` (opaque white), `box-shadow: rgba(16,20,27,0.06) 0 1px 2px 0, rgba(16,20,27,0.08) 0 8px 24px 0` (multi-stop panel shadow), `border: 0px`, `border-radius: 8px`. 3 buttons at y = 807, 833, 859 — zoom-in, zoom-out, fit-view only.
+- **Root cause**: MM-001 originally applied `!bg-surface !shadow-panel` chrome to the Controls panel to match the rest of the floating panels, but the reference's Controls panel is intentionally transparent with a thin shadow. Separately, `showInteractive={false}` was passed to hide the 4th `react-flow__controls-interactive` button (React Flow's built-in node-lock toggle), likely as a code-size optimization.
+- **Fix applied** (`src/canvas/Canvas.tsx`):
+  - `<Controls showInteractive={false} ...>` → `<Controls showInteractive ...>` so the 4th button (`react-flow__controls-interactive`, lock icon, label "Toggle Interactivity") renders.
+  - Removed `className="!bg-surface !border-border !shadow-panel"` from `<Controls>` so the panel reverts to xyflow defaults (transparent + single 2 px shadow + 8 px radius).
+  - Kept `position="bottom-left"` and the inline `style={{ borderRadius: '0.5rem', overflow: 'hidden' }}` (the latter matches the reference's rounded corner clipping).
+- **Verification (1440 × 900)**: bbox `(15, 781, 26, 104)` — **exact match** with reference. Panel class `react-flow__panel react-flow__controls vertical bottom left` — exact match. Computed `background: transparent`, `box-shadow: rgba(0,0,0,0.08) 0px 0px 2px 1px`, `border: 0px`, `border-radius: 8px` — all match. 4 buttons rendered at y = 781, 807, 833, 859 — exact match. Last button SVG path identical to reference's `lucide-lock`.
+- **Interactive behavior**: clicking the lock button doesn't toggle a CSS class on the button (matches reference — React Flow handles the actual lock state internally via `nodesDraggable` etc.).
+- **Console**: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Files changed**: `src/canvas/Canvas.tsx`.
+- **Commit**: `3b116e7`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1801,6 +1834,23 @@ Continue probing for more subtle mismatches: control panel / zoom button styling
 - **Next action**: continue probing for further mismatches (control panel, minimap, edge labels, resize handle, theme persistence).
 - **Commit**: `deeffb7`
 
+### Iteration 44 — MM-044 (canvas Controls panel: 4 buttons + transparent chrome)
+
+- **Selected mismatch**: MM-044 — Canvas Controls panel exposes only 3 buttons (zoom-in, zoom-out, fit-view) and uses an opaque white background with multi-stop `!shadow-panel` chrome. Reference exposes 4 buttons (the missing 4th is `react-flow__controls-interactive` = lock) with a transparent background and a single subtle 2 px shadow. Bottom anchor is the same (y=885) but local panel starts 26 px lower because it's 26 px shorter.
+- **Reference probe (1440 × 900, fresh, welcome + cookie dismissed)**: bbox `(15, 781, 26, 104)`. Panel class `react-flow__panel react-flow__controls vertical bottom left`. Computed: `background: rgba(0,0,0,0)`, `box-shadow: rgba(0,0,0,0.08) 0px 0px 2px 1px`, `border: 0px`, `border-radius: 8px`. 4 buttons at y = 781, 807, 833, 859 — zoom-in, zoom-out, fit-view, interactive (lock icon, SVG path `M21.333 10.667H19.81V7.619C19.81 3.429 16.38 0 12.19 0 ...`).
+- **Local probe (1440 × 900, fresh, before fix)**: bbox `(15, 807, 26, 78)`. Panel class includes `!bg-surface !border-border !shadow-panel`. Computed: `background: rgb(255,255,255)`, `box-shadow: rgba(16,20,27,0.06) 0 1px 2px 0, rgba(16,20,27,0.08) 0 8px 24px 0` (multi-stop panel shadow), `border: 0px`. 3 buttons at y = 807, 833, 859.
+- **Change made** (`src/canvas/Canvas.tsx`):
+  1. `<Controls showInteractive={false} ...>` → `<Controls showInteractive ...>`.
+  2. Removed `className="!bg-surface !border-border !shadow-panel"` from `<Controls>`.
+  3. Kept `position="bottom-left"` and inline `style={{ borderRadius: '0.5rem', overflow: 'hidden' }}`.
+- **Verification (1440 × 900)**: bbox `(15, 781, 26, 104)` — **exact match** with reference. Panel class exact match. All computed styles match. 4 buttons rendered at correct y positions. Last button SVG path identical to reference's `lucide-lock`.
+- **Lock button behavior**: clicking doesn't toggle a CSS class on the button itself — matches reference (React Flow handles the actual lock state internally via `nodesDraggable`).
+- **Console**: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Result**: ✅ MM-044 fixed. Controls panel now matches the reference exactly at the desktop viewport (4 buttons, transparent background, subtle 2px shadow).
+- **New mismatches discovered**: none at this iteration.
+- **Next action**: continue probing for further mismatches (minimap styling, edge label positioning, resize handle, theme persistence, mobile / tablet widths for Controls).
+- **Commit**: `3b116e7`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1852,6 +1902,7 @@ Continue probing for more subtle mismatches: control panel / zoom button styling
 | 041  | (post-MM-040 sweep) | `.reverse-match/screenshots/iteration-041-reference-welcome-desktop.png` | `.reverse-match/screenshots/iteration-041-local-{fresh-load,welcome-tablet,welcome-mobile}.png` | — | inline in iteration log (verification matrix at 3 widths, close-path probe) |
 | 042  | MM-042 | `.reverse-match/screenshots/iteration-042-reference-cookie-consent.png` | `.reverse-match/screenshots/iteration-042-local-cookie-{consent,desktop-final}.png` | — | inline in iteration log (bbox table at 3 viewports, layout diff) |
 | 043  | MM-043 | (probed live) | `.reverse-match/screenshots/iteration-043-local-saved-banner.png` | — | inline in iteration log (bbox + computed-style table) |
+| 044  | MM-044 | (probed live) | `.reverse-match/screenshots/iteration-044-local-controls.png` | — | inline in iteration log (panel bbox + 4-button positions + chrome table) |
 
 ---
 
@@ -1880,6 +1931,7 @@ Continue probing for more subtle mismatches: control panel / zoom button styling
 - **Welcome modal (fresh visit)**: shows "What would you like to make?" with 7 starter cards in a 2-col grid (1-col on mobile <640 px). Closes via × button, card click, ESC, or backdrop click. All four paths persist `gravelgraph.seenWelcome: "1"` so the modal is suppressed on subsequent visits. Matches reference (verified MM-040, MM-041).
 - **Cookie consent (fresh visit)**: horizontal panel anchored bottom-left (`x=12, y≈819 on tablet, y≈695 on desktop`) at `396×201`. Icon left (32×32 accent-tinted Lucide cookie), heading + 2 paragraphs + Privacy link + Accept/Decline buttons right. Accept persists `{v:1,ads:true}`, Decline persists `{v:1,ads:false}`. Matches reference (verified MM-042).
 - **Saved-locally banner (fresh visit, after dismissing welcome)**: full-width flex row directly below header at `y=48, h=37`. Body `<p>` (centered) + `shrink-0` × button (`aria-label="Dismiss"`) as siblings inside a `flex items-start justify-center gap-2 px-3 py-2` container with `border-b border-border`. Clicking × persists `gravelgraph.seenSavedBanner: "1"` and removes the banner from the DOM. Matches reference (verified MM-043).
+- **Canvas Controls panel**: bottom-left floating panel at `(x=15, y=781, w=26, h=104)` containing 4 buttons (zoom-in, zoom-out, fit-view, interactive/lock) each 26×26 with 1 px borders between them. Panel itself has `bg: transparent`, `box-shadow: rgba(0,0,0,0.08) 0px 0px 2px 1px`, `border: 0`, `border-radius: 8px`. Clicking zoom-in / zoom-out updates the viewport zoom; clicking fit-view recenters the diagram; clicking the lock button flips node draggability via React Flow's internal state. Matches reference (verified MM-044).
 
 ### Remaining differences
 
