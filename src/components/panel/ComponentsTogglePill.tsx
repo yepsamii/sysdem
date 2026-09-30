@@ -6,7 +6,7 @@ export function ComponentsTogglePill() {
   const toggleComponents = useUi((s) => s.toggleComponents);
 
   return (
-    <div className="lg:hidden px-2 pt-2 bg-canvas">
+    <div className="md:hidden px-2 pt-2 bg-canvas">
       <button
         type="button"
         aria-label={componentsOpen ? 'Hide components' : 'Show components'}

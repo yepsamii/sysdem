@@ -362,8 +362,8 @@ export function ComponentsPanel() {
       aria-label="Components"
       className={
         componentsOpen
-          ? 'fixed top-12 left-0 bottom-0 z-30 w-[280px] border-r border-border bg-surface flex flex-col overflow-hidden lg:absolute lg:top-3 lg:left-3 lg:bottom-auto lg:w-[264px] lg:max-h-[calc(100%-10rem)] lg:border lg:rounded-xl lg:shadow-panel lg:overflow-hidden'
-          : 'hidden lg:flex lg:absolute lg:top-3 lg:left-3 lg:w-[264px] lg:max-h-[calc(100%-10rem)] lg:border lg:rounded-xl lg:shadow-panel lg:bg-surface lg:flex-col lg:overflow-hidden'
+          ? 'fixed top-12 left-0 bottom-0 z-30 w-[280px] border-r border-border bg-surface flex flex-col overflow-hidden md:absolute md:top-3 md:left-3 md:bottom-auto md:w-[264px] md:max-h-[calc(100%-10rem)] md:border md:rounded-xl md:shadow-panel md:overflow-hidden'
+          : 'hidden md:flex md:absolute md:top-3 md:left-3 md:w-[264px] md:max-h-[calc(100%-10rem)] md:border md:rounded-xl md:shadow-panel md:bg-surface md:flex-col md:overflow-hidden'
       }
     >
       {/* Resize handle (desktop only) — drag to adjust panel width. */}
