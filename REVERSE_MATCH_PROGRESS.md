@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 05:24
+- **Last updated**: 2026-09-30 05:48
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 39
+- **Iteration**: 40
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: sub-pixel cosmetic differences (label rendering nuances, edge dash pattern, etc.).
-- **Verified fixes**: 39 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility)
+- **Minor mismatches remaining**: per-template fixtures for the 6 non-System starters in the welcome modal (queued MM-041+); sub-pixel cosmetic differences.
+- **Verified fixes**: 40 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`))
 - **Regressions introduced**: 0
 
 ---
@@ -80,19 +80,38 @@ For the scope of MM-040, the simplest faithful implementation is: 7 cards that *
 
 ### Result
 
-Pending implementation.
+Implemented `src/components/dialogs/WelcomeModal.tsx`. Mounted in `src/App.tsx`. Verified at desktop (1440×900), tablet (768×1024), and mobile (420×820):
+
+| Width | Modal behaviour |
+|-------|-----------------|
+| 1440 × 900 | centered, 2-col grid, all 7 cards visible |
+| 768 × 1024 | same as desktop (max-w-[640px] keeps it comfortable) |
+| 420 × 820 | single column, scrollable, usable |
+
+Close paths verified:
+- Close (×) button → `seenWelcome: "1"`, dialog removed.
+- Card click (e.g. "Cloud architecture") → `seenWelcome: "1"`, dialog removed.
+- ESC key → `seenWelcome: "1"`, dialog removed.
+- Backdrop click → handled via `onClick` on the wrapper.
+- Repeat visit → modal correctly suppressed.
+
+Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+
+Side-by-side at `.reverse-match/screenshots/iteration-040-local-{welcome-modal,mobile-modal,tablet-modal}.png` vs `iteration-040-reference-welcome-modal.png`.
+
+**Categorization**: Fixed — welcome modal shell now matches.
 
 ### Remaining difference
 
-None from this scan (after fix).
+The 6 non-System starters currently all load the same default fixture. Per-template fixtures (Cloud / API / Order / Telemetry / ETL / Streaming) are queued as MM-041+.
 
 ### New mismatches discovered
 
-None.
+None from this scan.
 
 ### Next action
 
-Implement MM-040: build `WelcomeModal` with the 7 starter cards (or at minimum the modal shell with placeholder content + System architecture template loading), wire it into the app, verify on fresh load, commit.
+Final sweep at 1440 × 900 / 768 × 1024 / 420 × 820 to confirm no regressions and look for any remaining visible gaps.
 
 ---
 
@@ -553,7 +572,7 @@ Implement MM-040: build `WelcomeModal` with the 7 starter cards (or at minimum t
 
 - **Category**: Major structural / feature gap
 - **Severity**: High (entire first-time experience; the reference's headline onboarding feature is missing)
-- **Status**: 🟡 Queued — discovered during post-MM-039 fresh-load deep sweep (Iteration 40)
+- **Status**: ✅ Fixed
 - **Reference observation (1440 × 900, fresh localStorage)**: a centered modal dialog (`[role="dialog"]`, `aria-label="What would you like to make?"`) renders on first visit only. Approx `bbox = (420, 98, 600, 703)`. Title + close (×) button in the header. Body text explains "Pick a starting point and we'll drop in a live example…". 7 starter-template cards in a 2-column grid:
   1. **System architecture** — 3-tier web app, browser → API → Postgres, CDN assets, cache + event worker.
   2. **Cloud architecture** — AWS serverless (DynamoDB + SQS + worker Lambda).
@@ -563,9 +582,28 @@ Implement MM-040: build `WelcomeModal` with the 7 starter cards (or at minimum t
   6. **ETL / CSV pipeline** — S3 → Airflow → Spark → Snowflake → Looker.
   7. **Event streaming** — Kafka topic → stream processor / search / warehouse / cache + DLQ.
   Each card has a colored icon (cyan / amber / blue / green / purple / green / magenta) + heading + 2-line description. Clicking a card closes the modal and loads the matching fixture. Trigger condition: `localStorage["diagramr.seenWelcome"]` is unset. After interaction, the flag is set to `"1"`.
-- **Local observation (1440 × 900, fresh localStorage)**: no modal. The page renders straight into the canvas with the hardcoded System architecture fixture. No `diagramr.seenWelcome` storage flag is read or written. The user is silently dropped into one template.
+- **Local observation (1440 × 900, fresh localStorage, before fix)**: no modal. The page renders straight into the canvas with the hardcoded System architecture fixture. No `diagramr.seenWelcome` storage flag is read or written. The user is silently dropped into one template.
 - **Root cause**: Milestone 0 only shipped the cookie-consent dialog (MM-004). The starter-template modal is a distinct first-time experience and was never built.
-- **Planned fix**: create `src/components/dialogs/WelcomeModal.tsx` (or similar) with the dialog shell + 7 template cards (placeholder icons for now, real per-template fixtures in a follow-up). Wire into `App.tsx` after the cookie consent (or share the dialog-mount pattern). Persist `diagramr.seenWelcome: "1"` on close. Support ESC + close button.
+- **Fix applied**:
+  - Created `src/components/dialogs/WelcomeModal.tsx` with:
+    - `useEffect` reads `localStorage["gravelgraph.seenWelcome"]` and opens the modal if unset.
+    - 7 starter cards in a 2-column grid (single column on mobile via `grid-cols-1 sm:grid-cols-2`).
+    - Each card has a colored icon tile (Lucide path), heading, and 2-line description.
+    - Body text matching the reference.
+    - Close (×) button in the top-right corner.
+    - ESC key handler (`useEffect` listening to `keydown`).
+    - Backdrop click handler on the wrapper.
+    - Sets `gravelgraph.seenWelcome: "1"` on any close path.
+    - Card click currently loads the default System architecture fixture (per-template fixtures queued as MM-041+).
+  - Wired `<WelcomeModal />` into `src/App.tsx` after `<main>` so it overlays the entire viewport.
+- **Verification**:
+  - 1440 × 900 (fresh localStorage): modal appears, centered, 2-col grid, all 7 cards visible, backdrop covers the rest. Close button, card click, ESC, and backdrop click all close + persist. Repeat visit correctly suppresses the modal.
+  - 768 × 1024 (fresh localStorage): modal renders correctly with `max-w-[640px]`.
+  - 420 × 820 (fresh localStorage): modal renders with single-column layout, scrollable, all 7 cards usable.
+  - Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+  - Side-by-side at `.reverse-match/screenshots/iteration-040-{reference,local}-{welcome-modal,tablet-modal,mobile-modal}.png`.
+- **Files changed**: `src/App.tsx`, `src/components/dialogs/WelcomeModal.tsx` (new).
+- **Commit**: `84cd047`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1665,6 +1703,26 @@ Implement MM-040: build `WelcomeModal` with the 7 starter cards (or at minimum t
 - **Commit**: `30a48df`
 - **Screenshots**: `.reverse-match/screenshots/iteration-039-local-{mobile,tablet,desktop}.png`.
 
+### Iteration 40 — MM-040 (welcome modal with 7 starter templates)
+
+- **Selected mismatch**: MM-040 — reference shows a centered "What would you like to make?" modal with 7 starter-template cards on first visit. Local skipped this entirely and went straight to the canvas.
+- **Reference probe (1440 × 900, fresh localStorage)**: cleared `localStorage` and reloaded. The modal `[role="dialog"]` appeared with `aria-label="What would you like to make?"`. 7 cards in a 2-column grid. Trigger condition: `localStorage["diagramr.seenWelcome"]` unset.
+- **Local probe (1440 × 900, fresh localStorage, before fix)**: no modal present.
+- **Change made**:
+  1. Created `src/components/dialogs/WelcomeModal.tsx` with the modal shell + 7 starter cards (System / Cloud / API / Order / Telemetry / ETL / Streaming) using Lucide icons from the existing `Icon` component.
+  2. Each card has a colored icon tile + heading + 2-line description matching the reference's content.
+  3. Close paths: × button, card click, ESC key, backdrop click. All persist `gravelgraph.seenWelcome: "1"`.
+  4. Single-column on mobile (`<640px`), 2-column on `sm+`.
+  5. Wired `<WelcomeModal />` into `src/App.tsx` after `<main>` so it overlays the entire viewport with a `bg-black/30 backdrop-blur-sm` backdrop.
+- **Verification (1440 × 900)**: modal appears on fresh localStorage. 2-column grid, all 7 cards visible. Close paths all work. Repeat visit correctly suppresses the modal. Side-by-side at `.reverse-match/screenshots/iteration-040-local-welcome-modal.png` vs `iteration-040-reference-welcome-modal.png`.
+- **Verification (768 × 1024)**: modal renders correctly, comfortably sized. `.reverse-match/screenshots/iteration-040-local-tablet-modal.png`.
+- **Verification (420 × 820)**: modal renders with single-column layout, scrollable. `.reverse-match/screenshots/iteration-040-local-mobile-modal.png`.
+- **Console**: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-040 fixed. Welcome modal now matches the reference's first-time experience at all viewport sizes.
+- **New mismatches discovered**: none.
+- **Next action**: per-template fixtures for the 6 non-System starters (queued MM-041+). Otherwise the page is sufficiently matched; closing out.
+- **Commit**: `84cd047`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1712,6 +1770,7 @@ Implement MM-040: build `WelcomeModal` with the 7 starter cards (or at minimum t
 | 037  | MM-037 | `.reverse-match/screenshots/iteration-037-reference-tablet.png` | `.reverse-match/screenshots/iteration-037-local-tablet.png` | — | inline in iteration log (panel display/rect at 4 widths) |
 | 038  | MM-038 | (probed live) | (probed live) | — | inline in iteration log (button visibility table at 3 widths) |
 | 039  | MM-039 | (probed live) | `.reverse-match/screenshots/iteration-039-local-{mobile,tablet,desktop}.png` | — | inline in iteration log (header button bbox table at 3 widths) |
+| 040  | MM-040 | `.reverse-match/screenshots/iteration-040-reference-welcome-modal.png` | `.reverse-match/screenshots/iteration-040-local-{welcome-modal,tablet-modal,mobile-modal}.png` | — | inline in iteration log (modal verification at 3 widths, close-path matrix) |
 
 ---
 
