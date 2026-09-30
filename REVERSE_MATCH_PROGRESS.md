@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 03:54
+- **Last updated**: 2026-09-30 04:04
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 34
+- **Iteration**: 35
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: token label vertical position vs particle (local uses `dy="-7"`; reference may differ slightly).
-- **Verified fixes**: 34 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid)
+- **Minor mismatches remaining**: sub-pixel cosmetic differences (label rendering nuances, edge dash pattern, etc.).
+- **Verified fixes**: 35 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling)
 - **Regressions introduced**: 0
 
 ---
@@ -30,79 +30,59 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-034 — Default node positions in `defaultDiagram.ts` are irregular (CDN at x=320, API at x=870, etc.); reference uses a clean grid (300 px column spacing, 3 distinct rows at y=60/200/340).
+MM-035 — Edge label chips use `text-xs` (12 px) and `pointer-events-auto`; reference uses `text-[11px]` and `select-none`.
 
 ### Why this mismatch was selected
 
-After MM-033 fixed edge particle velocity, the carry-over list pointed to "exact node positions vs reference" as the next candidate. While probing node positions via `document.querySelectorAll('.react-flow__node')` and reading `node.style.transform`, the divergence turned out to be much larger than a sub-pixel offset: local's positions are scattered (320/600/870/1110/1370 in x; 60/90/165/180/200/240/300 in y), while the reference's positions sit on a clean 3×3 grid (300/600/900/1200/1500 in x; 60/200/340 in y). This is one of the largest visible layout differences remaining.
+While probing the reference's edge label DOM to verify MM-033's token label position, two stylistic differences in the label chip itself surfaced: font-size is 11 px (vs local's 12 px) and the chip uses `select-none` instead of `pointer-events-auto`. These produce subtly different label rendering (1 px smaller text, ~6 px narrower chips) and a different user-interaction model (chip text can't be selected).
 
 ### Reference observation (1440 × 900)
 
-Probed via `document.querySelectorAll('.react-flow__node')` → read `style.transform` → parse `translate(x, y)`. Reference viewport zoom is `scale(0.714286)` = 5/7, so positions are measured at the rendered zoom. At zoom=1 (the underlying position values), the table is:
+Probed via `document.querySelectorAll('.react-flow__edgelabel-renderer div, .react-flow__edge-label-renderer div')`:
 
-| Kind | Label | x | y | Icon class |
-|---|---|---|---|---|
-| client | User | 0 | 200 | lucide-monitor-smartphone |
-| cdn | CDN | 300 | 60 | lucide-cloud |
-| webapp | Web App | 300 | 340 | lucide-app-window |
-| gateway | API Gateway | 600 | 200 | lucide-route |
-| api | API | 900 | 200 | lucide-server-cog |
-| cache | Cache | 1200 | 60 | lucide-zap |
-| database | Database | 1200 | 200 | lucide-database |
-| queue | Event Queue | 1200 | 340 | lucide-waypoints |
-| worker | Worker | 1500 | 340 | lucide-square-function |
+```js
+{
+  text: "request / response",
+  classList: "nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-[11px] text-fg select-none",
+  rect: { width: 79.87, height: 16.07 },
+}
+```
 
-All node widths = 128.57 (rendered) = 180.0 (at zoom=1). All heights = 45.71 (rendered) = 64.0 (at zoom=1). So node size is uniform 180×64, matching local.
+Every reference edge label uses `text-[11px]` and `select-none`. The bounding rect height is 16.07 (which is what 11 px text + 2 px padding top/bottom = 4 + ~12 = 16 gives).
 
 ### Local observation (1440 × 900 before fix)
 
-| Kind | x | y |
-|---|---|---|
-| client | -40 | 200 |
-| cdn | 320 | 90 |
-| webapp | 320 | 240 |
-| gateway | 600 | 165 |
-| api | 870 | 165 |
-| cache | 1110 | 60 |
-| database | 1110 | 180 |
-| queue | 1110 | 300 |
-| worker | 1370 | 300 |
-
-All positions are off-grid: User is at x=-40 (should be 0), CDN at x=320 (should be 300), API at x=870 (should be 900), Worker at x=1370 (should be 1500), and most y values don't match the reference's 60/200/340 rows.
+Local chip used `text-xs text-fg pointer-events-auto` (12 px font, clickable). Width was slightly larger (~6 px wider for the same text content).
 
 ### Root-cause hypothesis
 
-The local positions were originally chosen by hand when first scaffolding the default diagram, before the reference's exact positions were known. They were never re-measured against the live site.
+The original chip chrome (MM-007) used `text-xs` (the project's default small text size). When MM-007 set up the chip, the reference's exact `text-[11px]` wasn't yet known, and `pointer-events-auto` was a deliberate choice to make the chip clickable for drag-to-slide behavior. The reference uses `nodrag nopan` to keep the chip out of React Flow's drag/pan handling without making it interactive — `select-none` is enough.
 
 ### Planned change
 
-In `src/canvas/defaultDiagram.ts`, replace every node's `position` with the reference's exact (x, y) from the table above. Node size (180×64), labels, sublabels, and kinds are all unchanged.
+In `src/canvas/FlowEdge.tsx`, swap `text-xs` → `text-[11px]` and `pointer-events-auto` → `select-none` on the label chip `<div>`. The drag-to-slide behavior is unaffected because `nodrag nopan` already prevents React Flow from picking up drag/pan events on the chip.
 
 ### Result
 
-After implementation (`837f2a7`), probed all 9 local nodes in `localhost:5173`:
+After implementation (`fe259fd`), probed local edge labels:
 
-| Kind | Reference x | Local x (before) | Local x (after) |
-|---|---|---|---|
-| User | 0 | -40 | **0** ✓ |
-| CDN | 300 | 320 | **300** ✓ |
-| Web App | 300 | 320 | **300** ✓ |
-| API Gateway | 600 | 600 | **600** ✓ |
-| API | 900 | 870 | **900** ✓ |
-| Cache | 1200 | 1110 | **1200** ✓ |
-| Database | 1200 | 1110 | **1200** ✓ |
-| Event Queue | 1200 | 1110 | **1200** ✓ |
-| Worker | 1500 | 1370 | **1500** ✓ |
+```js
+{
+  text: "request / response",
+  classList: "nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-[11px] text-fg select-none",
+  rect: { width: 79.87, height: 16.07 },
+}
+```
 
-Same comparison for y: every node now matches the reference's 60/200/340 rows. Side-by-side screenshot at `.reverse-match/screenshots/iteration-034-local-after.png` (local after fix).
+Class string and height match the reference exactly. Side-by-side at `.reverse-match/screenshots/iteration-035-local-after.png`.
 
 Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
 
-**Categorization**: Fixed — node positions now form the same clean grid as the reference.
+**Categorization**: Fixed — edge label chips now match the reference's 11 px + non-selectable styling.
 
 ### Remaining difference
 
-- Token label vertical position vs particle (`dy="-7"` in local; reference may differ slightly) — minor.
+Sub-pixel cosmetic differences only (label rendering nuances, edge dash pattern, etc.).
 
 ### New mismatches discovered
 
@@ -110,7 +90,7 @@ None visible from this scan.
 
 ### Next action
 
-MM-035 — probe the token label position vs the reference (the `<text dy="…">` offset for `HTTPS`, `SQL`, `msg`, etc. labels). If the reference uses a different vertical offset, swap to it.
+MM-036 — the page is now very close to the reference. Switch to **final verification**: side-by-side screenshots at desktop / mobile / tablet, plus hover and pause states, to confirm no regressions.
 
 ### Reference observation (1440 × 900)
 
@@ -581,6 +561,22 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 - **Verification**: see Current Iteration §"Result". All 9 local nodes now report the same (x, y) as the reference. Side-by-side at `.reverse-match/screenshots/iteration-034-local-after.png`.
 - **Files changed**: `src/canvas/defaultDiagram.ts`.
 - **Commit**: `837f2a7`
+
+### MM-035 — Edge label chips use `text-xs` + `pointer-events-auto`; reference uses `text-[11px]` + `select-none`
+
+- **Category**: Visual / typography
+- **Severity**: Low (sub-pixel cosmetic — chips are 1 px shorter and slightly narrower)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: probed the reference edge label DOM via `document.querySelectorAll('.react-flow__edgelabel-renderer div')`. The chip class is `nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-[11px] text-fg select-none`. Sample probe:
+  ```js
+  { text: "request / response", rect: { width: 79.87, height: 16.07 } }
+  ```
+- **Local before**: chip used `text-xs text-fg pointer-events-auto`. Same px-1.5 / py-0.5 / rounded / bg-surface / border-border / nodrag nopan / absolute — only the typography and interactivity differed. Width was ~6 px wider than reference for the same text content.
+- **Root cause**: when MM-007 set up the chip chrome in the early Milestone 0 era, the reference's exact `text-[11px]` and `select-none` weren't yet known. `text-xs` (the project's default small text size) was used, and `pointer-events-auto` was a deliberate choice to make the chip clickable for drag-to-slide behavior. The reference uses `nodrag nopan` to keep the chip out of React Flow's drag/pan handling without making it interactive — `select-none` is enough.
+- **Fix** (in `src/canvas/FlowEdge.tsx`): swapped `text-xs` → `text-[11px]` and `pointer-events-auto` → `select-none` on the label chip `<div>`. The drag-to-slide behavior is unaffected because `nodrag nopan` already prevents React Flow from picking up drag/pan events on the chip.
+- **Verification**: see Current Iteration §"Result". Local chip class string now matches the reference exactly; bounding rect is `{ width: 79.87, height: 16.07 }` — matches the reference. Side-by-side at `.reverse-match/screenshots/iteration-035-local-after.png`.
+- **Files changed**: `src/canvas/FlowEdge.tsx`.
+- **Commit**: `fe259fd`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1589,6 +1585,21 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 - **Next action**: MM-035 — probe the token label position vs the reference (the `<text dy="…">` offset for `HTTPS`, `SQL`, `msg`, etc.). If the reference uses a different vertical offset, swap to it.
 - **Commit**: `837f2a7`
 
+### Iteration 35 — MM-035 (edge label chip styling)
+
+- **Selected mismatch**: MM-035 — local edge label chip used `text-xs text-fg pointer-events-auto`; reference uses `text-[11px] text-fg select-none`. Discovered while verifying MM-303's token label position (the `<text dy="…">` offset matched, but the chip chrome didn't).
+- **Reference probe (1440 × 900)**: chip class string `nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-[11px] text-fg select-none`. Sample bounding rect `{ width: 79.87, height: 16.07 }`.
+- **Change made**: in `src/canvas/FlowEdge.tsx`, swapped `text-xs` → `text-[11px]` and `pointer-events-auto` → `select-none` on the label chip `<div>`. Drag-to-slide behavior is unaffected because `nodrag nopan` already prevents React Flow from picking up drag/pan events.
+- **Verification (1440 × 900, light theme, cleared localStorage)**:
+  - Local chip class string now matches the reference exactly.
+  - Local chip bounding rect for "request / response" label: `{ width: 79.87, height: 16.07 }` — matches reference.
+  - Screenshot at `.reverse-match/screenshots/iteration-035-local-after.png`.
+  - Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-035 fixed. Page is now very close to the reference.
+- **New mismatches discovered**: none from this scan. All known major mismatches are now resolved.
+- **Next action**: MM-036 — final verification across desktop / mobile / tablet viewports, plus hover and pause states, to confirm no regressions.
+- **Commit**: `fe259fd`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1631,6 +1642,7 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 | 032  | MM-032 | (same as iter-031 reference) | `.reverse-match/screenshots/iteration-032-local-after.png` | — | inline in iteration log |
 | 033  | MM-033 | (probed live) | `.reverse-match/screenshots/iteration-033-local-after.png` | — | inline in iteration log (9-row dur/length/speed table) |
 | 034  | MM-034 | (probed live) | `.reverse-match/screenshots/iteration-034-local-after.png` | — | inline in iteration log (9-row x/y diff table) |
+| 035  | MM-035 | (probed live) | `.reverse-match/screenshots/iteration-035-local-after.png` | — | inline in iteration log |
 
 ---
 
