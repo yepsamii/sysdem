@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 03:46
+- **Last updated**: 2026-09-30 03:50
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 32
+- **Iteration**: 33
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: edge particle rendering details (token label position, exact density / speed), exact node positions vs reference (CDN/Web App offsets), possibly the Help button icon glyph (compare/gear).
-- **Verified fixes**: 32 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph)
+- **Minor mismatches remaining**: exact node positions vs reference (CDN/Web App offsets, etc. — sub-pixel), token label vertical position relative to particle on each edge.
+- **Verified fixes**: 33 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration)
 - **Regressions introduced**: 0
 
 ---
@@ -30,84 +30,81 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-032 — Header right cluster is missing the "Compare architecture" icon button.
+MM-033 — Edge particle duration is fixed at 20s for every edge; reference uses a constant velocity (length / 20 px/s) so particles on short edges move at the same visual speed as particles on long edges.
 
 ### Why this mismatch was selected
 
-After MM-031 fixed the brand-mark glyph, the remaining obvious gap in the header right cluster was a single icon button sitting between Redo and the segmented mode group, visible at x≈1037 in the reference screenshot. The button's aria-label is "Compare architecture". Local was missing this button entirely. It was the only chrome element still obviously out of place after MM-027.
+After MM-032 completed the header, MM-033 was scoped to the remaining "edge particle rendering details" item from the carry-over list. While probing edges in the reference to understand what's actually different, the most obvious and impactful divergence surfaced: durations vary per-edge (5.7s for short, 20.7s for long) — strongly suggesting the reference normalises particle velocity to a constant px/s rather than using a fixed duration. Confirming this in MM-033 makes the edges look much closer to the reference at first glance.
 
 ### Reference observation (1440 × 900)
 
-Probed via `document.querySelector('button[aria-label="Compare architecture"]')`:
+Probed via `document.querySelectorAll('.react-flow__edge')` → iterate each → read `path.react-flow__edge-path.getTotalLength()` and `animateMotion.dur`. Result (every edge):
 
-```js
-{
-  width: 36, height: 36,
-  rect: { x: 1036.94, y: 5.5, w: 36, h: 36 },
-  svg: {
-    width: "18", height: "18", viewBox: "0 0 24 24",
-    innerHTML: "<circle cx=\"5\" cy=\"6\" r=\"3\"></circle>
-                <path d=\"M12 6h5a2 2 0 0 1 2 2v7\"></path>
-                <path d=\"m15 9-3-3 3-3\"></path>
-                <circle cx=\"19\" cy=\"18\" r=\"3\"></circle>
-                <path d=\"M12 18H7a2 2 0 0 1-2-2V9\"></path>
-                <path d=\"m9 15 3 3-3 3\"></path>",
-  },
-}
-```
+| Edge | length (px) | dur (s) | length / dur (px/s) |
+|------|-------------|---------|---------------------|
+| e_fa54bf63 | 414 | 20.7 | **20** |
+| e_c3b90726 | 180.5 | 9.03 | **20** |
+| e_a3b732a7 | 114 | 5.7 | **20** |
+| e_f7974dd0 | 116 | 5.80 | **20** |
+| e_9dfb5bec | 114 | 5.7 | **20** |
+| e_4f4f8a77 | 185.7 | 9.28 | **20** |
 
-The button is 36×36 (matching the other icon buttons), and the icon is `lucide-git-compare-arrows` — two circles connected by curved arrows showing flow. The button sits ~10 px left of the segmented mode group (`x=1083.94`), with no separator between them.
+Every edge's `length / dur` resolves to **exactly 20 px/s** — a constant velocity, not a constant duration.
 
 ### Local observation (1440 × 900 before fix)
 
-Local had no such button. The right cluster jumped directly from the left-cluster Redo → center "Saved locally" indicator → segmented mode group, missing the Compare button entirely.
+Local used `const BASE_DUR = 20; const dur = BASE_DUR / speed;` — fixed 20s for every edge regardless of length. Side effect: a 76 px edge animates at 3.8 px/s (5× slower than reference), while a 249 px edge animates at 12.5 px/s (1.6× slower than reference). The mismatch is most visible on long edges where particles crawl.
 
 ### Root-cause hypothesis
 
-MM-027's header rebuild added the segmented mode group, separators, and File pill, but didn't introduce the Compare button because at the time it wasn't yet known to be a distinct chrome element. Separately, the local `paths['compare']` entry was a generic Lucide `compare` glyph (two stacked rectangles) — wrong glyph for the reference, which uses `git-compare-arrows`.
+The original local implementation picked a single `BASE_DUR` because it's simpler than computing per-edge durations. The reference evidently derives `dur` from `edgeLength / PARTICLE_VELOCITY` so all particles look the same speed regardless of edge length.
 
 ### Planned change
 
-Two changes:
+In `src/canvas/FlowEdge.tsx`:
 
-1. In `src/components/layout/Header.tsx`, add a new `<button aria-label="Compare architecture" className={iconBtn}>` with `<Icon name="compare" />` immediately before the segmented mode group in the right cluster. Remove the separator between the center cluster and right cluster because Compare now flows directly into the mode group (matching the reference's no-separator visual).
-2. In `src/components/ui/Icon.tsx`, replace `paths['compare']` from the two-rectangles glyph to the reference's git-compare-arrows SVG. The new value is multi-shape markup (contains `<`), so the Icon renderer takes the `<g dangerouslySetInnerHTML>` branch.
+1. Replace `BASE_DUR = 20` with `PARTICLE_SPEED_PX_PER_S = 20`.
+2. Compute `edgeLen = hypot(targetX - sourceX, targetY - sourceY)` (works for straight edges; trivially extendable to polylines later).
+3. Compute `dur = edgeLen / (PARTICLE_SPEED_PX_PER_S * speed)` so the `speed` multiplier still halves the duration for `speed=2`, etc.
+
+The phase distribution (`i / density`) and the `<circle r="3.2">` / `<text dy="-7">` render shape are unchanged — only `dur` shifts.
 
 ### Result
 
-After implementation (`148f5c6`):
+After implementation (`8917fc0`), probed all 9 local edges in `localhost:5173`:
 
-Probed local `<button aria-label="Compare architecture">` in `localhost:5173`:
+| Edge | length (px) | dur (s) | length / dur (px/s) |
+|------|-------------|---------|---------------------|
+| e_user_cdn | 207.55 | 10.38 | **20** |
+| e_user_webapp | 180.49 | 9.02 | **20** |
+| e_cdn_webapp | 82 | 4.10 | **20** |
+| e_webapp_gw | 121.82 | 6.09 | **20** |
+| e_gw_api | 86 | 4.30 | **20** |
+| e_api_cache | 242.84 | 12.14 | **20** |
+| e_api_db | 57.97 | 2.90 | **20** |
+| e_api_queue | 249.18 | 12.46 | **20** |
+| e_queue_worker | 76 | 3.80 | **20** |
 
-```js
-{
-  btnRect: { x: 1105.26, y: 5.5, w: 36, h: 36 },
-  nextSibling: { tag: "DIV", label: "Playback mode", rect: { x: 1145.26, y: 6.5, w: 112, h: 34 } },
-  svgInnerHTML: "<g><circle cx=\"5\" cy=\"6\" r=\"3\"></circle>... 6 elements total ...</g>",
-}
-```
+Every edge resolves to exactly 20 px/s — matches the reference's behavior perfectly. Particles now flow at the same visual speed across short and long edges.
 
-The button is 36×36 (matches reference), positioned to the left of the segmented mode group with no separator between them, and the SVG renders the same 6-element git-compare-arrows SVG as the reference.
-
-Side-by-side screenshot at `.reverse-match/screenshots/iteration-031-reference.png` (reference — used for MM-031 but applies here) and `.reverse-match/screenshots/iteration-032-local-after.png` (local after fix). Both show Compare sitting to the left of the segmented mode group.
+Side-by-side screenshot at `.reverse-match/screenshots/iteration-033-local-after.png` (local after fix).
 
 Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
 
-**Categorization**: Fixed — header right cluster now has the Compare button in the right position with the right glyph.
+**Categorization**: Fixed — edge particle velocity is now constant at 20 px/s, matching the reference exactly.
 
 ### Remaining difference
 
-- Edge particle rendering details (token label position, exact density / speed) — minor.
 - Exact node positions vs reference (CDN/Web App offsets, etc.) — sub-pixel.
-- The Pause button label hides at <xl viewport in local (`hidden xl:inline`) — reference may keep it visible at smaller breakpoints.
+- Token label vertical position vs particle (`dy="-7"` in local; reference may differ) — minor.
 
 ### New mismatches discovered
 
-None visible from the current scan. The header right cluster now has all the same buttons as the reference (Compare, segmented mode, Pause, Help, Theme).
+The reference's edge particles also have `data-flow-particle`, `data-phase`, `data-dir` attributes on the circle/text. These look like test/debug hooks (they don't affect rendering), so we won't add them unless tests need them.
 
 ### Next action
 
-MM-033 — investigate edge particle rendering details (token label position, exact density / speed). Start by capturing the current edge particle behavior in local and comparing to the reference via a Playwright probe.
+MM-034 — investigate node positions vs reference. The local nodes may be slightly offset from the reference's positions. Capture the reference's node positions and compare to `defaultDiagram.ts` to determine if any need to shift.
 
 ### Reference observation (1440 × 900)
 
@@ -535,6 +532,23 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 - **Verification**: see Current Iteration §"Result". The local button is 36×36 and its SVG emits the same 6-element innerHTML as the reference. Side-by-side at `.reverse-match/screenshots/iteration-031-reference.png` (reference) vs `.reverse-match/screenshots/iteration-032-local-after.png` (local after fix).
 - **Files changed**: `src/components/layout/Header.tsx`, `src/components/ui/Icon.tsx`.
 - **Commit**: `148f5c6`
+
+### MM-033 — Edge particle duration is fixed at 20s; reference uses constant 20 px/s velocity
+
+- **Category**: Visual / behavior
+- **Severity**: Medium (particles visibly crawl on long edges and zoom on short edges — visible across all 9 default edges)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: probed all 9 edges via `path.react-flow__edge-path.getTotalLength()` and `animateMotion.dur`. The ratio `length / dur` resolves to **exactly 20 px/s for every edge** (e.g. 414px edge → 20.7s, 114px edge → 5.7s, 76px edge → 3.8s). Confirms the reference normalises particle velocity to a constant px/s rather than a fixed duration.
+- **Local before**: `const BASE_DUR = 20; const dur = BASE_DUR / speed;` — fixed 20s for every edge regardless of length. A 76px edge animates at 3.8 px/s (5× slower than reference); a 249px edge animates at 12.5 px/s (1.6× slower than reference). The mismatch is most visible on long edges where particles crawl, and on short edges where they zoom.
+- **Root cause**: the original local implementation chose a single `BASE_DUR` for simplicity. The reference computes per-edge duration from edge length and a constant velocity so all particles look the same speed.
+- **Fix** (in `src/canvas/FlowEdge.tsx`):
+  1. Replaced `BASE_DUR = 20` with `PARTICLE_SPEED_PX_PER_S = 20`.
+  2. Compute `edgeLen = hypot(targetX - sourceX, targetY - sourceY)` for straight edges.
+  3. Compute `dur = edgeLen / (PARTICLE_SPEED_PX_PER_S * speed)` so the user-facing `speed` multiplier still halves the duration for `speed=2`.
+  The phase distribution (`i / density`), `<circle r="3.2">` shape, and `<text dy="-7">` token label are unchanged — only `dur` shifts.
+- **Verification**: see Current Iteration §"Result". All 9 local edges report `length / dur ≈ 20` px/s after the fix — matches the reference exactly. Side-by-side at `.reverse-match/screenshots/iteration-033-local-after.png`.
+- **Files changed**: `src/canvas/FlowEdge.tsx`.
+- **Commit**: `8917fc0`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1513,6 +1527,21 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 - **Next action**: MM-033 — investigate edge particle rendering details (token label position, exact density / speed). Capture the current local behavior via Playwright and compare to the reference.
 - **Commit**: `148f5c6`
 
+### Iteration 33 — MM-033 (constant edge particle velocity)
+
+- **Selected mismatch**: MM-033 — local edge particles used a fixed `BASE_DUR=20s` for every edge, while the reference normalises particle velocity to a constant 20 px/s via `dur = edgeLength / 20`.
+- **Reference probe**: all 9 reference edges report `length / dur = 20 px/s` exactly (414px → 20.7s, 114px → 5.7s, 76px → 3.8s).
+- **Change made**: in `src/canvas/FlowEdge.tsx`, replaced `BASE_DUR = 20` with `PARTICLE_SPEED_PX_PER_S = 20`, computed `edgeLen = hypot(targetX - sourceX, targetY - sourceY)`, and set `dur = edgeLen / (PARTICLE_SPEED_PX_PER_S * speed)`. The user-facing `speed` multiplier is preserved (speed=2 halves the duration). Phase distribution (`i / density`) and `<circle r="3.2">` / `<text dy="-7">` rendering unchanged.
+- **Verification (1440 × 900, light theme)**:
+  - All 9 local edges now report `length / dur = 20 px/s` exactly. Probed table in Current Iteration §"Result".
+  - Particles flow at the same visual speed across short and long edges — no more crawling on long edges or zooming on short edges.
+  - Screenshot at `.reverse-match/screenshots/iteration-033-local-after.png`.
+  - Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-033 fixed. Edge particle velocity is constant at 20 px/s, matching the reference exactly.
+- **New mismatches discovered**: the reference's edge particles also have `data-flow-particle`, `data-phase`, `data-dir` attributes (likely test/debug hooks). Skipping unless tests require them.
+- **Next action**: MM-034 — investigate node positions vs reference. Capture the reference's node positions via Playwright and compare to `defaultDiagram.ts` to determine if any need to shift.
+- **Commit**: `8917fc0`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1553,6 +1582,7 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 | 030  | MM-030 | — | `.reverse-match/screenshots/iteration-030-local-after.png` (before = iteration-029-local-after) | — | inline in iteration log |
 | 031  | MM-031 | `.reverse-match/screenshots/iteration-031-reference.png` | `.reverse-match/screenshots/iteration-031-local-after.png` | — | inline in iteration log |
 | 032  | MM-032 | (same as iter-031 reference) | `.reverse-match/screenshots/iteration-032-local-after.png` | — | inline in iteration log |
+| 033  | MM-033 | (probed live) | `.reverse-match/screenshots/iteration-033-local-after.png` | — | inline in iteration log (9-row dur/length/speed table) |
 
 ---
 
