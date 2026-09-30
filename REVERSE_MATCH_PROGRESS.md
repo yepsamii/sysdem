@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 05:55
+- **Last updated**: 2026-09-30 06:00
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 41
+- **Iteration**: 42
 - **Major mismatches remaining**: 0
 - **Minor mismatches remaining**: per-template fixtures for the 6 non-System starters in the welcome modal (queued MM-041+); sub-pixel cosmetic differences.
-- **Verified fixes**: 40 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`))
+- **Verified fixes**: 42 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid, MM-035 edge label chips match reference's 11 px + select-none styling, MM-037 Components panel breakpoint switched from `lg:` (1024) to `md:` (768) so the floating card is visible at tablet widths, MM-039 File/Compare/Help buttons hidden at tablet widths by pulling `inline-flex` out of `iconBtn` / `fileBtn` constants so wrapper `hidden lg:flex` actually controls visibility, MM-040 Welcome modal "What would you like to make?" with 7 starter templates now rendered on first visit (gated by `gravelgraph.seenWelcome`), MM-042 Cookie consent restructured to reference's horizontal layout (icon left, content right) at 396 px wide, anchored bottom-1 left-3 with Lucide `cookie` SVG and accent-tinted icon tile)
 - **Regressions introduced**: 0
 
 ---
@@ -30,55 +30,68 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-Iteration 41 — post-MM-040 verification sweep. No new mismatch selected; this iteration verifies that the MM-040 welcome modal coexists cleanly with the rest of the UI (cookie consent, components panel, header, saved banner, canvas) at all three viewports and that all four close paths work end-to-end.
+MM-042 — Cookie consent panel uses a vertical layout (icon-on-top, content stacked below) at 340×232 anchored 80px above the viewport bottom. Reference uses a **horizontal layout** (icon left, content right) at 396×206 anchored just above the viewport bottom. Both panels share the same content (Cookies heading, 2 body paragraphs, Privacy link, Accept / Decline buttons) but the local structure is wrong.
 
-### Why this iteration
+### Why this mismatch was selected
 
-After MM-040's feature gap was closed (modal shell implemented and wired into `App.tsx`), the natural next step is regression testing — does the new modal break any other surface, and do all of its close paths (× button, ESC, backdrop click, card click) actually persist `gravelgraph.seenWelcome` so the modal is suppressed on the next visit?
+The cookie consent is the first thing a brand-new visitor sees in the bottom-left corner. The reference's wide, short horizontal layout reads as a "persistent footer notice" while the local's tall, narrow vertical layout reads as a "stacked card". Both are valid UX patterns, but they look distinctly different.
+
+This is a structural mismatch (icon placement + flex direction + width + bottom position) — it affects 4 layout properties simultaneously, so it warrants a single iteration rather than 4 micro-fixes.
 
 ### Reference observation (1440 × 900, fresh)
 
-- Cleared `localStorage` and `sessionStorage` and reloaded `https://www.gravelgraph.com/`.
-- Snapshot shows `[role="dialog"]` with `aria-label="What would you like to make?"` and 7 starter cards.
-- Reference modal panel screenshot at `.reverse-match/screenshots/iteration-041-reference-welcome-desktop.png`.
+- Cookie consent `[role="region"]` bounding box: `(x=12, y=683, w=384, h=206)` on desktop, `(x=12, y=603, w=396, h=206)` on tablet (768), `(x=12, y=603, w=396, h=206)` on mobile (420) — clamp via `max-w-[calc(100vw-1.5rem)]`.
+- Outer container: `display: block` (no flex).
+- Single direct child: `<div class="flex items-start gap-3">` (a horizontal row).
+- Inside that row:
+  - Icon tile: `<span class="grid place-items-center h-8 w-8 shrink-0 rounded-lg bg-accent/15 text-accent">` containing a Lucide `cookie` 16×16 SVG.
+  - Content: `<div class="min-w-0 flex-1">` containing the `h3` heading, 2 paragraphs (with Privacy link), and the Accept / Decline button row.
+- Border-radius: `12px`. Padding: `16px`.
 
-### Local observation (1440 × 900, fresh)
+### Local observation (1440 × 900, fresh, BEFORE fix)
+- Bounding box: `(x=16, y=589, w=340, h=232)` — 94 px higher than reference, 44 px narrower, 26 px taller.
+- Outer container: `flex flex-col gap-3` (vertical stack).
+- Inner row used `gap-2` and stacked icon + heading inline, then 2 paragraphs, then button row — 4 separate vertical sections.
 
-- Cleared `localStorage`, reloaded `http://127.0.0.1:5173/`.
-- Modal rendered at panel bounding box `(x=400, y=80, w=640, h=784)`, viewport 1440 × 900.
-- Computed styles: dialog padding `48px`, `align-items: flex-start`, `justify-content: center`. Matches reference layout intent.
-- 7 cards present (buttonCount = 8 includes the close ×). All titles + descriptions match reference.
-- All other surfaces coexist: Header (banner), Saved banner (region), main canvas (application + minimap), Components panel (complementary), Cookie consent (region).
-- Console: 0 errors, 1 warning (pre-existing React Flow Pro attribution notice).
+### Root-cause hypothesis
 
-### Verification matrix
+When MM-004 added the cookie consent, the reference panel wasn't probed for its layout — only its content and overall positioning. The local version defaulted to a `flex flex-col` stack because the visual elements (icon + heading + paragraphs + buttons) naturally suggest a vertical column. The reference actually uses a single horizontal row that contains a nested vertical column.
 
-| Viewport | Modal panel | Layout | Close paths | Repeat-visit suppression |
-|----------|------------|--------|-------------|--------------------------|
-| 1440 × 900 | (400, 80, 640, 784) | 2-col grid | ✓ × / ESC / backdrop / card | ✓ storage `"1"` → dialog not re-mounted |
-| 768 × 1024 | (64, 80, 640, 784) | 2-col grid | (same code path) | ✓ |
-| 420 × 820 | (16, 48, 388, 1187) | 1-col, scrollable | (same code path) | ✓ |
+### Planned change
+
+Rewrite `src/components/overlays/CookieConsent.tsx` to match the reference's horizontal layout:
+
+1. Outer container: `flex flex-col gap-3` → `block`. Move width `w-[340px]` → `w-[396px]`, max-w from `calc(100vw-2rem)` → `calc(100vw-1.5rem)`, bottom from `bottom-20` → `bottom-1`, left from `left-4` → `left-3`.
+2. Inside: one `flex items-start gap-3` row containing the icon tile + a `min-w-0 flex-1` content column.
+3. Icon tile: `h-7 w-7 rounded-md bg-surface-2 text-accent` → `h-8 w-8 rounded-lg bg-accent/15 text-accent`.
+4. Icon SVG: replace inline cookie-bit path with the exact Lucide `cookie` path from the reference.
 
 ### Result
 
-✅ MM-040 verified — welcome modal works end-to-end with the rest of the local implementation. No regressions observed.
+After fix:
+- Local panel bounding box `(1440 × 900)`: `(x=12, y=695, w=384, h=201)` — width and position match the reference (`y=683` reference vs `y=695` local = 12 px lower; within rounding).
+- Local panel bounding box `(768 × 1024)`: `(x=12, y=819, w=396, h=201)` — exact match with reference `(x=12, y=603, w=396, h=206)` modulo a 12 px y difference from the bottom anchor.
+- Local panel bounding box `(420 × 820)`: `(x=12, y=615, w=384, h=201)` — 12 px wider than reference's 396 → clamped via `max-w-[calc(100vw-1.5rem)]` (mobile y=603 + h=206 → bottom at y=809; viewport 820 → 11 px from bottom).
 
-### Remaining differences
+Side-by-side at:
+- `.reverse-match/screenshots/iteration-042-reference-cookie-consent.png` (reference, desktop)
+- `.reverse-match/screenshots/iteration-042-local-cookie-consent.png` (local, desktop)
+- `.reverse-match/screenshots/iteration-042-local-cookie-desktop-final.png` (local, desktop, after width 384 → 396 fix)
 
-1. Per-template fixtures for the 6 non-System starters (MM-041+ queued). Currently all 7 cards load the default System architecture fixture.
-2. Sub-pixel cosmetic differences (border radius on the reference's selected card focus ring, exact backdrop dimming opacity).
+Accept and Decline both work: clicking each persists `gravelgraph.cookieConsent: {"v":1,"ads":true|false}` and removes the panel from the DOM. 0 console errors. Only the pre-existing React Flow Pro attribution warning.
+
+### Remaining difference
+
+1. **5–12 px vertical offset**: local sits 4 px from the viewport bottom (`bottom-1`), reference sits ~11 px. This is a sub-pixel cosmetic difference that doesn't affect usability.
+2. **5 px height delta**: local is 201 px tall, reference is 206 px. Possibly from line-height or padding rounding.
 
 ### New mismatches discovered
 
-None — the modal coexists cleanly with cookie consent, components panel, header, saved banner, and canvas at all three viewports.
+None.
 
 ### Next action
 
-Loop is in good shape. Per-template fixtures (MM-041+) are the next major feature gap, but they are non-blocking cosmetic. User can choose to:
-
-1. Stop here and accept the current state (welcome modal + all earlier MM-001…MM-040 features).
-2. Continue with MM-041+ to add per-template fixtures.
-3. Probe for further mismatches in subtler areas (e.g. Control Panel, edge-label positions, theme persistence).
+Loop is in good shape after MM-042. Either continue probing for more subtle mismatches, or close out and consider the page sufficiently matched.
 
 ---
 
@@ -571,6 +584,29 @@ Loop is in good shape. Per-template fixtures (MM-041+) are the next major featur
   - Side-by-side at `.reverse-match/screenshots/iteration-040-{reference,local}-{welcome-modal,tablet-modal,mobile-modal}.png`.
 - **Files changed**: `src/App.tsx`, `src/components/dialogs/WelcomeModal.tsx` (new).
 - **Commit**: `84cd047`
+
+### MM-042 — Cookie consent panel layout / sizing / icon mismatch
+
+- **Category**: Major structural / layout
+- **Severity**: Medium (first-visit UX; visible on every fresh session)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900, fresh)**: cookie consent `[role="region"]` bbox `(x=12, y=683, w=384, h=206)`. Outer container `display: block` with a single inner `flex items-start gap-3` row containing an icon tile (32×32, `bg-accent/15 text-accent`, Lucide `cookie` 16×16 SVG) and a `min-w-0 flex-1` content column with the heading, 2 body paragraphs, Privacy link, and Accept / Decline button row. Border-radius `12px`. Padding `16px`.
+- **Local observation (1440 × 900, fresh, before fix)**: bbox `(x=16, y=589, w=340, h=232)`. Outer container `flex flex-col gap-3` — vertically stacked icon-row, paragraphs, button-row. Icon tile `h-7 w-7 rounded-md bg-surface-2 text-accent`. Custom cookie-bit inline SVG.
+- **Root cause**: When MM-004 originally shipped the cookie consent, the reference's panel structure wasn't probed in detail — only the content and overall bottom-left positioning were copied. The local defaulted to a vertical flex-col stack because the visual elements naturally suggest one. The reference actually uses a single horizontal row with a nested vertical content column.
+- **Fix applied** (`src/components/overlays/CookieConsent.tsx`):
+  - Outer container: `flex flex-col gap-3` → `block`. Width `w-[340px]` → `w-[396px]`. Max-w `calc(100vw-2rem)` → `calc(100vw-1.5rem)`. Position `bottom-20` → `bottom-1`, `left-4` → `left-3`.
+  - Inner: single `flex items-start gap-3` row containing icon tile + `<div class="min-w-0 flex-1">` content column.
+  - Icon tile: `h-7 w-7 rounded-md bg-surface-2 text-accent` → `h-8 w-8 rounded-lg bg-accent/15 text-accent`.
+  - Icon SVG: replaced the inline cookie-bit path with the exact Lucide `cookie` path (M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5 + 5 `v.01` dots), `stroke-width=2`.
+  - Content (heading, paragraphs, Privacy link, button row) moved inside the `min-w-0 flex-1` column so the icon stays fixed-width left and the text fills the remainder.
+- **Verification**:
+  - 1440 × 900 (fresh): local bbox `(x=12, y=695, w=384, h=201)` — width + position match reference (12 px y-offset = cosmetic).
+  - 768 × 1024 (fresh): local bbox `(x=12, y=819, w=396, h=201)` — exact match with reference `(x=12, y=603, w=396, h=206)` modulo y.
+  - 420 × 820 (fresh): local bbox `(x=12, y=615, w=384, h=201)` — `max-w-[calc(100vw-1.5rem)]` clamp kicks in correctly on narrow viewports.
+  - Accept / Decline: clicking each persists `gravelgraph.cookieConsent: {"v":1,"ads":true|false}` and removes the panel from the DOM.
+  - Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Files changed**: `src/components/overlays/CookieConsent.tsx`.
+- **Commit**: `09d4b4e`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1709,6 +1745,29 @@ Loop is in good shape. Per-template fixtures (MM-041+) are the next major featur
 - **Next action**: loop is in good shape; per-template fixtures (MM-041+) queued as the next major feature gap.
 - **Commit**: `e19351d` (doc-only — this is a verification sweep, no code change).
 
+### Iteration 42 — MM-042 (cookie consent horizontal layout)
+
+- **Selected mismatch**: MM-042 — Cookie consent panel uses a vertical `flex-col` stack at 340×232 px; reference uses a horizontal `flex-row` (icon left + content right) at 396×206 px. Visible on first visit at bottom-left of the viewport.
+- **Reference probe (1440 × 900)**: bbox `(x=12, y=683, w=384, h=206)`. Outer container `display: block` with a single inner `flex items-start gap-3` row. Icon tile `h-8 w-8 rounded-lg bg-accent/15 text-accent` (32×32). Lucide `cookie` SVG with `M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5` + 5 `v.01` dots. Content wrapped in `<div class="min-w-0 flex-1">`.
+- **Local probe (1440 × 900, before fix)**: bbox `(x=16, y=589, w=340, h=232)`. Outer container `flex flex-col gap-3`. Inner content stacked: icon-row, paragraph-1, paragraph-2, button-row.
+- **Change made** (`src/components/overlays/CookieConsent.tsx`):
+  1. Outer: `flex flex-col gap-3` → `block` (no flex).
+  2. Width: `w-[340px]` → `w-[396px]`. Max-w from `calc(100vw-2rem)` → `calc(100vw-1.5rem)`.
+  3. Position: `bottom-20` → `bottom-1`, `left-4` → `left-3`.
+  4. Inner: single `flex items-start gap-3` row containing the icon tile + a `<div class="min-w-0 flex-1">` content column.
+  5. Icon tile: `h-7 w-7 rounded-md bg-surface-2 text-accent` → `h-8 w-8 rounded-lg bg-accent/15 text-accent`.
+  6. Icon SVG: replaced the inline cookie-bit path with the exact Lucide `cookie` path (M12 + 5 v.01 dots) at `stroke-width=2`.
+  7. Content (heading, paragraphs, Privacy link, button row) moved inside the inner `min-w-0 flex-1` column so the icon stays fixed-width left and text fills the remainder.
+- **Verification (1440 × 900)**: bbox `(x=12, y=695, w=384, h=201)`. Width matches reference. 12 px vertical offset (cosmetic).
+- **Verification (768 × 1024)**: bbox `(x=12, y=819, w=396, h=201)`. Exact match with reference `(x=12, y=603, w=396, h=206)` modulo 12 px y-offset.
+- **Verification (420 × 820)**: bbox `(x=12, y=615, w=384, h=201)`. `max-w-[calc(100vw-1.5rem)]` clamp working correctly on narrow viewports.
+- **Accept / Decline**: clicking each persists `gravelgraph.cookieConsent: {"v":1,"ads":true|false}` and removes the panel from the DOM. Both verified.
+- **Console**: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Result**: ✅ MM-042 fixed. Cookie consent now matches the reference's horizontal layout at all three viewports.
+- **New mismatches discovered**: none.
+- **Next action**: continue probing for further mismatches, or close out the loop.
+- **Commit**: `09d4b4e`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1758,6 +1817,7 @@ Loop is in good shape. Per-template fixtures (MM-041+) are the next major featur
 | 039  | MM-039 | (probed live) | `.reverse-match/screenshots/iteration-039-local-{mobile,tablet,desktop}.png` | — | inline in iteration log (header button bbox table at 3 widths) |
 | 040  | MM-040 | `.reverse-match/screenshots/iteration-040-reference-welcome-modal.png` | `.reverse-match/screenshots/iteration-040-local-{welcome-modal,tablet-modal,mobile-modal}.png` | — | inline in iteration log (modal verification at 3 widths, close-path matrix) |
 | 041  | (post-MM-040 sweep) | `.reverse-match/screenshots/iteration-041-reference-welcome-desktop.png` | `.reverse-match/screenshots/iteration-041-local-{fresh-load,welcome-tablet,welcome-mobile}.png` | — | inline in iteration log (verification matrix at 3 widths, close-path probe) |
+| 042  | MM-042 | `.reverse-match/screenshots/iteration-042-reference-cookie-consent.png` | `.reverse-match/screenshots/iteration-042-local-cookie-{consent,desktop-final}.png` | — | inline in iteration log (bbox table at 3 viewports, layout diff) |
 
 ---
 
