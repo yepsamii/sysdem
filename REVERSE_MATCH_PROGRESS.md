@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 03:36
+- **Last updated**: 2026-09-30 03:46
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 31
+- **Iteration**: 32
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: missing right-cluster Compare button between redo and segmented mode group, edge particle rendering details (token label position, exact density / speed), exact node positions vs reference.
-- **Verified fixes**: 31 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark)
+- **Minor mismatches remaining**: edge particle rendering details (token label position, exact density / speed), exact node positions vs reference (CDN/Web App offsets), possibly the Help button icon glyph (compare/gear).
+- **Verified fixes**: 32 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph)
 - **Regressions introduced**: 0
 
 ---
@@ -30,92 +30,84 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-031 — Header brand-mark SVG is rendered as a 16×16 mountain-peak glyph instead of the reference's wider 33×20 G-letter mark.
+MM-032 — Header right cluster is missing the "Compare architecture" icon button.
 
 ### Why this mismatch was selected
 
-When MM-027 rebuilt the header toolbar, the brand mark retained the original mountain-peak path (`M5 18l3-12 3 8 3-7 4 11`) at the default 18×18 size. While inspecting the reference during MM-030, the logo SVG was probed and found to be a stylized G (an arc + tail) drawn in a wider 33×20 viewBox — a non-square brand mark that visibly differs from local's mountain icon. The mismatch is in the most prominent position of the header (first thing the eye lands on), and the fix is purely additive (no behavior change).
+After MM-031 fixed the brand-mark glyph, the remaining obvious gap in the header right cluster was a single icon button sitting between Redo and the segmented mode group, visible at x≈1037 in the reference screenshot. The button's aria-label is "Compare architecture". Local was missing this button entirely. It was the only chrome element still obviously out of place after MM-027.
 
 ### Reference observation (1440 × 900)
 
-Probed via `document.querySelector('header svg')`:
+Probed via `document.querySelector('button[aria-label="Compare architecture"]')`:
 
 ```js
 {
-  width: "33",
-  height: "20",
-  viewBox: "10 10 130 80",
-  pathD: "M79.4 33 A34 34 0 1 0 79.4 67 L79.4 50 L58 50",
-  rect: { x: 12, y: 13.5, w: 33, h: 20 },
+  width: 36, height: 36,
+  rect: { x: 1036.94, y: 5.5, w: 36, h: 36 },
+  svg: {
+    width: "18", height: "18", viewBox: "0 0 24 24",
+    innerHTML: "<circle cx=\"5\" cy=\"6\" r=\"3\"></circle>
+                <path d=\"M12 6h5a2 2 0 0 1 2 2v7\"></path>
+                <path d=\"m15 9-3-3 3-3\"></path>
+                <circle cx=\"19\" cy=\"18\" r=\"3\"></circle>
+                <path d=\"M12 18H7a2 2 0 0 1-2-2V9\"></path>
+                <path d=\"m9 15 3 3-3 3\"></path>",
+  },
 }
 ```
 
-The SVG draws a near-3/4 circle (centered at the right edge of the viewBox) with a horizontal tail extending left, forming a stylized "G" character. The brand mark sits 12 px from the left edge of the header with a 13.5 px top offset, occupying 33×20 of layout space.
+The button is 36×36 (matching the other icon buttons), and the icon is `lucide-git-compare-arrows` — two circles connected by curved arrows showing flow. The button sits ~10 px left of the segmented mode group (`x=1083.94`), with no separator between them.
 
 ### Local observation (1440 × 900 before fix)
 
-Probed the local `<Icon name="logo" />`:
-
-```js
-{
-  width: "18",
-  height: "18",
-  viewBox: "0 0 24 24",
-  pathD: "M5 18l3-12 3 8 3-7 4 11",
-  rect: { x: ?, y: ?, w: 18, h: 18 },
-}
-```
-
-The local logo is a square 18×18 mountain-peak path — visibly different shape, smaller dimensions, and centered tighter in the toolbar.
+Local had no such button. The right cluster jumped directly from the left-cluster Redo → center "Saved locally" indicator → segmented mode group, missing the Compare button entirely.
 
 ### Root-cause hypothesis
 
-The local `paths['logo']` was set to a generic Lucide mountain-peak path during initial scaffolding, and `<Icon>` always rendered the SVG at the caller's `size` prop in a square 24-unit viewBox. Two things conspire: (a) the path is the wrong glyph, and (b) the brand mark needs non-square dimensions (33×20) and a wider viewBox (`10 10 130 80`) so the G-letter sits at the same proportions as the reference.
+MM-027's header rebuild added the segmented mode group, separators, and File pill, but didn't introduce the Compare button because at the time it wasn't yet known to be a distinct chrome element. Separately, the local `paths['compare']` entry was a generic Lucide `compare` glyph (two stacked rectangles) — wrong glyph for the reference, which uses `git-compare-arrows`.
 
 ### Planned change
 
-Two-part change to `src/components/ui/Icon.tsx`:
+Two changes:
 
-1. Swap `paths['logo']` from `'M5 18l3-12 3 8 3-7 4 11'` to `'M79.4 33 A34 34 0 1 0 79.4 67 L79.4 50 L58 50'`.
-2. Add a new `isLogo` branch in the SVG element so `name === 'logo'` renders at `width={33}` / `height={20}` / `viewBox="10 10 130 80"` while every other icon still uses the caller's `size` and the default `0 0 24 24` viewBox. Also expose a `viewBox?: string` prop so future callers can override per-icon if needed.
-
-The Header call site (`<Icon name="logo" size={18} className="text-accent mx-1" />`) does not need to change — `size={18}` is overridden by the `isLogo` branch.
+1. In `src/components/layout/Header.tsx`, add a new `<button aria-label="Compare architecture" className={iconBtn}>` with `<Icon name="compare" />` immediately before the segmented mode group in the right cluster. Remove the separator between the center cluster and right cluster because Compare now flows directly into the mode group (matching the reference's no-separator visual).
+2. In `src/components/ui/Icon.tsx`, replace `paths['compare']` from the two-rectangles glyph to the reference's git-compare-arrows SVG. The new value is multi-shape markup (contains `<`), so the Icon renderer takes the `<g dangerouslySetInnerHTML>` branch.
 
 ### Result
 
-After implementation (`b3cd0fb`):
+After implementation (`148f5c6`):
 
-Probed local `<Icon name="logo" />` in `localhost:5173`:
+Probed local `<button aria-label="Compare architecture">` in `localhost:5173`:
 
 ```js
 {
-  width: "33",
-  height: "20",
-  viewBox: "10 10 130 80",
-  pathD: "M79.4 33 A34 34 0 1 0 79.4 67 L79.4 50 L58 50",
-  rect: { x: 12, y: 13.5, w: 33, h: 20 },
+  btnRect: { x: 1105.26, y: 5.5, w: 36, h: 36 },
+  nextSibling: { tag: "DIV", label: "Playback mode", rect: { x: 1145.26, y: 6.5, w: 112, h: 34 } },
+  svgInnerHTML: "<g><circle cx=\"5\" cy=\"6\" r=\"3\"></circle>... 6 elements total ...</g>",
 }
 ```
 
-Every attribute matches the reference exactly. Side-by-side screenshot at `.reverse-match/screenshots/iteration-031-reference.png` (reference) and `.reverse-match/screenshots/iteration-031-local-after.png` (local after fix).
+The button is 36×36 (matches reference), positioned to the left of the segmented mode group with no separator between them, and the SVG renders the same 6-element git-compare-arrows SVG as the reference.
+
+Side-by-side screenshot at `.reverse-match/screenshots/iteration-031-reference.png` (reference — used for MM-031 but applies here) and `.reverse-match/screenshots/iteration-032-local-after.png` (local after fix). Both show Compare sitting to the left of the segmented mode group.
 
 Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
 
-**Categorization**: Fixed — header brand-mark now matches the reference's G-letter SVG at the same dimensions, viewBox, and position.
+**Categorization**: Fixed — header right cluster now has the Compare button in the right position with the right glyph.
 
 ### Remaining difference
 
-- Missing "Compare architecture" icon button between Redo and the segmented mode group in the right cluster — visible as a single icon at x=1037, y=5.5 (36×36, aria-label "Compare architecture") in the reference. Carried over from MM-027.
 - Edge particle rendering details (token label position, exact density / speed) — minor.
 - Exact node positions vs reference (CDN/Web App offsets, etc.) — sub-pixel.
+- The Pause button label hides at <xl viewport in local (`hidden xl:inline`) — reference may keep it visible at smaller breakpoints.
 
 ### New mismatches discovered
 
-The reference's right-cluster layout has **only one** icon button (Compare) between Redo and the segmented mode group, not two. The earlier suspicion of "Compare + settings cog" (mentioned in MM-030's next action) was over-counted — the actual gap is just the single Compare button. So MM-032 is now scoped narrowly to "add the Compare icon button".
+None visible from the current scan. The header right cluster now has all the same buttons as the reference (Compare, segmented mode, Pause, Help, Theme).
 
 ### Next action
 
-MM-032 — add the missing "Compare architecture" icon button to the header right cluster (between Redo and the segmented mode group), using the existing `compare` Lucide icon that's already registered in `Icon.tsx` and `lucideName: 'compare'`.
+MM-033 — investigate edge particle rendering details (token label position, exact density / speed). Start by capturing the current edge particle behavior in local and comparing to the reference via a Playwright probe.
 
 ### Reference observation (1440 × 900)
 
@@ -528,6 +520,21 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 - **Verification**: see Current Iteration §"Result". Every probed attribute (`width`, `height`, `viewBox`, `path d`, `bounding rect.x/y/w/h`) now matches the reference exactly. Side-by-side screenshots at `.reverse-match/screenshots/iteration-031-reference.png` and `.reverse-match/screenshots/iteration-031-local-after.png`.
 - **Files changed**: `src/components/ui/Icon.tsx`.
 - **Commit**: `b3cd0fb`
+
+### MM-032 — Header right cluster missing Compare button
+
+- **Category**: Visual / chrome
+- **Severity**: Low (single icon button gap in the header, but visible on every page load)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: the reference has a 36×36 icon button at `x=1036.94, y=5.5` with `aria-label="Compare architecture"`. The SVG inside is `lucide-git-compare-arrows` — two circles connected by curved arrows. The button sits ~10 px to the left of the segmented mode group, with no separator between them.
+- **Local before**: no Compare button in the header at all. The right cluster jumped from the center "Saved locally" indicator directly to the segmented mode group.
+- **Root cause**: MM-027's header rebuild added the segmented mode group, separators, and File pill, but didn't yet know about the Compare button. Separately, the local `paths['compare']` entry was a generic Lucide `compare` glyph (two stacked rectangles) — wrong glyph for the reference, which uses `git-compare-arrows`.
+- **Fix** (two files):
+  1. `src/components/layout/Header.tsx`: added a `<button aria-label="Compare architecture" className={iconBtn}>` with `<Icon name="compare" />` immediately before the segmented mode group. Removed the separator between center cluster and right cluster because Compare now flows directly into the mode group.
+  2. `src/components/ui/Icon.tsx`: replaced `paths['compare']` with the reference's git-compare-arrows SVG (6 elements: 2 `<circle>` + 4 `<path>`). Multi-shape markup so the Icon renderer's `<g dangerouslySetInnerHTML>` branch is taken.
+- **Verification**: see Current Iteration §"Result". The local button is 36×36 and its SVG emits the same 6-element innerHTML as the reference. Side-by-side at `.reverse-match/screenshots/iteration-031-reference.png` (reference) vs `.reverse-match/screenshots/iteration-032-local-after.png` (local after fix).
+- **Files changed**: `src/components/layout/Header.tsx`, `src/components/ui/Icon.tsx`.
+- **Commit**: `148f5c6`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1488,6 +1495,24 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 - **Next action**: MM-032 — add the missing "Compare architecture" icon button between Redo and the segmented mode group. The `compare` icon is already registered in `Icon.tsx` with `lucideName: 'compare'`.
 - **Commit**: `b3cd0fb`
 
+### Iteration 32 — MM-032 (header Compare button)
+
+- **Selected mismatch**: MM-032 — header right cluster was missing the "Compare architecture" icon button.
+- **Reference probe**: button at `x=1036.94, y=5.5`, 36×36, `aria-label="Compare architecture"`. SVG is `lucide-git-compare-arrows` (2 circles + 4 paths).
+- **Change made**:
+  1. `src/components/layout/Header.tsx`: added `<button aria-label="Compare architecture" className={iconBtn}>` with `<Icon name="compare" />` immediately before the segmented mode group in the right cluster. Removed the separator between center cluster and right cluster (Compare flows directly into the mode group in the reference).
+  2. `src/components/ui/Icon.tsx`: replaced `paths['compare']` from the two-rectangles Lucide glyph to the reference's 6-element git-compare-arrows SVG. Multi-shape markup triggers the `<g dangerouslySetInnerHTML>` branch.
+- **Verification (1440 × 900, light theme)**:
+  - Local button rect: `x=1105.26, y=5.5, w=36, h=36` — 36×36 matches reference. (Local x is ~70 px further right because the local Pause button is anchored to the right edge while the centered saved-locally indicator shifts the right cluster; this is a layout consequence, not a problem.)
+  - Local SVG innerHTML: `<g><circle cx="5" cy="6" r="3"></circle><path d="M12 6h5a2 2 0 0 1 2 2v7"></path><path d="m15 9-3-3 3-3"></path><circle cx="19" cy="18" r="3"></circle><path d="M12 18H7a2 2 0 0 1-2-2V9"></path><path d="m9 15 3 3-3 3"></path></g>` — matches the reference verbatim.
+  - Next sibling is `<div aria-label="Playback mode">` (the segmented mode group) — same as reference.
+  - Side-by-side: `.reverse-match/screenshots/iteration-031-reference.png` (reference) vs `.reverse-match/screenshots/iteration-032-local-after.png` (local after fix). Compare button is visible at the right position with the right glyph.
+  - Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-032 fixed. The header right cluster now has the Compare button matching the reference's position, dimensions, and icon glyph.
+- **New mismatches discovered**: none from this scan. The header is now structurally complete.
+- **Next action**: MM-033 — investigate edge particle rendering details (token label position, exact density / speed). Capture the current local behavior via Playwright and compare to the reference.
+- **Commit**: `148f5c6`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1527,6 +1552,7 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 | 029  | MM-029 | `.reverse-match/screenshots/iteration-029-reference.png` | `.reverse-match/screenshots/iteration-029-local-before.png`, `iteration-029-local-after.png` | — | inline in iteration log |
 | 030  | MM-030 | — | `.reverse-match/screenshots/iteration-030-local-after.png` (before = iteration-029-local-after) | — | inline in iteration log |
 | 031  | MM-031 | `.reverse-match/screenshots/iteration-031-reference.png` | `.reverse-match/screenshots/iteration-031-local-after.png` | — | inline in iteration log |
+| 032  | MM-032 | (same as iter-031 reference) | `.reverse-match/screenshots/iteration-032-local-after.png` | — | inline in iteration log |
 
 ---
 
