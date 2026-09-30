@@ -55,7 +55,7 @@ export function FlowEdge(props: EdgeProps) {
   const labelEl = d.label && (
     <EdgeLabelRenderer>
       <div
-        className="nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-xs text-fg pointer-events-auto"
+        className="nodrag nopan absolute px-1.5 py-0.5 rounded bg-surface border border-border text-[11px] text-fg select-none"
         style={{ transform: `translate(-50%,-50%) translate(${labelX}px, ${labelY}px)` }}
         title="Drag to slide along the edge · double-click to centre"
       >
