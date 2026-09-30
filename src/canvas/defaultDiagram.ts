@@ -11,22 +11,23 @@ export interface ArchNodeData extends Record<string, unknown> {
 }
 
 // Default "System Architecture" fixture — mirrors the live first-run default.
-// Positions match the live default state captured in REVERSE_ENGINEERING.md §6.2.
+// Positions captured from the reference's default state in MM-034: a clean
+// grid with 300 px between columns and 3 distinct rows at y=60 (top),
+// y=200 (middle), y=340 (bottom). Node size is uniform 180×64.
 export const defaultNodes: Node<ArchNodeData>[] = [
-  // User node is partially clipped at top-left in the default view.
-  { id: 'n_user',      type: 'arch', position: { x:  -40, y: 200 }, data: { kind: 'client',   label: 'User',     sublabel: 'Browser' }, width: 180, height: 64 },
-  { id: 'n_cdn',       type: 'arch', position: { x:  320, y:  90 }, data: { kind: 'cdn',      label: 'CDN',      sublabel: 'Edge cache' }, width: 180, height: 64 },
-  { id: 'n_webapp',    type: 'arch', position: { x:  320, y: 240 }, data: { kind: 'webapp',   label: 'Web App',  sublabel: 'React SPA' }, width: 180, height: 64 },
-  { id: 'n_gateway',   type: 'arch', position: { x:  600, y: 165 }, data: { kind: 'gateway',  label: 'API Gateway', sublabel: 'TLS + routing' }, width: 180, height: 64 },
-  { id: 'n_api',       type: 'arch', position: { x:  870, y: 165 }, data: { kind: 'api',      label: 'API',      sublabel: 'REST service' }, width: 180, height: 64 },
-  { id: 'n_cache',     type: 'arch', position: { x: 1110, y:  60 }, data: { kind: 'cache',    label: 'Cache',    sublabel: 'Redis' }, width: 180, height: 64 },
-  { id: 'n_db',        type: 'arch', position: { x: 1110, y: 180 }, data: { kind: 'database', label: 'Database', sublabel: 'Postgres' }, width: 180, height: 64 },
-  { id: 'n_queue',     type: 'arch', position: { x: 1110, y: 300 }, data: { kind: 'queue',    label: 'Event Queue', sublabel: 'orders.created' }, width: 180, height: 64 },
-  { id: 'n_worker',    type: 'arch', position: { x: 1370, y: 300 }, data: { kind: 'worker',   label: 'Worker',   sublabel: 'Fulfilment' }, width: 180, height: 64 },
+  // User node sits at x=0 (left edge of the diagram), middle row.
+  { id: 'n_user',      type: 'arch', position: { x:    0, y: 200 }, data: { kind: 'client',   label: 'User',     sublabel: 'Browser' }, width: 180, height: 64 },
+  { id: 'n_cdn',       type: 'arch', position: { x:  300, y:  60 }, data: { kind: 'cdn',      label: 'CDN',      sublabel: 'Edge cache' }, width: 180, height: 64 },
+  { id: 'n_webapp',    type: 'arch', position: { x:  300, y: 340 }, data: { kind: 'webapp',   label: 'Web App',  sublabel: 'React SPA' }, width: 180, height: 64 },
+  { id: 'n_gateway',   type: 'arch', position: { x:  600, y: 200 }, data: { kind: 'gateway',  label: 'API Gateway', sublabel: 'TLS + routing' }, width: 180, height: 64 },
+  { id: 'n_api',       type: 'arch', position: { x:  900, y: 200 }, data: { kind: 'api',      label: 'API',      sublabel: 'REST service' }, width: 180, height: 64 },
+  { id: 'n_cache',     type: 'arch', position: { x: 1200, y:  60 }, data: { kind: 'cache',    label: 'Cache',    sublabel: 'Redis' }, width: 180, height: 64 },
+  { id: 'n_db',        type: 'arch', position: { x: 1200, y: 200 }, data: { kind: 'database', label: 'Database', sublabel: 'Postgres' }, width: 180, height: 64 },
+  { id: 'n_queue',     type: 'arch', position: { x: 1200, y: 340 }, data: { kind: 'queue',    label: 'Event Queue', sublabel: 'orders.created' }, width: 180, height: 64 },
+  { id: 'n_worker',    type: 'arch', position: { x: 1500, y: 340 }, data: { kind: 'worker',   label: 'Worker',   sublabel: 'Fulfilment' }, width: 180, height: 64 },
 ];
 
-// Default viewport from live capture in §10.1 — updated in MM-026 to match the
-// reference's initial canvas framing (translate(120, 260.286) scale(0.714286)).
+// Default viewport from live capture in §10.1 — translate(120, 260.286) scale(0.714286).
 export const defaultViewport = { x: 120, y: 260, zoom: 0.714286 };
 
 export const defaultEdges: Edge[] = [
