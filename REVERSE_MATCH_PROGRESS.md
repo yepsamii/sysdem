@@ -12,16 +12,16 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 - **Local**: `http://localhost:5173/` *(confirm by reading `package.json` `dev` script — default Vite port 5173, but the user may have set another)*
 - **Primary viewport**: 1440 × 900
 - **Secondary viewports**: 420 × 820 (mobile), 768 × 1024 (tablet)
-- **Last updated**: 2026-09-30 03:50
+- **Last updated**: 2026-09-30 03:54
 
 ---
 
 ## Overall Progress
 
-- **Iteration**: 33
+- **Iteration**: 34
 - **Major mismatches remaining**: 0
-- **Minor mismatches remaining**: exact node positions vs reference (CDN/Web App offsets, etc. — sub-pixel), token label vertical position relative to particle on each edge.
-- **Verified fixes**: 33 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration)
+- **Minor mismatches remaining**: token label vertical position vs particle (local uses `dy="-7"`; reference may differ slightly).
+- **Verified fixes**: 34 (Milestone 0 shell, MM-001 canvas, MM-002 components aside, MM-003 saved-locally banner, MM-004 cookie consent + token system, MM-006 particle animation, MM-007 edge label chips, MM-008 chip-style Export/Present/Pause buttons, MM-009 mobile Components panel collapse, MM-010 mobile header toolbar visibility, MM-011 flow-mode radios + active state styling, MM-012 Lucide SVG outline icons, MM-013 first-party groups + per-kind colors, MM-014 single-column draggable item rows, MM-015 provider section labels with pill badges, MM-016 hide React Flow attribution badge, MM-017 Databases brand icons, MM-018 Data & Analytics brand icons, MM-019 Messaging & Streaming + DevOps & Observability brand icons, MM-020 SaaS & Identity brand icons, MM-021 Components panel resize handle, MM-022 search filter, MM-023 Stencils import/export, MM-024 default theme respects prefers-color-scheme + xyflow colorMode, MM-025 floating rounded panel card + 2-col item grid, MM-026 default canvas viewport, MM-027 grouped header toolbar with File pill + separators + segmented mode pill + saved dot, MM-028 tinted arch-node icon tiles with Lucide SVGs, MM-029 per-kind icon tile colors aligned with reference, MM-030 Worker icon now matches reference's lucide-square-function, MM-031 header brand-mark SVG now matches reference's wider 33×20 G-letter mark, MM-032 Compare architecture button added to header right cluster with correct git-compare-arrows glyph, MM-033 edge particle velocity constant at 20 px/s via length-derived duration, MM-034 default node positions aligned with reference's clean 300 px-column grid)
 - **Regressions introduced**: 0
 
 ---
@@ -30,81 +30,87 @@ A persistent memory of the iterative reverse-match loop. This document is **stat
 
 ### Selected mismatch
 
-MM-033 — Edge particle duration is fixed at 20s for every edge; reference uses a constant velocity (length / 20 px/s) so particles on short edges move at the same visual speed as particles on long edges.
+MM-034 — Default node positions in `defaultDiagram.ts` are irregular (CDN at x=320, API at x=870, etc.); reference uses a clean grid (300 px column spacing, 3 distinct rows at y=60/200/340).
 
 ### Why this mismatch was selected
 
-After MM-032 completed the header, MM-033 was scoped to the remaining "edge particle rendering details" item from the carry-over list. While probing edges in the reference to understand what's actually different, the most obvious and impactful divergence surfaced: durations vary per-edge (5.7s for short, 20.7s for long) — strongly suggesting the reference normalises particle velocity to a constant px/s rather than using a fixed duration. Confirming this in MM-033 makes the edges look much closer to the reference at first glance.
+After MM-033 fixed edge particle velocity, the carry-over list pointed to "exact node positions vs reference" as the next candidate. While probing node positions via `document.querySelectorAll('.react-flow__node')` and reading `node.style.transform`, the divergence turned out to be much larger than a sub-pixel offset: local's positions are scattered (320/600/870/1110/1370 in x; 60/90/165/180/200/240/300 in y), while the reference's positions sit on a clean 3×3 grid (300/600/900/1200/1500 in x; 60/200/340 in y). This is one of the largest visible layout differences remaining.
 
 ### Reference observation (1440 × 900)
 
-Probed via `document.querySelectorAll('.react-flow__edge')` → iterate each → read `path.react-flow__edge-path.getTotalLength()` and `animateMotion.dur`. Result (every edge):
+Probed via `document.querySelectorAll('.react-flow__node')` → read `style.transform` → parse `translate(x, y)`. Reference viewport zoom is `scale(0.714286)` = 5/7, so positions are measured at the rendered zoom. At zoom=1 (the underlying position values), the table is:
 
-| Edge | length (px) | dur (s) | length / dur (px/s) |
-|------|-------------|---------|---------------------|
-| e_fa54bf63 | 414 | 20.7 | **20** |
-| e_c3b90726 | 180.5 | 9.03 | **20** |
-| e_a3b732a7 | 114 | 5.7 | **20** |
-| e_f7974dd0 | 116 | 5.80 | **20** |
-| e_9dfb5bec | 114 | 5.7 | **20** |
-| e_4f4f8a77 | 185.7 | 9.28 | **20** |
+| Kind | Label | x | y | Icon class |
+|---|---|---|---|---|
+| client | User | 0 | 200 | lucide-monitor-smartphone |
+| cdn | CDN | 300 | 60 | lucide-cloud |
+| webapp | Web App | 300 | 340 | lucide-app-window |
+| gateway | API Gateway | 600 | 200 | lucide-route |
+| api | API | 900 | 200 | lucide-server-cog |
+| cache | Cache | 1200 | 60 | lucide-zap |
+| database | Database | 1200 | 200 | lucide-database |
+| queue | Event Queue | 1200 | 340 | lucide-waypoints |
+| worker | Worker | 1500 | 340 | lucide-square-function |
 
-Every edge's `length / dur` resolves to **exactly 20 px/s** — a constant velocity, not a constant duration.
+All node widths = 128.57 (rendered) = 180.0 (at zoom=1). All heights = 45.71 (rendered) = 64.0 (at zoom=1). So node size is uniform 180×64, matching local.
 
 ### Local observation (1440 × 900 before fix)
 
-Local used `const BASE_DUR = 20; const dur = BASE_DUR / speed;` — fixed 20s for every edge regardless of length. Side effect: a 76 px edge animates at 3.8 px/s (5× slower than reference), while a 249 px edge animates at 12.5 px/s (1.6× slower than reference). The mismatch is most visible on long edges where particles crawl.
+| Kind | x | y |
+|---|---|---|
+| client | -40 | 200 |
+| cdn | 320 | 90 |
+| webapp | 320 | 240 |
+| gateway | 600 | 165 |
+| api | 870 | 165 |
+| cache | 1110 | 60 |
+| database | 1110 | 180 |
+| queue | 1110 | 300 |
+| worker | 1370 | 300 |
+
+All positions are off-grid: User is at x=-40 (should be 0), CDN at x=320 (should be 300), API at x=870 (should be 900), Worker at x=1370 (should be 1500), and most y values don't match the reference's 60/200/340 rows.
 
 ### Root-cause hypothesis
 
-The original local implementation picked a single `BASE_DUR` because it's simpler than computing per-edge durations. The reference evidently derives `dur` from `edgeLength / PARTICLE_VELOCITY` so all particles look the same speed regardless of edge length.
+The local positions were originally chosen by hand when first scaffolding the default diagram, before the reference's exact positions were known. They were never re-measured against the live site.
 
 ### Planned change
 
-In `src/canvas/FlowEdge.tsx`:
-
-1. Replace `BASE_DUR = 20` with `PARTICLE_SPEED_PX_PER_S = 20`.
-2. Compute `edgeLen = hypot(targetX - sourceX, targetY - sourceY)` (works for straight edges; trivially extendable to polylines later).
-3. Compute `dur = edgeLen / (PARTICLE_SPEED_PX_PER_S * speed)` so the `speed` multiplier still halves the duration for `speed=2`, etc.
-
-The phase distribution (`i / density`) and the `<circle r="3.2">` / `<text dy="-7">` render shape are unchanged — only `dur` shifts.
+In `src/canvas/defaultDiagram.ts`, replace every node's `position` with the reference's exact (x, y) from the table above. Node size (180×64), labels, sublabels, and kinds are all unchanged.
 
 ### Result
 
-After implementation (`8917fc0`), probed all 9 local edges in `localhost:5173`:
+After implementation (`837f2a7`), probed all 9 local nodes in `localhost:5173`:
 
-| Edge | length (px) | dur (s) | length / dur (px/s) |
-|------|-------------|---------|---------------------|
-| e_user_cdn | 207.55 | 10.38 | **20** |
-| e_user_webapp | 180.49 | 9.02 | **20** |
-| e_cdn_webapp | 82 | 4.10 | **20** |
-| e_webapp_gw | 121.82 | 6.09 | **20** |
-| e_gw_api | 86 | 4.30 | **20** |
-| e_api_cache | 242.84 | 12.14 | **20** |
-| e_api_db | 57.97 | 2.90 | **20** |
-| e_api_queue | 249.18 | 12.46 | **20** |
-| e_queue_worker | 76 | 3.80 | **20** |
+| Kind | Reference x | Local x (before) | Local x (after) |
+|---|---|---|---|
+| User | 0 | -40 | **0** ✓ |
+| CDN | 300 | 320 | **300** ✓ |
+| Web App | 300 | 320 | **300** ✓ |
+| API Gateway | 600 | 600 | **600** ✓ |
+| API | 900 | 870 | **900** ✓ |
+| Cache | 1200 | 1110 | **1200** ✓ |
+| Database | 1200 | 1110 | **1200** ✓ |
+| Event Queue | 1200 | 1110 | **1200** ✓ |
+| Worker | 1500 | 1370 | **1500** ✓ |
 
-Every edge resolves to exactly 20 px/s — matches the reference's behavior perfectly. Particles now flow at the same visual speed across short and long edges.
-
-Side-by-side screenshot at `.reverse-match/screenshots/iteration-033-local-after.png` (local after fix).
+Same comparison for y: every node now matches the reference's 60/200/340 rows. Side-by-side screenshot at `.reverse-match/screenshots/iteration-034-local-after.png` (local after fix).
 
 Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
 
-**Categorization**: Fixed — edge particle velocity is now constant at 20 px/s, matching the reference exactly.
+**Categorization**: Fixed — node positions now form the same clean grid as the reference.
 
 ### Remaining difference
 
-- Exact node positions vs reference (CDN/Web App offsets, etc.) — sub-pixel.
-- Token label vertical position vs particle (`dy="-7"` in local; reference may differ) — minor.
+- Token label vertical position vs particle (`dy="-7"` in local; reference may differ slightly) — minor.
 
 ### New mismatches discovered
 
-The reference's edge particles also have `data-flow-particle`, `data-phase`, `data-dir` attributes on the circle/text. These look like test/debug hooks (they don't affect rendering), so we won't add them unless tests need them.
+None visible from this scan.
 
 ### Next action
 
-MM-034 — investigate node positions vs reference. The local nodes may be slightly offset from the reference's positions. Capture the reference's node positions and compare to `defaultDiagram.ts` to determine if any need to shift.
+MM-035 — probe the token label position vs the reference (the `<text dy="…">` offset for `HTTPS`, `SQL`, `msg`, etc. labels). If the reference uses a different vertical offset, swap to it.
 
 ### Reference observation (1440 × 900)
 
@@ -549,6 +555,32 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 - **Verification**: see Current Iteration §"Result". All 9 local edges report `length / dur ≈ 20` px/s after the fix — matches the reference exactly. Side-by-side at `.reverse-match/screenshots/iteration-033-local-after.png`.
 - **Files changed**: `src/canvas/FlowEdge.tsx`.
 - **Commit**: `8917fc0`
+
+### MM-034 — Default node positions are off-grid; reference uses clean 300 px column spacing
+
+- **Category**: Visual / layout
+- **Severity**: Medium (one of the largest remaining layout differences; affects first-paint diagram)
+- **Status**: ✅ Fixed
+- **Reference observation (1440 × 900)**: probed all 9 default nodes via `node.style.transform`. Reference viewport zoom is `scale(0.714286)`, so the table below is the underlying position values (zoom=1). All 9 nodes have uniform 180×64 size (matches local). Position grid:
+
+  | Kind | Label | x | y |
+  |---|---|---|---|
+  | client | User | 0 | 200 |
+  | cdn | CDN | 300 | 60 |
+  | webapp | Web App | 300 | 340 |
+  | gateway | API Gateway | 600 | 200 |
+  | api | API | 900 | 200 |
+  | cache | Cache | 1200 | 60 |
+  | database | Database | 1200 | 200 |
+  | queue | Event Queue | 1200 | 340 |
+  | worker | Worker | 1500 | 340 |
+
+- **Local before**: positions were chosen by hand when first scaffolding `defaultDiagram.ts`, never re-measured against the live site. User at x=-40 (off-canvas), CDN at x=320, API at x=870, Worker at x=1370, and most y values (90/165/180/240/300) don't match the reference's 60/200/340 rows.
+- **Root cause**: hand-tuned positions from the early Milestone 0 era, before any live probes against the reference.
+- **Fix** (in `src/canvas/defaultDiagram.ts`): replaced every node's `position` with the reference's exact (x, y) from the table. Node size, labels, sublabels, kinds, and the default viewport (`translate(120, 260) scale(0.714286)`) are unchanged.
+- **Verification**: see Current Iteration §"Result". All 9 local nodes now report the same (x, y) as the reference. Side-by-side at `.reverse-match/screenshots/iteration-034-local-after.png`.
+- **Files changed**: `src/canvas/defaultDiagram.ts`.
+- **Commit**: `837f2a7`
 
 ### MM-025 — Components panel is a docked flat strip; reference uses a floating rounded card + 2-col grid
 
@@ -1542,6 +1574,21 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 - **Next action**: MM-034 — investigate node positions vs reference. Capture the reference's node positions via Playwright and compare to `defaultDiagram.ts` to determine if any need to shift.
 - **Commit**: `8917fc0`
 
+### Iteration 34 — MM-034 (default node positions)
+
+- **Selected mismatch**: MM-034 — local node positions in `defaultDiagram.ts` were hand-tuned and never re-measured; reference uses a clean 300 px-column grid.
+- **Reference probe**: all 9 nodes — User (0, 200), CDN (300, 60), Web App (300, 340), API Gateway (600, 200), API (900, 200), Cache (1200, 60), Database (1200, 200), Event Queue (1200, 340), Worker (1500, 340). All uniform 180×64.
+- **Change made**: in `src/canvas/defaultDiagram.ts`, replaced every node's `position` with the reference's exact (x, y). Node size, labels, sublabels, kinds, and the default viewport are unchanged.
+- **Verification (1440 × 900, light theme)**:
+  - All 9 local nodes now report the same (x, y) as the reference (probed table in Current Iteration §"Result").
+  - The diagram now forms a clean 3×3 grid with Worker offset to the bottom-right.
+  - Screenshot at `.reverse-match/screenshots/iteration-034-local-after.png`.
+  - Console: 0 errors. Only the pre-existing React Flow Pro attribution warning.
+- **Result**: MM-034 fixed. Node positions match the reference exactly. The diagram's first-paint layout now matches the reference.
+- **New mismatches discovered**: none from this scan.
+- **Next action**: MM-035 — probe the token label position vs the reference (the `<text dy="…">` offset for `HTTPS`, `SQL`, `msg`, etc.). If the reference uses a different vertical offset, swap to it.
+- **Commit**: `837f2a7`
+
 ---
 
 ## Per-Iteration Evidence
@@ -1583,6 +1630,7 @@ MM-031 — pick the next visible mismatch. Best candidates: header right-cluster
 | 031  | MM-031 | `.reverse-match/screenshots/iteration-031-reference.png` | `.reverse-match/screenshots/iteration-031-local-after.png` | — | inline in iteration log |
 | 032  | MM-032 | (same as iter-031 reference) | `.reverse-match/screenshots/iteration-032-local-after.png` | — | inline in iteration log |
 | 033  | MM-033 | (probed live) | `.reverse-match/screenshots/iteration-033-local-after.png` | — | inline in iteration log (9-row dur/length/speed table) |
+| 034  | MM-034 | (probed live) | `.reverse-match/screenshots/iteration-034-local-after.png` | — | inline in iteration log (9-row x/y diff table) |
 
 ---
 
